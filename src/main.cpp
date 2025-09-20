@@ -11,7 +11,7 @@ int main(int argc, char* argv[]) {
 
 // Here we should call the parser
 	ConfigParser parser(config_file);
-	parser.parseConfig();
+	ServerConfig server = parser.parseConfig();
 
 
     } catch (const std::exception& e) {

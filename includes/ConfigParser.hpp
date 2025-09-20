@@ -16,6 +16,7 @@ public:
 
 private:
     bool readFile();
+    void tokenize(const std::string& content);
 
     void throwParseError(const std::string& message);
 };

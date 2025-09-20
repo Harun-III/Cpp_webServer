@@ -1,0 +1,41 @@
+hello I'm the tokenizer
+And this is the file: 
+server {
+    # Listen on multiple interfaces
+    listen 127.0.0.1:8080;
+    listen 0.0.0.0:8081;
+    
+    # Error pages
+    error_page 404 /errors/404.html;
+    error_page 403 /errors/403.html;
+    
+    # Maximum client body size
+    max_client_body_size 3000000;
+    
+    # Root location
+    location / {
+        methods GET, POST;
+        root /var/www/html;
+        index index.html;
+        auto_index off;
+    }
+    
+    # Static files location
+    location /static {
+        methods GET;
+        root /var/www;
+        auto_index on;
+    }
+    
+    # Upload location
+    location /upload {
+        methods POST, DELETE;
+        root /var/www/html;
+        upload yes;
+        upload_location /var/www/uploads;
+        max_client_body_size 2000000;
+    }
+}
+
+And this should be the file wihtout comments
+server {          listen 127.0.0.1:8080;     listen 0.0.0.0:8081;               error_page 404 /errors/404.html;     error_page 403 /errors/403.html;               max_client_body_size 3000000;               location / {         methods GET, POST;         root /var/www/html;         index index.html;         auto_index off;     }               location /static {         methods GET;         root /var/www;         auto_index on;     }               location /upload {         methods POST, DELETE;         root /var/www/html;         upload yes;         upload_location /var/www/uploads;         max_client_body_size 2000000;     } } 
