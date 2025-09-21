@@ -1,4 +1,5 @@
 #include "../includes/ConfigParser.hpp"
+#include <cctype>
 #include <cstddef>
 #include <fstream>
 #include <iostream>
@@ -49,16 +50,24 @@ void ConfigParser::tokenize(const std::string& content) {
     //    }
 /****************************************************************************/
 /*
+    e.g.:
+	# this is a comment, testing
+	server {
+	    port 8080;
+	}
+
     1_ get rid of comments and '\n'
     e.g.:
 	# this is a comment, comments end with \n
+
+    So you will either encounter a white-space
+	a normal char of a special token ( "{" , "}" , ";")
     2_ Special character tokens:
 	Suppose your config file contains:
 	e.g.:
 	server {
 	    port 8080;
 	}
-	
 */
 
     bool in_comment = false;
@@ -91,25 +100,30 @@ void ConfigParser::tokenize(const std::string& content) {
 	    if (!ss.str().empty()) {
 		std::string token = ss.str();
 		trim(token);
+		// token="8080"
 		if (!token.empty()) {
 		    tokens.push_back(token);
 		}
 		ss.str("");
-		// token="8080"
+		tokens.push_back(std::string(1, c));
+	    }
+	} else if (std::isspace(c)) {
+	    std::string token = ss.str();
+	    trim(token);
+	    if (!token.empty()) {
+		tokens.push_back(token);
+	    }
+	    ss.str("");
+	} else {
+	    ss << c;
+	}
+    }
 /*********************************TESTS BLOCK********************************/
 size_t i = 0;
 for (auto it_b = tokens.begin(); it_b != tokens.end(); it_b++) {
     std::cout << ++i << " : " << *it_b << std::endl;
 }
 /****************************************************************************/
-		
-	    }
-	} else {
-	    ss << c;
-	}
-
-    }
-
 
 /*********************************TESTS BLOCK********************************/
 // std::cout << "\nAnd this should be the file wihtout comments nor \'\\n\'" << std::endl;
