@@ -106,8 +106,8 @@ void ConfigParser::tokenize(const std::string& content) {
 		    tokens.push_back(token);
 		}
 		ss.str("");
-		tokens.push_back(std::string(1, c));
 	    }
+	    tokens.push_back(std::string(1, c));
 	} else if (std::isspace(c)) {
 	    std::string token = ss.str();
 	    trim(token);
