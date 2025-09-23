@@ -82,7 +82,15 @@ ServerConfig ConfigParser::parseServer() {
     std::string directive = getCurrentToken();
         
     if (directive == "listen") {
-	// do logic
+	//'listen' 
+	incrementTokenIndex();
+	//'127.0.0.1:8080' ';'
+	std::string listen_value = getCurrentToken();
+/*********************************TESTS BLOCK********************************/
+    size_t i = 0;
+    std::cout << "listen directive number: " << i << " : " \
+	    << listen_value << std::endl;
+/****************************************************************************/
     } else if (directive == "error_page") {
 	// do logic
     } else if (directive == "max_client_body_size") {
@@ -94,6 +102,7 @@ ServerConfig ConfigParser::parseServer() {
     }
 
     return server;
+    }
 }
 
 void ConfigParser::incrementTokenIndex() {
@@ -115,7 +124,7 @@ bool ConfigParser::hasMoreTokens() {
 }
 
 bool ConfigParser::readFile() {
-    std::ifstream file(filename);
+    std::ifstream file(filename.c_str());
 
     if (!file.is_open()) {
 	return false;
@@ -228,20 +237,18 @@ void ConfigParser::tokenize(const std::string& content) {
 //     std::cout << *it_b;
 // }
 /****************************************************************************/
-
 }
 
 void ConfigParser::trim(std::string& s) {
     // leading white-space
-    while (!s.empty() && std::isspace(s.front()) ) {
+    while (!s.empty() && std::isspace(s[0])) {
         s.erase(s.begin());
     }
-    //trailing white-space
-    while (!s.empty() && std::isspace(s.back()) ) {
-        s.pop_back();
+    // trailing white-space
+    while (!s.empty() && std::isspace(s[s.size() - 1])) {
+        s.erase(s.end() - 1);
     }
 }
-
 
 void ConfigParser::throwParseError(const std::string& message) {
     throw std::runtime_error("Parse error: " + message);
