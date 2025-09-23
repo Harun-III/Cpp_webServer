@@ -1,4 +1,4 @@
-server {
-	listen 12123k:99999999
+hello server {
+	listen 12123k:9999               hello
 	# listen ip:port
 }

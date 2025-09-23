@@ -67,9 +67,6 @@ ServerConfig ConfigParser::parseServer() {
     incrementTokenIndex();
 
     // loop until '}'
-/*********************************TESTS BLOCK********************************/
-    // size_t i = 0;
-/****************************************************************************/
     while (hasMoreTokens() && getCurrentToken() != "}") {
 /*
     std::vector<std::pair<std::string, int> >	listen; // ip:port pairs
@@ -91,11 +88,16 @@ ServerConfig ConfigParser::parseServer() {
 	    //'127.0.0.1:8080' ';'
 	    std::string listen_value = getCurrentToken();
 	    std::pair<std::string, int> addr = parseListenDirective(listen_value);
-
-/*********************************TESTS BLOCK********************************/
-	//    std::cout << "listen directive number: " << ++i << " : " \
-	// << listen_value << std::endl;
-/****************************************************************************/
+	    server.addListen(addr.first, addr.second);
+	    incrementTokenIndex();
+	    // --> we should technically have ';'
+	    // So we should check for it
+	    std::string token = getCurrentToken();
+	    if (token != ";") {
+		throwParseError("Expected ';' but found '" + token + "'");
+	    }
+	    // jump over the ';' token
+	    incrementTokenIndex();
 	} else if (directive == "error_page") {
 	    // do logic
 	} else if (directive == "max_client_body_size") {
