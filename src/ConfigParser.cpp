@@ -100,15 +100,34 @@ ServerConfig ConfigParser::parseServer() {
 	    incrementTokenIndex();
 	} else if (directive == "error_page") {
 //   # Error pages
-//     error_page 404 /errors/404.html;
+//     error_page 404 405 /errors/404.html;
 //     error_page 403 /errors/403.html;
+	    incrementTokenIndex();
+            std::vector<int> error_codes = parseErrorCodes();
+            std::string page = getCurrentToken();
+/*********************************TESTS BLOCK********************************/
+std::cout << "page --> " << page << std::endl;
+/****************************************************************************/
+	    incrementTokenIndex();
 
+	    // check for ';'
+	    std::string token = getCurrentToken();
+	    if (token != ";") {
+		throwParseError("Expected ';' but found '" + token + "'");
+	    }
+	    // jump over the ';' token
+	    incrementTokenIndex();
+            
+            for (size_t i = 0; i < error_codes.size(); ++i) {
+                server.addErrorPage(error_codes[i], page);
+            }
 	} else if (directive == "max_client_body_size") {
 	    incrementTokenIndex();
             size_t size = static_cast<size_t>(std::atoi(getCurrentToken().c_str()));
             server.setMaxClientBodySize(size);
 
 	    incrementTokenIndex();
+	    // check for ';'
 	    std::string token = getCurrentToken();
 	    if (token != ";") {
 		throwParseError("Expected ';' but found '" + token + "'");
@@ -126,6 +145,49 @@ ServerConfig ConfigParser::parseServer() {
 std::cout << "server getMaxClientBodySize " << server.getMaxClientBodySize() << std::endl;
 /****************************************************************************/
     return server;
+}
+
+std::vector<int> ConfigParser::parseErrorCodes() {
+    std::vector<int> codes;
+    
+    bool firstLoop = true;
+    while (hasMoreTokens()) {
+        std::string token = getCurrentToken();
+/*********************************TESTS BLOCK********************************/
+std::cout << "token --> " << token << std::endl;
+/****************************************************************************/
+	if (!firstLoop) {
+	    if (token == ";" || !std::isdigit(token[0])) {
+		break;
+	    }
+	}
+	firstLoop = false;
+
+        // Check if entire token is numeric
+        bool isNumeric = true;
+        for (size_t i = 0; i < token.length(); ++i) {
+            if (!std::isdigit(token[i])) {
+                isNumeric = false;
+                break;
+            }
+        }
+        
+        if (!isNumeric) {
+            throwParseError("\"" + token +"\"" + " Token is not a valid number");
+        }
+        
+        int code = std::atoi(token.c_str());
+        
+        if (code >= 400 && code < 500) {
+            codes.push_back(code);
+        } else {
+            throwParseError("Error code is out of range (must be 4xx)");
+        }
+        
+        incrementTokenIndex();
+    }
+    
+    return codes;
 }
 
 std::pair<std::string, int> ConfigParser::parseListenDirective(const std::string& value) {

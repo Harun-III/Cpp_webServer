@@ -24,6 +24,8 @@ private:
 
     ServerConfig                    parseServer();
 
+    std::vector<int>                parseErrorCodes();
+
     std::pair<std::string, int>     parseListenDirective(const std::string& value);
 
     void                            incrementTokenIndex();

@@ -1,6 +1,5 @@
 hello server {
-	max_client_body_size 999;
-	blue ;
-	and flue listen 12123k:9999               ;
-	# listen ip:port
+	error_page 400;
 }
+
+

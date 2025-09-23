@@ -18,6 +18,9 @@ public:
     ServerConfig();
     ~ServerConfig();
 
+    void            addErrorPage(int error_code, const std::string& page);
+
+
     // setters
     void            addListen(const std::string& ip, int port);
     void            setMaxClientBodySize(size_t size);
