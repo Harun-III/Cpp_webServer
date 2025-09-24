@@ -1,16 +1,6 @@
 server {
-    listen 127.0.0.1:8080;
-    listen 0.0.0.0:8081;
-
-    error_page 404 /errors/404.html;
-    error_page 403 /errors/403.html;
-    error_page 400 401 /errors/4xx.html;
-
-    max_client_body_size 10000000;
-
     location /old-page {
-        return 301 /new-page.html;
-        auto_index off;
-        upload off;
+		methods get, hol , delete, POST;
+		#methods delete;
     }
 }

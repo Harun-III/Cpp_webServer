@@ -7,6 +7,7 @@
 #include <sstream>
 #include <stdexcept>
 #include <string>
+#include <vector>
 
 ConfigParser::ConfigParser(const std::string& filename) 
     : filename(filename) {
@@ -156,7 +157,7 @@ Location ConfigParser::parseLocation() {
     Location location;
 
 //TODO: maybe make these into a function since I used them alot
-    // check for ';'
+    // check for '{'
     std::string token = getCurrentToken();
     if (token != "{") {
 	throwParseError("Expected '{' but found '" + token + "'");
@@ -179,7 +180,27 @@ Location ConfigParser::parseLocation() {
         std::string directive = getCurrentToken();
         
         if (directive == "methods") {
-            
+	    incrementTokenIndex();
+
+	    // TODO: create setMethods() in class location
+
+/*********************************TESTS BLOCK********************************/
+	    std::vector<std::string> string_of_allowed_methods = parseMethodsList();
+	    std::cout << "Block locaiton: mthods are: " << std::endl;
+	    for (size_t i = 0; i < string_of_allowed_methods.size(); i++) {
+		std::cout << i + 1 << ": " << string_of_allowed_methods[i] << " ";
+	    }
+	    std::cout << std::endl;
+/****************************************************************************/
+	    // location.setMethods(parseMethodsList());
+	    // check for ';'
+	    std::string token = getCurrentToken();
+	    if (token != ";") {
+		throwParseError("Expected ';' but found '" + token + "'");
+	    }
+	    // jump over the ';' token
+	    incrementTokenIndex();
+
         } else if (directive == "root") {
             
         } else if (directive == "return") {
@@ -200,6 +221,35 @@ Location ConfigParser::parseLocation() {
     }
 
     return location;
+}
+
+std::vector<std::string> ConfigParser::parseMethodsList() {
+    //NOTE: e.g.: "POST," "DELETE" "," "get" ";"
+    std::vector<std::string> methods;
+
+    while (hasMoreTokens() && getCurrentToken() != ";") {
+        std::string method = getCurrentToken();
+	// if (method == ";") {
+	//     break;
+	// }
+	// remove ',' if there is one
+	if (!method.empty() && method[method.size() - 1] == ',') {
+	    method = method.substr(0, method.size() - 1);
+	}
+	if (isValidMethod(method)) {
+	    methods.push_back(method);
+	}
+	
+	incrementTokenIndex();
+    }
+    return methods;
+}
+
+bool ConfigParser::isValidMethod(const std::string& method) {
+    //NOTE: valid method: GET, POST, DELETE
+    return method == "GET" || method == "POST" || method == "DELETE" ||
+           method == "get" || method == "post" || method == "delete";
+
 }
 
 

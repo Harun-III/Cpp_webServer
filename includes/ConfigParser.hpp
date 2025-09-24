@@ -26,6 +26,8 @@ private:
 
     Location                        parseLocation();
 
+    std::vector<std::string>        parseMethodsList();
+
     std::vector<int>                parseErrorCodes();
 
     std::pair<std::string, int>     parseListenDirective(const std::string& value);
@@ -33,6 +35,8 @@ private:
     void                            incrementTokenIndex();
     std::string                     getCurrentToken();
     bool                            hasMoreTokens();
+
+    bool                            isValidMethod(const std::string& method);
 
     void                            trim(std::string& str);
     void                            throwParseError(const std::string& message);
