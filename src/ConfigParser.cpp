@@ -216,7 +216,15 @@ Location ConfigParser::parseLocation() {
 	    incrementTokenIndex();
             expectToken(";");
         } else if (directive == "upload") {
-            
+	    incrementTokenIndex();
+            std::string value = getCurrentToken();
+            location.setUpload(value == "yes" || value == "on" || value == "true");
+/*********************************TESTS BLOCK********************************/
+    std::cout << "location.Upload == " << 
+		(location.getUpload() ? "yes" : "no") << std::endl;
+/****************************************************************************/
+	    incrementTokenIndex();
+            expectToken(";");
         } else if (directive == "upload_location") {
 	    incrementTokenIndex();
 	    location.setUploadLocation(getCurrentToken());
