@@ -52,7 +52,7 @@ ServerConfig ConfigParser::parseServer() {
     ServerConfig server;
 
 /*********************************TESTS BLOCK********************************/
-    std::cout << "inside parseServer" << std::endl;
+    // std::cout << "inside parseServer" << std::endl;
 /****************************************************************************/
 
     // jump over the "server" token
@@ -105,9 +105,6 @@ ServerConfig ConfigParser::parseServer() {
 	    incrementTokenIndex();
             std::vector<int> error_codes = parseErrorCodes();
             std::string page = getCurrentToken();
-/*********************************TESTS BLOCK********************************/
-std::cout << "page --> " << page << std::endl;
-/****************************************************************************/
 	    incrementTokenIndex();
 
 	    // check for ';'
@@ -136,16 +133,75 @@ std::cout << "page --> " << page << std::endl;
 	    incrementTokenIndex();
     // do logic
 	} else if (directive == "location") {
-	    // do logic
+	    incrementTokenIndex();
+	    std::string path = getCurrentToken();
+	    incrementTokenIndex();
+	    Location location = parseLocation();
+
+/*  TODO: create: [in ServerConfig]
+	std::map<std::string, Location>          locations;
+*/ 
+	    //server.addLocation(path, location);
 	} else {
 	    incrementTokenIndex();
 	}
     }
 /*********************************TESTS BLOCK********************************/
-std::cout << "server getMaxClientBodySize " << server.getMaxClientBodySize() << std::endl;
+// std::cout << "server getMaxClientBodySize " << server.getMaxClientBodySize() << std::endl;
 /****************************************************************************/
     return server;
 }
+
+Location ConfigParser::parseLocation() {
+    Location location;
+
+//TODO: maybe make these into a function since I used them alot
+    // check for ';'
+    std::string token = getCurrentToken();
+    if (token != "{") {
+	throwParseError("Expected '{' but found '" + token + "'");
+    }
+    // jump over the '{' token
+    incrementTokenIndex();
+
+/* NOTE: location directives: 
+    std::vector<std::string>              methods; // Allowed methods (GET, POST, DELETE)
+    std::string                           root; // Root directory for this location
+    std::pair<int, std::string>           return_directive; // status code, redirect URL
+    std::string                           index; // Default file to serve (index.html)
+    bool                                  auto_index; // Enable/disable directory listing
+    bool                                  upload; // Allow file uploads
+    std::string                           upload_location; // Directory to store uploaded files
+    std::map<std::string, std::string>    cgi; // extension -> cgi path
+*/
+
+    while (hasMoreTokens() && getCurrentToken() != "}") {
+        std::string directive = getCurrentToken();
+        
+        if (directive == "methods") {
+            
+        } else if (directive == "root") {
+            
+        } else if (directive == "return") {
+            
+        } else if (directive == "index") {
+            
+        } else if (directive == "auto_index") {
+            
+        } else if (directive == "upload") {
+            
+        } else if (directive == "upload_location") {
+            
+        } else if (directive == "cgi") {
+            
+        } else {
+            
+        }
+    }
+
+    return location;
+}
+
 
 std::vector<int> ConfigParser::parseErrorCodes() {
     std::vector<int> codes;
@@ -154,7 +210,7 @@ std::vector<int> ConfigParser::parseErrorCodes() {
     while (hasMoreTokens()) {
         std::string token = getCurrentToken();
 /*********************************TESTS BLOCK********************************/
-std::cout << "token --> " << token << std::endl;
+// std::cout << "token --> " << token << std::endl;
 /****************************************************************************/
 	if (!firstLoop) {
 	    if (token == ";" || !std::isdigit(token[0])) {

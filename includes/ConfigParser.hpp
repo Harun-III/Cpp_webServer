@@ -24,6 +24,8 @@ private:
 
     ServerConfig                    parseServer();
 
+    Location                        parseLocation();
+
     std::vector<int>                parseErrorCodes();
 
     std::pair<std::string, int>     parseListenDirective(const std::string& value);
