@@ -193,14 +193,9 @@ Location ConfigParser::parseLocation() {
 /****************************************************************************/
 	    location.setMethods(parseMethodsList());
 	    // check for ';'
-	    std::string token = getCurrentToken();
-	    if (token != ";") {
-		throwParseError("Expected ';' but found '" + token + "'");
-	    }
-	    // jump over the ';' token
-	    incrementTokenIndex();
-
+	    expectToken(";");
         } else if (directive == "root") {
+	    incrementTokenIndex();
             
         } else if (directive == "return") {
             
@@ -221,6 +216,15 @@ Location ConfigParser::parseLocation() {
 
     return location;
 }
+
+void ConfigParser::expectToken(const std::string& expected) {
+    std::string token = getCurrentToken();
+    if (token != expected) {
+	throwParseError("Expected '" + expected + "' but found '" + token + "'");
+    }
+    incrementTokenIndex();
+}
+
 
 std::vector<std::string> ConfigParser::parseMethodsList() {
     //NOTE: e.g.: "POST," "DELETE" "," "get" ";"

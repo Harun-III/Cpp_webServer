@@ -35,6 +35,8 @@ private:
     void                            incrementTokenIndex();
     std::string                     getCurrentToken();
     bool                            hasMoreTokens();
+    void                            expectToken(const std::string& expected);
+
 
     bool                            isValidMethod(const std::string& method);
 
