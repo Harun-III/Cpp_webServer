@@ -137,8 +137,7 @@ ServerConfig ConfigParser::parseServer() {
 	    incrementTokenIndex();
 	    std::string path = getCurrentToken();
 	    Location location = parseLocation();
-/*  TODO: */ 
-	    //server.addLocation(path, location);
+	    server.addLocation(path, location);
 	} else {
 	    incrementTokenIndex();
 	}
@@ -271,6 +270,7 @@ Location ConfigParser::parseLocation() {
 	    incrementTokenIndex();
         }
     }
+
     expectToken("}");
     return location;
 }

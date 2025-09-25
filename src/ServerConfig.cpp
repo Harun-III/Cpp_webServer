@@ -19,6 +19,10 @@ void ServerConfig::setMaxClientBodySize(size_t size) {
     this->max_client_body_size = size;
 }
 
+void ServerConfig::addLocation(const std::string& path, const Location& location) {
+    locations[path] = location;
+}
+
 // getters
 size_t ServerConfig::getMaxClientBodySize() const {
     return max_client_body_size;

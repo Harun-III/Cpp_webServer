@@ -24,6 +24,7 @@ public:
     // setters
     void            addListen(const std::string& ip, int port);
     void            setMaxClientBodySize(size_t size);
+    void            addLocation(const std::string& path, const Location& location);
 
     // getters
     size_t          getMaxClientBodySize() const;

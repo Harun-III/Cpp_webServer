@@ -39,7 +39,6 @@ void Location::addCgi(const std::string& extension, const std::string& path) {
     cgi[extension] = path;
 }
 
-
 // Getters
 const std::string&	Location::getRoot() const {
     return root;
