@@ -136,7 +136,6 @@ ServerConfig ConfigParser::parseServer() {
 	} else if (directive == "location") {
 	    incrementTokenIndex();
 	    std::string path = getCurrentToken();
-	    incrementTokenIndex();
 	    Location location = parseLocation();
 /*  TODO: */ 
 	    //server.addLocation(path, location);
@@ -152,11 +151,11 @@ ServerConfig ConfigParser::parseServer() {
 
 Location ConfigParser::parseLocation() {
 /*********************************TESTS BLOCK********************************/
-std::cout << "tokens are: \n" << std::endl;
-for (auto b = tokens.begin(); b != tokens.end(); b++) {
-    std::cout << "\"" << *b << "\" ";
-}
-std::cout << std::endl;
+// std::cout << "tokens are: \n" << std::endl;
+// for (auto b = tokens.begin(); b != tokens.end(); b++) {
+//     std::cout << "\"" << *b << "\" ";
+// }
+// std::cout << std::endl;
 /****************************************************************************/
     Location location;
 
@@ -206,12 +205,23 @@ std::cout << std::endl;
 	    incrementTokenIndex();
             expectToken(";");
         } else if (directive == "return") {
-            
+            std::pair<int, std::string> ret = parseReturnDirective();
+/*********************************TESTS BLOCK********************************/
+// std::cout << "Return: \n" << "\tcode: " << ret.first <<
+// 		"\n\tPath: " << ret.second << location.getRoot() << std::endl;
+/****************************************************************************/
+	    location.setReturn(ret.first, ret.second);
+/*********************************TESTS BLOCK********************************/
+std::pair<int, std::string> test_ret = location.getReturn();
+std::cout << "code: " << test_ret.first << std::endl;
+std::cout << "Path: " << test_ret.second << std::endl;
+/****************************************************************************/
+            expectToken(";");
         } else if (directive == "index") {
 	    incrementTokenIndex();
             location.setIndex(getCurrentToken());
 /*********************************TESTS BLOCK********************************/
-std::cout << "location.index == " << location.getIndex() << std::endl;
+// std::cout << "location.index == " << location.getIndex() << std::endl;
 /****************************************************************************/
 	    incrementTokenIndex();
             expectToken(";");
@@ -253,7 +263,7 @@ std::cout << "location.index == " << location.getIndex() << std::endl;
     expectToken("}");
     return location;
 }
-
+	    
 void ConfigParser::expectToken(const std::string& expected) {
     std::string token = getCurrentToken();
 
@@ -263,6 +273,18 @@ void ConfigParser::expectToken(const std::string& expected) {
     incrementTokenIndex();
 }
 
+std::pair<int, std::string> ConfigParser::parseReturnDirective() {
+    incrementTokenIndex();
+    int status_code = std::atoi(getCurrentToken().c_str());
+    if (status_code <= 0 || status_code >= 600) {
+	throwParseError("Error code is out of range");
+    }
+    incrementTokenIndex();
+    std::string url = getCurrentToken();
+    incrementTokenIndex();
+    
+    return std::make_pair(status_code, url);
+}
 
 std::vector<std::string> ConfigParser::parseMethodsList() {
     //NOTE: e.g.: "POST," "DELETE" "," "get" "GET" ";"

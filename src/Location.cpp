@@ -31,6 +31,10 @@ void Location::setIndex(const std::string& index) {
     this->index = index;
 }
 
+void Location::setReturn(int status, const std::string& url) {
+    return_directive = std::make_pair(status, url);
+}
+
 
 // Getters
 const std::string&	Location::getRoot() const {
@@ -51,5 +55,9 @@ bool			Location::getUpload() const {
 
 const std::string&	Location::getIndex() const {
     return index;
+}
+
+const std::pair<int, std::string>& Location::getReturn() const {
+    return return_directive;
 }
 
