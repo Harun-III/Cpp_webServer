@@ -138,10 +138,7 @@ ServerConfig ConfigParser::parseServer() {
 	    std::string path = getCurrentToken();
 	    incrementTokenIndex();
 	    Location location = parseLocation();
-
-/*  TODO: create: [in ServerConfig]
-	std::map<std::string, Location>          locations;
-*/ 
+/*  TODO: */ 
 	    //server.addLocation(path, location);
 	} else {
 	    incrementTokenIndex();
@@ -154,6 +151,13 @@ ServerConfig ConfigParser::parseServer() {
 }
 
 Location ConfigParser::parseLocation() {
+/*********************************TESTS BLOCK********************************/
+std::cout << "tokens are: \n" << std::endl;
+for (auto b = tokens.begin(); b != tokens.end(); b++) {
+    std::cout << "\"" << *b << "\" ";
+}
+std::cout << std::endl;
+/****************************************************************************/
     Location location;
 
 //TODO: maybe make these into a function since I used them alot
@@ -204,14 +208,20 @@ Location ConfigParser::parseLocation() {
         } else if (directive == "return") {
             
         } else if (directive == "index") {
-            
+	    incrementTokenIndex();
+            location.setIndex(getCurrentToken());
+/*********************************TESTS BLOCK********************************/
+std::cout << "location.index == " << location.getIndex() << std::endl;
+/****************************************************************************/
+	    incrementTokenIndex();
+            expectToken(";");
         } else if (directive == "auto_index") {
 	    incrementTokenIndex();
             std::string value = getCurrentToken();
             location.setAutoIndex(value == "on" || value == "yes" || value == "true");
 /*********************************TESTS BLOCK********************************/
-    std::cout << "location.auto_index == " << 
-		(location.getAutoIndex() ? "yes" : "no") << std::endl;
+//   std::cout << "location.auto_index == " << 
+// (location.getAutoIndex() ? "yes" : "no") << std::endl;
 /****************************************************************************/
 	    incrementTokenIndex();
             expectToken(";");
@@ -220,8 +230,8 @@ Location ConfigParser::parseLocation() {
             std::string value = getCurrentToken();
             location.setUpload(value == "yes" || value == "on" || value == "true");
 /*********************************TESTS BLOCK********************************/
-    std::cout << "location.Upload == " << 
-		(location.getUpload() ? "yes" : "no") << std::endl;
+//   std::cout << "location.Upload == " << 
+// (location.getUpload() ? "yes" : "no") << std::endl;
 /****************************************************************************/
 	    incrementTokenIndex();
             expectToken(";");

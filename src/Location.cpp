@@ -27,6 +27,11 @@ void Location::setUpload(bool upload) {
     this->upload = upload;
 }
 
+void Location::setIndex(const std::string& index) {
+    this->index = index;
+}
+
+
 // Getters
 const std::string&	Location::getRoot() const {
     return root;
@@ -43,3 +48,8 @@ bool			Location::getAutoIndex() const {
 bool			Location::getUpload() const {
     return upload;
 }
+
+const std::string&	Location::getIndex() const {
+    return index;
+}
+

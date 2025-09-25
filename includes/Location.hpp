@@ -26,12 +26,14 @@ public:
     void                        setUploadLocation(const std::string& location);
     void                        setAutoIndex(bool auto_index);
     void                        setUpload(bool upload);
+    void                        setIndex(const std::string& index);
 
     // Getters
     const std::string&          getRoot() const;
     const std::string&          getUploadLocation() const;
     bool                        getAutoIndex() const;
     bool                        getUpload() const;
+    const std::string&          getIndex() const;
 
 
 };
