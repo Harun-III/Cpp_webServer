@@ -212,9 +212,9 @@ Location ConfigParser::parseLocation() {
 /****************************************************************************/
 	    location.setReturn(ret.first, ret.second);
 /*********************************TESTS BLOCK********************************/
-std::pair<int, std::string> test_ret = location.getReturn();
-std::cout << "code: " << test_ret.first << std::endl;
-std::cout << "Path: " << test_ret.second << std::endl;
+// std::pair<int, std::string> test_ret = location.getReturn();
+// std::cout << "code: " << test_ret.first << std::endl;
+// std::cout << "Path: " << test_ret.second << std::endl;
 /****************************************************************************/
             expectToken(";");
         } else if (directive == "index") {
@@ -253,13 +253,24 @@ std::cout << "Path: " << test_ret.second << std::endl;
 /****************************************************************************/
 	    incrementTokenIndex();
             expectToken(";");
-        } else if (directive == "cgi") {
-            
-        } else {
+	} else if (directive == "cgi") {
+	    incrementTokenIndex();
+	    std::string extension = getCurrentToken();
+	    incrementTokenIndex();
+	    std::string path = getCurrentToken();
+	    location.addCgi(extension, path);
+/*********************************TESTS BLOCK********************************/
+// std::map<std::string, std::string>::const_iterator it = location.getCgi().begin();
+// for (; it != location.getCgi().end() ; it++) {
+//     std::cout << it->first << ": " << it->second << std::endl;
+// }
+/****************************************************************************/
+	    incrementTokenIndex();
+	    expectToken(";");
+	} else {
 	    incrementTokenIndex();
         }
     }
-
     expectToken("}");
     return location;
 }

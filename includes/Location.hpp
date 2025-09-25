@@ -28,6 +28,8 @@ public:
     void                                setUpload(bool upload);
     void                                setIndex(const std::string& index);
     void                                setReturn(int status, const std::string& url);
+    void                                addCgi(const std::string& extension, const std::string& path);
+
 
     // Getters
     const std::string&                  getRoot() const;
@@ -36,6 +38,7 @@ public:
     bool                                getUpload() const;
     const std::string&                  getIndex() const;
     const std::pair<int, std::string>&  getReturn() const;
+    const std::map<std::string, std::string>& getCgi() const;
 
 
 

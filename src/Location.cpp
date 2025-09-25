@@ -35,6 +35,10 @@ void Location::setReturn(int status, const std::string& url) {
     return_directive = std::make_pair(status, url);
 }
 
+void Location::addCgi(const std::string& extension, const std::string& path) {
+    cgi[extension] = path;
+}
+
 
 // Getters
 const std::string&	Location::getRoot() const {
@@ -59,5 +63,9 @@ const std::string&	Location::getIndex() const {
 
 const std::pair<int, std::string>& Location::getReturn() const {
     return return_directive;
+}
+
+const std::map<std::string, std::string>& Location::getCgi() const {
+    return cgi;
 }
 

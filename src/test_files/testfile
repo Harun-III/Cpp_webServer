@@ -2,7 +2,9 @@ server {
 	location {
 		index page.html;
 		#return aa www.new.path;
-		return 300 www.new.path;
+		#return 300 www.new.path;
+		cgi .py /path/to/python;
+		cgi .sh /bin/bash;
 	}
 
 }
