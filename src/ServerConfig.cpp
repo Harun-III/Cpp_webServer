@@ -24,7 +24,20 @@ void ServerConfig::addLocation(const std::string& path, const Location& location
 }
 
 // getters
+const std::vector<std::pair<std::string, int> >& ServerConfig::getListen() const {
+    return listen;
+}
+
+const std::map<std::string, Location>& ServerConfig::getLocations() const {
+    return locations;
+}
+
+const std::map<int, std::string>& ServerConfig::getErrorPages() const {
+    return error_pages;
+}
+
 size_t ServerConfig::getMaxClientBodySize() const {
     return max_client_body_size;
 }
+
 

@@ -32,6 +32,7 @@ public:
 
 
     // Getters
+    const std::vector<std::string>&     getMethods() const;
     const std::string&                  getRoot() const;
     const std::string&                  getUploadLocation() const;
     bool                                getAutoIndex() const;

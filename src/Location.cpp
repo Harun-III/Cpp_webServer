@@ -40,6 +40,10 @@ void Location::addCgi(const std::string& extension, const std::string& path) {
 }
 
 // Getters
+const std::vector<std::string>& Location::getMethods() const {
+    return methods;
+}
+
 const std::string&	Location::getRoot() const {
     return root;
 }

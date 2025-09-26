@@ -16,37 +16,29 @@ ConfigParser::ConfigParser(const std::string& filename)
 ConfigParser::~ConfigParser() {
 }
 
-ServerConfig ConfigParser::parseConfig() {
-    ServerConfig    server;
+std::vector<ServerConfig> ConfigParser::parseConfig() {
+    std::vector<ServerConfig> servers;
 
     if (!readFile()) {
         throwParseError("Could not read configuration file: " + filename);
     }
 
-    // loop over tokens and do logic
-    // Look for the first and only server block
     currentTokenIndex = 0;
 
-    bool serverFound = false;
     while (hasMoreTokens()) {
-	std::string token = getCurrentToken();
-	if (token == "server") {
-	    if (serverFound) {
-		throwParseError("Multiple server blocks found");
-	    }
-	    // parseserver
-	    server = parseServer();
-
-	    serverFound = true;
-	}
-	incrementTokenIndex();
+        std::string token = getCurrentToken();
+        if (token == "server") {
+            servers.push_back(parseServer());
+        } else {
+	    incrementTokenIndex();
+        }
     }
 
-    if (!serverFound) {
-	throwParseError("No server block found in configuration");
+    if (servers.empty()) {
+        throwParseError("No server blocks found in configuration");
     }
 
-    return server;
+    return servers;
 }
 
 ServerConfig ConfigParser::parseServer() {
@@ -136,6 +128,7 @@ ServerConfig ConfigParser::parseServer() {
 	} else if (directive == "location") {
 	    incrementTokenIndex();
 	    std::string path = getCurrentToken();
+	    incrementTokenIndex();
 	    Location location = parseLocation();
 	    server.addLocation(path, location);
 	} else {

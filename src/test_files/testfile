@@ -1,3 +1,23 @@
+res line
+
+
+
+
+server {
+	ho	
+	listen 11.11.11.11:8899;
+	listen 11.11.11.11:8888;
+
+	location {
+		host_name: 
+		index page.html;
+		#return aa www.new.path;
+		#return 300 www.new.path;
+		cgi .py /path/to/python;
+		cgi .sh /bin/bash;
+	}
+}
+
 server {
 	location {
 		index page.html;

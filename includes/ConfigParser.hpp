@@ -16,20 +16,16 @@ public:
     ConfigParser(const std::string& filename);
     ~ConfigParser();
 
-    ServerConfig parseConfig();
+    std::vector<ServerConfig> parseConfig();
 
 private:
     bool                            readFile();
     void                            tokenize(const std::string& content);
 
     ServerConfig                    parseServer();
-
     Location                        parseLocation();
-
     std::vector<std::string>        parseMethodsList();
-
     std::vector<int>                parseErrorCodes();
-
     std::pair<std::string, int>     parseListenDirective(const std::string& value);
     std::pair<int, std::string>     parseReturnDirective();
 
@@ -37,7 +33,6 @@ private:
     std::string                     getCurrentToken();
     bool                            hasMoreTokens();
     void                            expectToken(const std::string& expected);
-
 
     bool                            isValidMethod(const std::string& method);
 

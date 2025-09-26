@@ -27,7 +27,11 @@ public:
     void            addLocation(const std::string& path, const Location& location);
 
     // getters
+    const std::vector<std::pair<std::string, int> >&    getListen() const;
+    const std::map<int, std::string>&                   getErrorPages() const;
+    const std::map<std::string, Location>&              getLocations() const;
     size_t          getMaxClientBodySize() const;
+
 
 };
 
