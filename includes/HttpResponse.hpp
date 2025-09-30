@@ -10,7 +10,6 @@ private:
     int                                 status_code;
     std::string                         status_message;
     std::map<std::string, std::string>  headers;
-    std::string                         body;
     std::string                         http_version;
 
 public:
@@ -28,7 +27,6 @@ public:
     std::string toString() const;
 
     static std::string getStatusText(int code);
-
 };
 
 #endif
