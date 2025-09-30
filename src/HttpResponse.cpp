@@ -1,6 +1,6 @@
 #include "../includes/HttpResponse.hpp"
 
-HttpResponse::HttpResponse() {
+HttpResponse::HttpResponse() : http_version("HTTP/1.0") {
 }
 
 HttpResponse::~HttpResponse() {
