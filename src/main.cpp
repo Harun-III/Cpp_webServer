@@ -1,8 +1,10 @@
+#include <filesystem>
 #include <iostream>
 #include <vector>
 #include "../includes/ConfigParser.hpp"
 #include "../includes/ServerConfig.hpp"
 #include "../includes/HttpResponseBuilder.hpp"
+#include "../includes/HttpResponse.hpp"
 
 void printServers(const std::vector<ServerConfig>& servers);
 
@@ -17,6 +19,7 @@ int main(int argc, char* argv[]) {
 	ConfigParser parser(config_file);
 	std::vector<ServerConfig> servers = parser.parseConfig();
 
+/*********************************TESTS BLOCK********************************/
 //NOTE: Building response
         HttpRequestData request;
         // Makeshift request
@@ -28,6 +31,17 @@ int main(int argc, char* argv[]) {
     //TODO: need a mechanism to determin which server to use
         HttpResponseBuilder builder(servers[0]);
         // HttpResponse response = builder.buildResponse(request);
+    //NOTE: At the time let's consider that the line above is done
+    //NOTE: my goal at the moment is to generate a response
+        // Makeshift response
+        HttpResponse response;
+        response.setStatusCode(204);
+
+        std::cout << response.toString() << std::endl;
+/****************************************************************************/
+
+
+
 
 /*********************************TESTS BLOCK********************************/
 /************************* print servers after parse ************************/

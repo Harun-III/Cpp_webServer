@@ -3,6 +3,7 @@
 
 #include <string>
 #include <map>
+#include <sstream>
 
 class HttpResponse {
 private:
@@ -15,6 +16,19 @@ private:
 public:
     HttpResponse();
     ~HttpResponse();
+
+    void setStatusCode(int code);
+    void setStatusMessage(const std::string& message);
+    
+    // Getters
+    int getStatusCode() const;
+    const std::string& getStatusMessage() const;
+
+    // Build the HTTP response string
+    std::string toString() const;
+
+    static std::string getStatusText(int code);
+
 };
 
 #endif
