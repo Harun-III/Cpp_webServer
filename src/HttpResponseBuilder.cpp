@@ -53,6 +53,7 @@ HttpResponse HttpResponseBuilder::buildResponse(Client& client) {
 }
 
 HttpResponse HttpResponseBuilder::handleGet(const HttpRequest& request, const Location& location) {
+    HttpResponse response;
     std::string full_path = request.full_path;
 
 /******** //NOTE: TESTING *********/
@@ -60,18 +61,26 @@ full_path = "./test_files/path_test_in_get";
 /**********************************/
 
 /*
-Check if path exists
-    if not 404
-Check if it's a directory
-    if index --> serve index
-    if auto_index --> list files in dir
-else return error page
- 
+//NOTE:
+    Check if path exists
+        if not 404
+    Check if it's a directory
+        if index --> serve index
+        if auto_index --> list files in dir
+    else return error page
 */
+
+    // Check if path exists
+    if (! static_handler.fileExists(full_path)) {
+        response.setStatusCode(404);
+        return response;
+    }
+
+
+    
    
 /******** //NOTE: TESTING *********/
-    HttpResponse response;
-    response.setStatusCode(400);
+    response.setStatusCode(900);
     return response;
 /**********************************/
 }
