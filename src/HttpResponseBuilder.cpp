@@ -45,7 +45,8 @@ HttpResponse HttpResponseBuilder::buildResponse(Client& client) {
     }
 
 
-//NOTE: these lines are here just to supress the worning from the compiler
+//NOTE: these lines are here just to suppress the warning from the compiler
+// and it will work as default response
     HttpResponse response;
     response.setStatusCode(200);
     return response;
@@ -53,7 +54,20 @@ HttpResponse HttpResponseBuilder::buildResponse(Client& client) {
 
 HttpResponse HttpResponseBuilder::handleGet(const HttpRequest& request, const Location& location) {
     std::string full_path = request.full_path;
-    //TODO: create class to do checks on static files
+
+/******** //NOTE: TESTING *********/
+full_path = "./test_files/path_test_in_get";
+/**********************************/
+
+/*
+Check if path exists
+    if not 404
+Check if it's a directory
+    if index --> serve index
+    if auto_index --> list files in dir
+else return error page
+ 
+*/
    
 /******** //NOTE: TESTING *********/
     HttpResponse response;

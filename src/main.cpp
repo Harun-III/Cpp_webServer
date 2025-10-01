@@ -42,7 +42,7 @@ int main(int argc, char* argv[]) {
         test_client_001.location.setReturn(301, "https://example.com");
         test_client_001.location.addCgi(".php", "/usr/bin/php-cgi");
 
-        // test_client_001.request.method = "GET";
+        test_client_001.request.method = "GET";
 
         HttpResponse response = builder.buildResponse(test_client_001);
 

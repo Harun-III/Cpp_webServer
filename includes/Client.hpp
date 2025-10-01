@@ -11,6 +11,9 @@ private:
 
 public:
 
+    //NOTE: location should be under "HttpRequest"
+    // I'v put it here since I don't have access to request yet
+        Location        location;
     HttpRequest  request;
 
     int          client_fd;      // Client socket file descriptor
@@ -20,9 +23,6 @@ public:
     std::string  snd_buffer;     // Outgoing data buffer
     // ClientState  state;          // Current processing state (READING/PROCESSING/SENDING/FINISHED)
     // HttpRequest  request;
-    //NOTE: location should be under "HttpRequest"
-    // I'v put it here since I don't have access to request yet
-        Location        location;
     HttpResponse response;
 };
 
