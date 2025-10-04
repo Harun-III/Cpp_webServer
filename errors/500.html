@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>500 - SYSTEM ERROR</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@300;400;500;700&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #1a0000 0%, #330000 50%, #1a0000 100%);
+            font-family: 'Fira Code', 'Courier New', monospace;
+            color: #ff3333;
+            height: 100vh;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .error-lines {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0.1;
+            z-index: 1;
+            background: repeating-linear-gradient(
+                0deg,
+                transparent 0px,
+                transparent 2px,
+                #ff3333 2px,
+                #ff3333 4px
+            );
+            animation: scroll 20s linear infinite;
+        }
+        
+        @keyframes scroll {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(20px); }
+        }
+        
+        .container {
+            position: relative;
+            z-index: 2;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            text-align: center;
+            padding: 20px;
+        }
+        
+        .error-code {
+            font-size: clamp(4rem, 15vw, 12rem);
+            font-weight: 700;
+            color: #ff0000;
+            text-shadow: 
+                0 0 10px #ff0000,
+                0 0 20px #ff0000,
+                0 0 40px #ff0000;
+            animation: flicker 2s infinite;
+            margin-bottom: 2rem;
+            filter: brightness(1.2);
+        }
+        
+        @keyframes flicker {
+            0%, 18%, 22%, 25%, 53%, 57%, 100% {
+                opacity: 1;
+                text-shadow: 
+                    0 0 10px #ff0000,
+                    0 0 20px #ff0000,
+                    0 0 40px #ff0000;
+            }
+            20%, 24%, 55% {
+                opacity: 0.5;
+                text-shadow: none;
+            }
+        }
+        
+        .error-title {
+            font-size: clamp(1.5rem, 4vw, 3rem);
+            margin-bottom: 1.5rem;
+            color: #ffaaaa;
+            text-transform: uppercase;
+            letter-spacing: 0.2em;
+            animation: pulse 2s infinite;
+        }
+        
+        .error-message {
+            font-size: clamp(1rem, 2.5vw, 1.5rem);
+            margin-bottom: 2rem;
+            color: #cc6666;
+            max-width: 800px;
+            line-height: 1.6;
+        }
+        
+        .terminal {
+            background: rgba(0, 0, 0, 0.9);
+            border: 2px solid #ff3333;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 2rem 0;
+            max-width: 700px;
+            text-align: left;
+            box-shadow: 
+                0 0 20px rgba(255, 51, 51, 0.4),
+                inset 0 0 20px rgba(255, 51, 51, 0.1);
+        }
+        
+        .terminal-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #444;
+        }
+        
+        .terminal-button {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+        
+        .close { background: #ff5555; }
+        .minimize { background: #ffff55; }
+        .maximize { background: #55ff55; }
+        
+        .terminal-title {
+            color: #ff3333;
+            font-size: 0.9rem;
+            margin-left: 15px;
+        }
+        
+        .terminal-content {
+            font-family: 'Fira Code', monospace;
+            font-size: 0.85rem;
+            line-height: 1.4;
+        }
+        
+        .prompt {
+            color: #ff3333;
+        }
+        
+        .error-text {
+            color: #ff6666;
+        }
+        
+        .stack-trace {
+            color: #ff9999;
+            margin-left: 20px;
+            font-size: 0.8rem;
+        }
+        
+        .critical {
+            color: #ff0000;
+            font-weight: bold;
+            animation: blink 1s infinite;
+        }
+        
+        @keyframes blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0.3; }
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+        
+        .footer {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: #444;
+            font-size: 0.8rem;
+        }
+        
+        .back-button {
+            display: inline-block;
+            background: linear-gradient(45deg, #ff3333, #cc0000);
+            color: #fff;
+            text-decoration: none;
+            padding: 12px 24px;
+            border-radius: 5px;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all 0.3s ease;
+            margin-top: 2rem;
+            box-shadow: 0 0 15px rgba(255, 51, 51, 0.3);
+        }
+        
+        .back-button:hover {
+            background: linear-gradient(45deg, #cc0000, #ff3333);
+            box-shadow: 0 0 25px rgba(255, 51, 51, 0.6);
+            transform: translateY(-2px);
+        }
+        
+        @media (max-width: 768px) {
+            .terminal {
+                margin: 1rem;
+                padding: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="error-lines"></div>
+    <div class="container">
+        <div class="error-code">500</div>
+        <h1 class="error-title">SYSTEM ERROR</h1>
+        <p class="error-message">
+            Internal server error occurred. The system has encountered an unexpected condition.<br>
+            Please try again later or contact the administrator.
+        </p>
+        
+        <div class="terminal">
+            <div class="terminal-header">
+                <div class="terminal-button close"></div>
+                <div class="terminal-button minimize"></div>
+                <div class="terminal-button maximize"></div>
+                <div class="terminal-title">ERROR LOG - webserv</div>
+            </div>
+            <div class="terminal-content">
+                <div><span class="prompt">[ERROR]</span> <span class="error-text">Internal server error at 2024-01-15 14:23:07</span></div>
+                <div class="stack-trace">→ Exception in thread "main"</div>
+                <div class="stack-trace">→ at webserv.core.RequestHandler:127</div>
+                <div class="stack-trace">→ at webserv.http.ResponseBuilder:89</div>
+                <div><span class="prompt">[CRITICAL]</span> <span class="critical">PROCESS_TERMINATED</span></div>
+                <div><span class="prompt">[STATUS]</span> <span class="error-text">HTTP/1.0 500 Internal Server Error</span></div>
+                <div><span class="prompt">[ACTION]</span> <span class="error-text">Attempting automatic recovery...</span></div>
+            </div>
+        </div>
+        
+        <a href="/" class="back-button">Return to Base</a>
+    </div>
+    
+    <div class="footer">
+        WebServ/1.0 • C++ HTTP Server • Emergency Protocol Active
+    </div>
+</body>
+</html>

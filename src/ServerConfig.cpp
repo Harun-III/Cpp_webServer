@@ -1,4 +1,4 @@
-#include "../includes/ServerConfig.hpp"
+#include "ServerConfig.hpp"
 
 ServerConfig::ServerConfig() : max_client_body_size(10100100) {
 }

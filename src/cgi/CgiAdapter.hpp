@@ -1,0 +1,1 @@
+// CgiAdapter.hpp

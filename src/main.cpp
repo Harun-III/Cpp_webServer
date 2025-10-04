@@ -1,7 +1,7 @@
 #include <iostream>
 #include <vector>
-#include "../includes/ConfigParser.hpp"
-#include "../includes/ServerConfig.hpp"
+#include "ConfigParser.hpp"
+#include "ServerConfig.hpp"
 
 void printServers(const std::vector<ServerConfig>& servers);
 
@@ -10,7 +10,7 @@ int main(int argc, char* argv[]) {
 	std::string config_file = "config/webserv.conf";
 
 	if (argc > 1) {
-	    config_file = argv[1];
+        config_file = argv[1];
 	}
 
 	ConfigParser parser(config_file);
@@ -26,7 +26,6 @@ int main(int argc, char* argv[]) {
 	return 1;
     }
 }
-
 
 void printServers(const std::vector<ServerConfig>& servers) {
     for (size_t i = 0; i < servers.size(); ++i) {

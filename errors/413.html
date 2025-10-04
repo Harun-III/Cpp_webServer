@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>413 - PAYLOAD TOO LARGE</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@300;400;500;700&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #001122 0%, #003344 50%, #004466 100%);
+            font-family: 'Fira Code', 'Courier New', monospace;
+            color: #00aaff;
+            min-height: 100vh;
+            overflow-x: hidden;
+            overflow-y: auto;
+            position: relative;
+        }
+        
+        .data-stream {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0.1;
+            z-index: 1;
+            background: 
+                repeating-linear-gradient(
+                    90deg,
+                    transparent 0px,
+                    rgba(0, 170, 255, 0.1) 1px,
+                    transparent 2px,
+                    transparent 20px
+                ),
+                repeating-linear-gradient(
+                    0deg,
+                    transparent 0px,
+                    rgba(0, 170, 255, 0.05) 1px,
+                    transparent 2px,
+                    transparent 10px
+                );
+            animation: data-flow 15s linear infinite;
+        }
+        
+        @keyframes data-flow {
+            0% { transform: translateX(0) translateY(0); }
+            100% { transform: translateX(20px) translateY(10px); }
+        }
+        
+        .container {
+            position: relative;
+            z-index: 2;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            text-align: center;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        
+        .error-code {
+            font-size: clamp(4rem, 15vw, 12rem);
+            font-weight: 700;
+            color: #00aaff;
+            text-shadow: 
+                0 0 20px #00aaff,
+                0 0 40px #0088cc,
+                0 0 80px #006699;
+            margin-bottom: 2rem;
+            animation: size-warning 2s ease-in-out infinite;
+        }
+        
+        @keyframes size-warning {
+            0%, 100% {
+                transform: scale(1);
+                text-shadow: 
+                    0 0 20px #00aaff,
+                    0 0 40px #0088cc,
+                    0 0 80px #006699;
+            }
+            50% {
+                transform: scale(1.05);
+                text-shadow: 
+                    0 0 30px #00aaff,
+                    0 0 60px #0088cc,
+                    0 0 120px #006699;
+            }
+        }
+        
+        .error-title {
+            font-size: clamp(1.5rem, 4vw, 3rem);
+            margin-bottom: 1.5rem;
+            color: #66ccff;
+            text-transform: uppercase;
+            letter-spacing: 0.2em;
+            position: relative;
+        }
+        
+        .error-title::before,
+        .error-title::after {
+            content: "⬆";
+            position: absolute;
+            color: #00aaff;
+            font-size: 1.2em;
+            animation: size-indicator 2s ease-in-out infinite;
+        }
+        
+        .error-title::before {
+            left: -2.5em;
+            animation-delay: 0s;
+        }
+        
+        .error-title::after {
+            right: -2.5em;
+            animation-delay: 1s;
+        }
+        
+        @keyframes size-indicator {
+            0%, 100% { 
+                transform: translateY(0) scale(1);
+                opacity: 1;
+            }
+            50% { 
+                transform: translateY(-10px) scale(1.2);
+                opacity: 0.7;
+            }
+        }
+        
+        .error-message {
+            font-size: clamp(1rem, 2.5vw, 1.5rem);
+            margin-bottom: 2rem;
+            color: #99d6ff;
+            max-width: 800px;
+            line-height: 1.6;
+        }
+        
+        .size-panel {
+            background: rgba(0, 0, 0, 0.8);
+            border: 2px solid #00aaff;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 2rem 0;
+            max-width: 90vw;
+            width: 100%;
+            max-width: 700px;
+            text-align: left;
+            box-shadow: 
+                0 0 20px rgba(0, 170, 255, 0.3),
+                inset 0 0 20px rgba(0, 170, 255, 0.1);
+            box-sizing: border-box;
+        }
+        
+        .panel-header {
+            display: flex;
+            justify-content: between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #444;
+        }
+        
+        .panel-title {
+            color: #00aaff;
+            font-size: 1rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            flex: 1;
+        }
+        
+        .size-gauge {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .gauge-bar {
+            width: 100px;
+            height: 10px;
+            background: #333;
+            border-radius: 5px;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .gauge-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #00ff00 0%, #ffff00 70%, #ff0000 100%);
+            width: 95%;
+            animation: gauge-overflow 2s ease-in-out infinite;
+        }
+        
+        @keyframes gauge-overflow {
+            0%, 100% { width: 95%; }
+            50% { width: 100%; }
+        }
+        
+        .panel-content {
+            font-family: 'Fira Code', monospace;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+        
+        .size-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 15px 0;
+        }
+        
+        .info-item {
+            background: rgba(0, 170, 255, 0.1);
+            border-radius: 5px;
+            padding: 12px;
+            border-left: 3px solid #00aaff;
+        }
+        
+        .info-label {
+            color: #66ccff;
+            font-size: 0.8rem;
+            margin-bottom: 5px;
+            text-transform: uppercase;
+        }
+        
+        .info-value {
+            color: #ffffff;
+            font-size: 1.1rem;
+            font-weight: bold;
+        }
+        
+        .oversized {
+            color: #ff6666;
+            animation: warning-flash 1.5s infinite;
+        }
+        
+        @keyframes warning-flash {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.6; }
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background: #333;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 15px 0;
+            position: relative;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #00aaff 0%, #ff6666 100%);
+            width: 0%;
+            animation: progress-exceed 3s ease-out infinite;
+            position: relative;
+        }
+        
+        @keyframes progress-exceed {
+            0% { width: 0%; }
+            70% { width: 100%; }
+            100% { width: 120%; }
+        }
+        
+        .progress-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: white;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+        
+        .footer {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: #444;
+            font-size: 0.8rem;
+        }
+        
+        .back-button {
+            display: inline-block;
+            background: linear-gradient(45deg, #00aaff, #0088cc);
+            color: #fff;
+            text-decoration: none;
+            padding: 12px 24px;
+            border-radius: 5px;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all 0.3s ease;
+            margin-top: 2rem;
+            box-shadow: 0 0 15px rgba(0, 170, 255, 0.3);
+        }
+        
+        .back-button:hover {
+            background: linear-gradient(45deg, #0088cc, #00aaff);
+            box-shadow: 0 0 25px rgba(0, 170, 255, 0.6);
+            transform: translateY(-2px);
+        }
+        
+        @media (max-width: 768px) {
+            .size-panel {
+                margin: 1rem 0;
+                padding: 15px;
+                max-width: 95vw;
+            }
+            
+            .size-info {
+                grid-template-columns: 1fr;
+            }
+            
+            .container {
+                padding: 10px;
+            }
+            
+            .error-code {
+                font-size: clamp(3rem, 12vw, 8rem);
+            }
+            
+            .error-title {
+                font-size: clamp(1.2rem, 3vw, 2rem);
+            }
+            
+            .error-message {
+                font-size: clamp(0.9rem, 2vw, 1.2rem);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="data-stream"></div>
+    <div class="container">
+        <div class="error-code">413</div>
+        <h1 class="error-title">PAYLOAD TOO LARGE</h1>
+        <p class="error-message">
+            The request payload exceeds the maximum allowed size.<br>
+            Reduce the size of your request and try again.
+        </p>
+        
+        <div class="size-panel">
+            <div class="panel-header">
+                <div class="panel-title">Payload Size Analysis</div>
+                <div class="size-gauge">
+                    <span style="color: #66ccff; font-size: 0.8rem;">Limit:</span>
+                    <div class="gauge-bar">
+                        <div class="gauge-fill"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="panel-content">
+                <div class="progress-bar">
+                    <div class="progress-fill"></div>
+                    <div class="progress-text">Request Size: Exceeding Limits</div>
+                </div>
+                
+                <div class="size-info">
+                    <div class="info-item">
+                        <div class="info-label">Request Size</div>
+                        <div class="info-value oversized">2.5 MB</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Max Allowed</div>
+                        <div class="info-value">1.0 MB</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Content Type</div>
+                        <div class="info-value">multipart/form-data</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Status</div>
+                        <div class="info-value oversized">REJECTED</div>
+                    </div>
+                </div>
+                
+                <div style="margin-top: 20px; padding: 15px; background: rgba(255, 102, 102, 0.1); border-radius: 5px; border-left: 3px solid #ff6666;">
+                    <div style="color: #ff9999; font-size: 0.9rem;">
+                        <strong>Recommendation:</strong> Split large files into smaller chunks or compress the data before uploading.
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <a href="/" class="back-button">Return to Base</a>
+    </div>
+    
+    <div class="footer">
+        WebServ/1.0 • Upload Manager • Port 8080
+    </div>
+</body>
+</html>
