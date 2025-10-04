@@ -1,3 +1,4 @@
+
 #ifndef CONFIGPARSER_HPP
 #define CONFIGPARSER_HPP
 
@@ -26,7 +27,7 @@ private:
     Location                        parseLocation();
     std::vector<std::string>        parseMethodsList();
     std::vector<int>                parseErrorCodes();
-    std::pair<std::string, int>     parseListenDirective(const std::string& value);
+    std::pair<std::string, std::string> parseListenDirective(const std::string& value);
     std::pair<int, std::string>     parseReturnDirective();
 
     void                            incrementTokenIndex();

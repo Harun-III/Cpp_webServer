@@ -6,15 +6,12 @@ Server::Server( std::vector<ServerConfig> &servers ) {
 	for (std::vector<ServerConfig>::iterator current = servers.begin();
 			current != servers.end(); current++)
 	{
-		const std::vector<std::pair<std::string, int> >	&listen = current->getListen();
-		for (std::vector<std::pair<std::string, int> >::const_iterator curr_lis = listen.begin();
+		const std::vector<std::pair<std::string, std::string> >	&listen = current->getListen();
+		for (std::vector<std::pair<std::string, std::string> >::const_iterator curr_lis = listen.begin();
 				curr_lis != listen.end(); curr_lis++) {
 
 			const std::string	ip   = curr_lis->first;
-
-			std::ostringstream	oss;
-			oss << curr_lis->second;
-			const std::string	port = oss.str();
+			const std::string	port = curr_lis->second;
 
 			std::cout << "Server Running " << ip << " - port:" << port << " ...\n";
 
@@ -27,7 +24,7 @@ Server::Server( std::vector<ServerConfig> &servers ) {
 				listeners.push_back(listen_socket.getFd());
 			}
 			catch( const std::runtime_error &error ) {
-				// Server::~Server();
+				Server::~Server();
 				throw error;
 			}
 		}

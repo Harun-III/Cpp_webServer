@@ -11,7 +11,7 @@ void ServerConfig::addErrorPage(int error_code, const std::string& page) {
 }
 
 // setters
-void ServerConfig::addListen(const std::string& ip, int port) {
+void ServerConfig::addListen(const std::string& ip, const std::string& port) {
     listen.push_back(std::make_pair(ip, port));
 }
 
@@ -24,7 +24,7 @@ void ServerConfig::addLocation(const std::string& path, const Location& location
 }
 
 // getters
-const std::vector<std::pair<std::string, int> >& ServerConfig::getListen() const {
+const std::vector<std::pair<std::string, std::string> >& ServerConfig::getListen() const {
     return listen;
 }
 

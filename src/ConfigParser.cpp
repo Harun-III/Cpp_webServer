@@ -80,7 +80,7 @@ ServerConfig ConfigParser::parseServer() {
 	    incrementTokenIndex();
 	    //'127.0.0.1:8080' ';'
 	    std::string listen_value = getCurrentToken();
-	    std::pair<std::string, int> addr = parseListenDirective(listen_value);
+	    std::pair<std::string, std::string> addr = parseListenDirective(listen_value);
 	    server.addListen(addr.first, addr.second);
 	    incrementTokenIndex();
 	    // --> we should technically have ';'
@@ -360,7 +360,7 @@ std::vector<int> ConfigParser::parseErrorCodes() {
     return codes;
 }
 
-std::pair<std::string, int> ConfigParser::parseListenDirective(const std::string& value) {
+std::pair<std::string, std::string> ConfigParser::parseListenDirective(const std::string& value) {
     size_t colon_pos = value.find(':');
 
     if (colon_pos == std::string::npos) {
@@ -374,8 +374,12 @@ std::pair<std::string, int> ConfigParser::parseListenDirective(const std::string
     if (port <= 0 || port > 65535) {
         throwParseError("Invalid port number: " + port_str);
     }
-    
-    return std::make_pair(ip, port);
+
+    std::stringstream   ss;
+
+    ss << port_str;
+
+    return std::make_pair(ip, port_str.c_str());
 }
 
 
@@ -527,4 +531,3 @@ void ConfigParser::trim(std::string& s) {
 void ConfigParser::throwParseError(const std::string& message) {
     throw std::runtime_error("Parse error: " + message);
 }
-

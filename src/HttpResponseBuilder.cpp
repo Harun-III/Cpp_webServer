@@ -11,6 +11,7 @@ HttpResponseBuilder::~HttpResponseBuilder() {
 std::string HttpResponseBuilder::generateDirectoryListing(const std::string& path) const {
     std::stringstream ss;
 
+    (void)path;
     /******** // NOTE: TESTING *********/
     ss << "<html>";
     ss << "<head><title>Index of /files/</title></head>";
