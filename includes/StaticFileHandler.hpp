@@ -4,6 +4,9 @@
 #include <sys/stat.h>
 #include <string>
 #include <unistd.h>
+#include <vector>
+#include <dirent.h>
+#include <sstream>
 
 class StaticFileHandler {
 private:
@@ -17,7 +20,8 @@ public:
     bool            isDirectory(const std::string& path) const;
     bool            isReadable(const std::string& path) const;
 
-    std::string     getContentType(const std::string& path) const;
+    std::vector<std::string>    listDirectory(const std::string& path) const;
+    std::string                 getContentType(const std::string& path) const;
 
 
 };

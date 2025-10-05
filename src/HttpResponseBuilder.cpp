@@ -1,5 +1,4 @@
 #include "../includes/HttpResponseBuilder.hpp"
-#include <sstream>
 
 HttpResponseBuilder::HttpResponseBuilder(const ServerConfig& config):
     server_config (config) {
@@ -10,23 +9,20 @@ HttpResponseBuilder::~HttpResponseBuilder() {
 
 std::string HttpResponseBuilder::generateDirectoryListing(const std::string& path) const {
     std::stringstream ss;
+    std::vector<std::string> entries = static_handler.listDirectory(path);
+    
+    ss << "<html><head><title>Index of " << path << "</title></head>\n";
+    ss << "<body>\n";
+    ss << "<h1>Index of " << path << "</h1>\n";
+    ss << "<hr>\n";   
 
-    (void)path;
-    /******** // NOTE: TESTING *********/
-    ss << "<html>";
-    ss << "<head><title>Index of /files/</title></head>";
-    ss << "<body bgcolor=\"white\">";
-    ss << "<h1>Index of /files/</h1><hr><pre>";
-    ss << "<a href=\"../\">../</a>\n";
-    ss << "<a href=\"document.txt\">document.txt</a>\n";
-    ss << "<a href=\"image1.png\">image1.png</a>\n";
-    ss << "<a href=\"image2.jpg\">image2.jpg</a>\n";
-    ss << "<a href=\"subdir/\">subdir/</a>\n";
-    ss << "</pre><hr>";
-    ss << "</body>";
-    ss << "</html>";
-    /**********************************/
-
+    for (size_t i = 0; i < entries.size(); i++) {
+        ss << entries[i] << "<br>\n";
+    }
+    
+    ss << "</body>\n";
+    ss << "</html>\n";
+    
     return ss.str();
 }
 
@@ -96,9 +92,11 @@ HttpResponse HttpResponseBuilder::handleGet(const HttpRequest& request, const Lo
 // full_path = "./test_files/no_permissions";
 // full_path = "./test_files/file.txt";
 // full_path = "./test_files/no_exist";
-full_path = "./test_files";
+// full_path = "./test_files";
 // full_path = "./test_files/";
 // full_path = "./test_files/index.html";
+// full_path = "./";
+full_path = "/home/";
 /**********************************/
 
 /*
@@ -117,7 +115,7 @@ full_path = "./test_files";
     if (! static_handler.fileExists(full_path)) {
         response.setStatusCode(404);
         response.setContentType("text/html");
-        response.writeFileToBuffer("../errors/404.html");
+        response.writeFileToBuffer("./errors/404.html");
         return response;
     }
 
@@ -163,7 +161,7 @@ full_path = "./test_files";
             /**********************************/
             response.setStatusCode(403);
             response.setContentType("text/html");
-            response.writeFileToBuffer("../errors/403.html");
+            response.writeFileToBuffer("./errors/403.html");
             return response;
         }
 
@@ -173,7 +171,7 @@ full_path = "./test_files";
     if (! static_handler.isReadable(full_path)) {
         response.setStatusCode(403);
         response.setContentType("text/html");
-        response.writeFileToBuffer("../errors/403.html");
+        response.writeFileToBuffer("./errors/403.html");
         return response;
     }
 

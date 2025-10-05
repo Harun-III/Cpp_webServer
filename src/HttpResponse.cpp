@@ -84,6 +84,9 @@ void HttpResponse::setContentLength(size_t length) {
 void HttpResponse::writeStringToBuffer(std::string str) {
     body = str;
 }
+
+#include <iostream>
+
 void HttpResponse::writeFileToBuffer(std::string full_path) {
     std::ifstream file(full_path.c_str());
     if (!file.is_open()) {
