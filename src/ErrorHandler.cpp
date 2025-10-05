@@ -10,11 +10,11 @@ ErrorHandler::~ErrorHandler() {
 
 std::string ErrorHandler::generateErrorResponse(int error_code) const {
     // First try to load custom error page
-    //if (// has Custom Error Page) {
-	//NOTE: use staticFileHandler to check if exist and readable
-	//if so return it
-	//return ("This a place holder: this should return a costum error page");
-    //}
+    if (0) { // this should check if the error code has a Custom Error Page"
+	// NOTE: use staticFileHandler to check if exist and readable
+	// if so return it
+	return ("This a place holder: this should return a costum error page");
+    }
     
     // Generate default error page
     return generateDefaultErrorPage(error_code);
@@ -25,6 +25,7 @@ std::string ErrorHandler::generateDefaultErrorPage(int error_code) const {
     std::string error_message = Response.getStatusText(error_code);
 
     std::stringstream ss;
+    
 
     ss << "<!DOCTYPE html>\n";
     ss << "<html>\n";
