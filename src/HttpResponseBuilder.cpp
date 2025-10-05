@@ -1,7 +1,7 @@
 #include "../includes/HttpResponseBuilder.hpp"
 
 HttpResponseBuilder::HttpResponseBuilder(const ServerConfig& config):
-    server_config (config) {
+    server_config (config), error_handler (config) {
 }
 
 HttpResponseBuilder::~HttpResponseBuilder() {
@@ -91,12 +91,12 @@ HttpResponse HttpResponseBuilder::handleGet(const HttpRequest& request, const Lo
 // full_path = "./test_files/regular_readable_file";
 // full_path = "./test_files/no_permissions";
 // full_path = "./test_files/file.txt";
-// full_path = "./test_files/no_exist";
+full_path = "./test_files/no_exist";
 // full_path = "./test_files";
 // full_path = "./test_files/";
 // full_path = "./test_files/index.html";
 // full_path = "./";
-full_path = "/home/";
+// full_path = "/home/";
 /**********************************/
 
 /*
@@ -115,7 +115,7 @@ full_path = "/home/";
     if (! static_handler.fileExists(full_path)) {
         response.setStatusCode(404);
         response.setContentType("text/html");
-        response.writeFileToBuffer("./errors/404.html");
+        response.writeStringToBuffer(error_handler.generateErrorResponse(404));
         return response;
     }
 
@@ -161,7 +161,7 @@ full_path = "/home/";
             /**********************************/
             response.setStatusCode(403);
             response.setContentType("text/html");
-            response.writeFileToBuffer("./errors/403.html");
+            response.writeStringToBuffer(error_handler.generateErrorResponse(403));
             return response;
         }
 
@@ -171,7 +171,7 @@ full_path = "/home/";
     if (! static_handler.isReadable(full_path)) {
         response.setStatusCode(403);
         response.setContentType("text/html");
-        response.writeFileToBuffer("./errors/403.html");
+        response.writeStringToBuffer(error_handler.generateErrorResponse(403));
         return response;
     }
 
