@@ -18,10 +18,10 @@ int	main( int argc, char **argv ) {
 		ConfigParser parser(config_file);
 		std::vector<ServerConfig> servers = parser.parseConfig();
 
-		Server	server;
-
-		server.create(servers);
-		server.run();
+		// Server	server;
+		//
+		// server.create(servers);
+		// server.run();
 
 /*********************************TESTS BLOCK********************************/
 //NOTE: Building response

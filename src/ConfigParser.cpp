@@ -138,6 +138,17 @@ ServerConfig ConfigParser::parseServer() {
 /*********************************TESTS BLOCK********************************/
 // std::cout << "server getMaxClientBodySize " << server.getMaxClientBodySize() << std::endl;
 /****************************************************************************/
+
+    // Validate that server has at least one listen directive
+    if (server.getListen().empty()) {
+        throwParseError("Server block must have at least one 'listen' directive");
+    }
+
+    // Validate that server has at least one location
+    if (server.getLocations().empty()) {
+        throwParseError("Server block must have at least one 'location' block");
+    }
+
     return server;
 }
 
