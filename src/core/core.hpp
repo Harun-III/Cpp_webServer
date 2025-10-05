@@ -35,10 +35,12 @@
 
 // ------------------------- Webserv Macros -------------------------//
 
-#define BUF_SIZE 10
-#define PORT_NUM 50002
-#define MAX_EVENTS 1024
-#define TIMEOUT 1000
+# define BUF_SIZE 10
+# define PORT_NUM 50002
+# define MAX_EVENTS 1024
+# define TIMEOUT 1000
+
+# define ERROR -1
 
 // ------------------------- Webserv Outils -------------------------//
 

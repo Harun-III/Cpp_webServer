@@ -11,21 +11,18 @@ class Listener
 		Listener( const std::string & , const std::string & );
 		~Listener( void );
 
-		void					addrinfo_init( void );
-		void					open_listener( void );
-
-		int						getFd( void );
-
-	protected:
-		static void				socket_init(void);
+		int						get( void );
+		void					init( void );
+		void					open( void );
+		void					release( void );
 
 	private:
 		std::string				ip;
+		int						soc;
 		std::string				port;
-		int						listen_soc;
 
 		addrinfo_t				*res;
-		static addrinfo_t		hints;
+		addrinfo_t				hints;
 };
 
 #endif

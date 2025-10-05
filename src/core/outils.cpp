@@ -5,7 +5,7 @@ void printServers(const std::vector<ServerConfig>& servers) {
 		std::cout << "=== Server " << i + 1 << " ===\n";
 
 		// Print listen directives
-		for (std::vector<std::pair<std::string,int> >::const_iterator it = servers[i].getListen().begin();
+		for (std::vector<std::pair<std::string, std::string> >::const_iterator it = servers[i].getListen().begin();
 			 it != servers[i].getListen().end(); ++it) {
 			std::cout << "Listen: " << it->first << ":" << it->second << "\n";
 		}

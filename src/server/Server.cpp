@@ -1,64 +1,62 @@
 # include "Server.hpp"
 
-Server::Server( std::vector<ServerConfig> &servers ) {
-	create_epoll();
+Server::Server( void ) : epollfd(ERROR) { }
 
-	for (std::vector<ServerConfig>::iterator current = servers.begin();
-			current != servers.end(); current++)
-	{
-		const std::vector<std::pair<std::string, std::string> >	&listen = current->getListen();
-		for (std::vector<std::pair<std::string, std::string> >::const_iterator curr_lis = listen.begin();
-				curr_lis != listen.end(); curr_lis++) {
+Server::~Server( void ) {
+	std::cout << "Server Closed ...\n";
 
-			const std::string	ip   = curr_lis->first;
-			const std::string	port = curr_lis->second;
+	for (size_t index = 0; index < listeners.size(); index++)
+		close(listeners[index]);
+	if (epollfd != ERROR) close(epollfd);
+}
 
-			std::cout << "Server Running " << ip << " - port:" << port << " ...\n";
-
-			try {
-				Listener	listen_socket(ip, port);
-
-				listen_socket.addrinfo_init();
-				listen_socket.open_listener();
-				socket_control(listen_socket.getFd(), EPOLLIN, EPOLL_CTL_ADD);
-				listeners.push_back(listen_socket.getFd());
-			}
-			catch( const std::runtime_error &error ) {
-				Server::~Server();
-				throw error;
-			}
-		}
-	}
+void	Server::create_epoll( void ) {
+	if ((epollfd = epoll_create(MAX_EVENTS)) == ERROR)
+		throw std::runtime_error("<epoll_create> " + std::string(strerror(errno)));
 }
 
 void	Server::socket_control( int fd, int mode, int op ) {
 	event_t		ev;
 
 	bzero(&ev, sizeof(event_t));
-	ev.events = mode;
-	ev.data.fd = fd;
+	ev.events = mode, ev.data.fd = fd;
 
-	if (epoll_ctl(epollfd, op, ev.data.fd, &ev) == -1)
+	if (epoll_ctl(epollfd, op, ev.data.fd, &ev) == ERROR)
 		throw std::runtime_error("<epoll_ctl> " + std::string(strerror(errno)));
 }
 
-void	Server::create_epoll( void ) {
-	if ((epollfd = epoll_create(MAX_EVENTS)) == -1)
-		throw std::runtime_error("<epoll_create> " + std::string(strerror(errno)));;
+void	Server::create( std::vector<ServerConfig> &servers ) {
+	create_epoll();
+
+	for (std::vector<ServerConfig>::iterator current = servers.begin();
+			current != servers.end(); current++)
+	{
+		const vector_pairs	&listen = current->getListen();
+		for (vector_pairs::const_iterator curr_lis = listen.begin();
+				curr_lis != listen.end(); curr_lis++) {
+
+			const std::string	&ip   = curr_lis->first;
+			const std::string	&port = curr_lis->second;
+
+			std::cout << "Server Running " << ip << " - port:" << port << " ...\n";
+
+			Listener	listener(ip, port);
+
+			listener.open();
+			socket_control(listener.get(), EPOLLIN, EPOLL_CTL_ADD);
+			listeners.push_back(listener.get());
+			listener.release();
+		}
+	}
 }
 
-Server::~Server( void ) {
-	std::cout << "Server Closed ...\n";
-	close(epollfd);
-}
-
-void  Server::run( void )
+void	Server::run( void )
 {
 	int				nfds;
 	event_t			events[MAX_EVENTS];
 
 	while ( true ) {
-		if ((nfds = epoll_wait(epollfd, events, MAX_EVENTS, -1)) == -1)
+		if ((nfds = epoll_wait(epollfd, events, MAX_EVENTS, -1)) == ERROR)
 			perror("Epoll_wait");
 
 		for (int curr_ev = 0; curr_ev < nfds; curr_ev++) {
