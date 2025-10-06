@@ -78,7 +78,6 @@ void	Server::run( void )
 			throw std::runtime_error("<epoll_wait> " + std::string(strerror(errno)));
 
 		for (int curr_ev = 0; curr_ev < nfds; curr_ev++) {
-			state_e		state;
 			int			curr_sock = events[curr_ev].data.fd;
 
 			if (find(listeners.begin(), listeners.end(), curr_sock) != listeners.end()) {
@@ -100,7 +99,7 @@ void	Server::run( void )
 			if (events[curr_ev].events & EPOLLOUT) {
 				if (connections[curr_sock].getState() == READY_TO_WRITE)
 					connections[curr_sock].buildResponseMinimal();
-				if (state == CLOSING)
+				if (connections[curr_sock].getState() == CLOSING)
 					close_connection(curr_sock);
 			}
 		}
