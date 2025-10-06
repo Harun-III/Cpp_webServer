@@ -132,12 +132,23 @@ ServerConfig ConfigParser::parseServer() {
 	    Location location = parseLocation();
 	    server.addLocation(path, location);
 	} else {
-	    incrementTokenIndex();
+	    throwParseError("Unknown directive in server block: '" + directive + "'");
 	}
     }
 /*********************************TESTS BLOCK********************************/
 // std::cout << "server getMaxClientBodySize " << server.getMaxClientBodySize() << std::endl;
 /****************************************************************************/
+
+    // Validate that server has at least one listen directive
+    if (server.getListen().empty()) {
+        throwParseError("Server block must have at least one 'listen' directive");
+    }
+
+    // Validate that server has at least one location
+    if (server.getLocations().empty()) {
+        throwParseError("Server block must have at least one 'location' block");
+    }
+
     return server;
 }
 
@@ -260,11 +271,16 @@ Location ConfigParser::parseLocation() {
 	    incrementTokenIndex();
 	    expectToken(";");
 	} else {
-	    incrementTokenIndex();
+	    throwParseError("Unknown directive in location block: '" + directive + "'");
         }
     }
 
     expectToken("}");
+
+    if (location.getRoot().empty()) {
+	throwParseError("Location block must have a 'root' directive");
+    }
+
     return location;
 }
 	    

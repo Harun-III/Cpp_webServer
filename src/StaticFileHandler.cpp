@@ -1,4 +1,6 @@
 #include "../includes/StaticFileHandler.hpp"
+#include <algorithm>
+#include <dirent.h>
 
 StaticFileHandler::StaticFileHandler() {
 }
@@ -40,6 +42,39 @@ bool StaticFileHandler::isDirectory(const std::string& path) const {
 
 bool StaticFileHandler::isReadable(const std::string& path) const {
     return (access(path.c_str(), R_OK) == 0);
+}
+
+std::vector<std::string>    StaticFileHandler::listDirectory(const std::string& path) const {
+    std::vector<std::string> entries;
+   
+    DIR* dir = opendir(path.c_str());
+    if (dir == NULL) {
+        return entries;
+    }
+
+    struct dirent* entry;
+    while ((entry = readdir(dir)) != NULL) {
+        std::string name = entry->d_name;
+
+        // Skip . and ..
+        if (name == "." || name == "..") {
+            continue;
+        }
+
+        // Add "/" to directories
+        std::string full_path = path + "/" + name;
+        if (isDirectory(full_path)) {
+            name += "/";
+        }
+
+        entries.push_back(name);
+    }
+
+    closedir(dir);
+    
+    std::sort(entries.begin(), entries.end());
+
+    return entries;
 }
 
 std::string StaticFileHandler::getContentType(const std::string& path) const {

@@ -5,12 +5,14 @@
 #include "../includes/ServerConfig.hpp"
 #include "../includes/StaticFileHandler.hpp"
 #include "../includes/Client.hpp"
+#include "../includes/ErrorHandler.hpp"
 
 #include <iostream>
 
 class HttpResponseBuilder {
 private:
     const ServerConfig&         server_config;
+    ErrorHandler                error_handler;
     StaticFileHandler           static_handler;
 
 
