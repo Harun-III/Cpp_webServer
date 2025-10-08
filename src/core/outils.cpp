@@ -1,4 +1,4 @@
-# include "core.hpp"
+# include "Core.hpp"
 
 void printServers(const std::vector<ServerConfig>& servers) {
 	for (size_t i = 0; i < servers.size(); ++i) {

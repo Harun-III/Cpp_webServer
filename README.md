@@ -34,10 +34,10 @@ webserv/
    │  ├─ Listener.hpp / .cpp        # bind/listen (non-blocking)
    │  ├─ Connection.hpp / .cpp      # per-client state machine
    │  └─ Buffer.hpp / .cpp          # safe read/write buffers
-   └─ core/
+   └─ Core/
       ├─ Router.hpp / .cpp          # choose handler (static/upload/delete/cgi)
       ├─ Handlers.hpp / .cpp        # Static/Upload/Delete/AutoIndex
-      └─ core.cpp                   # glue: wire everything together
+      └─ Core.cpp                   # glue: wire everything together
 
 NB: Structure Changeable
 ````

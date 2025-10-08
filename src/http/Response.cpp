@@ -1,51 +1,58 @@
 // Response.cpp
 
-# include "core.hpp"
+#include "Core.hpp"
+#include <fstream>
+#include <iterator>
 
-void	Connection::buildResponseMinimal( void ) {
+void	Connection::buildResponseMinimal(void) {
 	std::cout << "Client Socket: " << soc << std::endl;
 
-	// Body
-	const char body[] =
-		"<!DOCTYPE html>\n"
-		"<html>\n"
-		"<head>\n"
-		"<title>Welcome to ngimax!</title>\n"
-		"<style>\n"
-		"html { color-scheme: light dark; }\n"
-		"body { width: 35em; margin: 0 auto;\n"
-		"font-family: Tahoma, Verdana, Arial, sans-serif; }\n"
-		"</style>\n"
-		"</head>\n"
-		"<body>\n"
-		"<h1>Welcome to ngimax!</h1>\n"
-		"<p>If you see this page, the ngimax web server is successfully installed and\n"
-		"working. Further configuration is required.</p>\n"
-		"\n"
-		"<p>For online documentation and support please refer to\n"
-		"<a href=\"https://github.com/Harun-III/Cpp_webServer#-http-c-web-server\">\
-		ngimax.com</a>.<br/>\n"
-		"\n"
-		"<p><em>Thank you for using ngimax.</em></p>\n"
-		"</body>\n"
-		"</html>\n";
+	// --- Load file ./www/Index.html into 'body'
+	std::ifstream	file("./www/index.html", std::ios::in | std::ios::binary);
+	std::string		body;
+	bool			ok = false;
 
-	// Header (compute exact Content-Length)
-	const size_t body_len = std::strlen(body);
+	if (file) {
+		file.seekg(0, std::ios::end);
+		std::streampos sz = file.tellg();
+		if (sz > 0) {
+			body.resize((size_t)sz);
+			file.seekg(0, std::ios::beg);
+			file.read(&body[0], sz);
+			ok = true;
+		} else {
+			file.clear();
+			file.seekg(0, std::ios::beg);
+			body.assign(std::istreambuf_iterator<char>(file),
+						std::istreambuf_iterator<char>());
+			ok = true;
+		}
+	}
+
+	const char* status = ok ? "200 OK" : "404 Not Found";
+	if (!ok) {
+		body =
+			"<!DOCTYPE html>\n"
+			"<html><head><title>404 Not Found</title></head>\n"
+			"<body><h1>404 Not Found</h1></body></html>\n";
+	}
+
+	// --- HTTP/1.0 header (always close)
 	char header[256];
 	int header_len = std::snprintf(header, sizeof(header),
-		"HTTP/1.1 200 OK\r\n"
+		"HTTP/1.0 %s\r\n"
 		"Server: Webserv\r\n"
 		"Content-Type: text/html; charset=UTF-8\r\n"
-		"Content-Length: %zu\r\n"
+		"Content-Length: %lu\r\n"
 		"Connection: close\r\n"
 		"\r\n",
-		body_len);
+		status, (unsigned long)body.size());
 	if (header_len < 0) header_len = 0;
 	if (header_len > (int)sizeof(header)) header_len = (int)sizeof(header);
 
 	state = WRITING;
-	// Send header (handle partial writes)
+
+	// --- Send header (handle partial writes)
 	size_t off = 0;
 	while (off < (size_t)header_len) {
 		ssize_t n = ::send(soc, header + off, (size_t)header_len - off, MSG_NOSIGNAL);
@@ -53,10 +60,12 @@ void	Connection::buildResponseMinimal( void ) {
 		off += (size_t)n;
 	}
 
-	// Send body (handle partial writes)
+	// --- Send body (handle partial writes)
 	off = 0;
-	while (off < body_len) {
-		ssize_t n = ::send(soc, body + off, body_len - off, MSG_NOSIGNAL);
+	const char* p = body.empty() ? "" : body.c_str();
+	size_t blen = body.size();
+	while (off < blen) {
+		ssize_t n = ::send(soc, p + off, blen - off, MSG_NOSIGNAL);
 		if (n <= 0) break;
 		off += (size_t)n;
 	}

@@ -1,4 +1,4 @@
-# include "core.hpp"
+# include "Core.hpp"
 
 # include "ConfigParser.hpp"
 # include "ServerConfig.hpp"
@@ -14,15 +14,13 @@ int	main( int argc, char **argv ) {
 			return EXIT_FAILURE;
 		}
 
-		std::string config_file(argv[1]);
-
-		ConfigParser parser(config_file);
+		ConfigParser parser(argv[1]);
 		std::vector<ServerConfig> servers = parser.parseConfig();
 
-		// Server	server;
-		//
-		// server.create(servers);
-		// server.run();
+		Server	server;
+		
+		server.create(servers);
+		server.run();
 
 /*********************************TESTS BLOCK********************************/
 //NOTE: Building response

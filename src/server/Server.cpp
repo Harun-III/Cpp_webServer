@@ -90,16 +90,20 @@ void	Server::run( void )
 				continue ;
 			}
 
+			state_e		state = connections[curr_sock].getState();
+
 			if (events[curr_ev].events & EPOLLIN) {
-				if (connections[curr_sock].getState() == READING_HEADERS)
+				if (state == REQUEST_LINE || state == READING_HEADERS || state == READING_BODY)
 					connections[curr_sock].requestProssessing();
 				continue ;
 			}
 
 			if (events[curr_ev].events & EPOLLOUT) {
-				if (connections[curr_sock].getState() == READY_TO_WRITE)
-					connections[curr_sock].buildResponseMinimal();
-				if (connections[curr_sock].getState() == CLOSING)
+				if (state == READY_TO_WRITE) {
+					// connections[curr_sock].buildResponseMinimal();
+					connections[curr_sock].setState(CLOSING);
+				}
+				if (state == CLOSING)
 					close_connection(curr_sock);
 			}
 		}

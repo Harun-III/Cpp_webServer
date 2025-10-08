@@ -12,7 +12,11 @@ class Request
 		Request( void );
 		~Request( void );
 
+		std::string			&getRecv( void );
+
 	private:
+		std::string			recv;
+
 		std::string			method;
 		std::string			target;
 		std::string			version;

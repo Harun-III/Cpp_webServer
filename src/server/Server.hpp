@@ -1,7 +1,7 @@
 #ifndef SERVER_HPP
 # define SERVER_HPP
 
-# include "core.hpp"
+# include "Core.hpp"
 # include "Listener.hpp"
 # include "Connection.hpp"
 

@@ -1,11 +1,8 @@
 #ifndef CONNECTION_HPP
 # define CONNECTION_HPP
 
-# include "core.hpp"
+# include "Core.hpp"
 # include "Request.hpp"
-
-enum state_e { READING_HEADERS, READING_BODY,
-				READY_TO_WRITE, WRITING, CLOSING };
 
 class Connection
 {
@@ -23,6 +20,8 @@ class Connection
 		void			setState( state_e );
 
 		void			requestProssessing( void );
+		// void			onSending( void );					// for response
+
 		void			buildResponseMinimal( void );		// for test response
 
 	private:
@@ -30,8 +29,7 @@ class Connection
 		int				code;
 		state_e			state;
 
-		std::string		recv;
-		std::string		send;
+		// std::string		send;							// for response
 
 		Request			request;
 };
