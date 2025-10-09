@@ -10,10 +10,10 @@ class RequestParser
 	public:
 		RequestParser( void );
 		~RequestParser( void );
-		
-		RequestParser( Request & );
 
-		bool		requestLineParser( Request & );
+		state_e		requestLineParser( Request & );
+		state_e		headersParser( Request & );
+		state_e		bodyParser( Request & );
 };
 
 #endif

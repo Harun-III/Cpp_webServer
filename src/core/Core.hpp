@@ -12,13 +12,11 @@
 # include <fcntl.h>
 # include <unistd.h>
 # include <strings.h>
-# include <fstream>
 
 // ------------------------- Standard library -------------------------//
 
 # include <vector>
 # include <iostream>
-# include <fstream>
 # include <iterator>
 # include <cstdlib>
 # include <ctype.h>
@@ -27,6 +25,7 @@
 # include <cstring>
 # include <bitset>
 # include <algorithm>
+# include <fstream>
 # include <sstream>
 # include <map>
 
@@ -40,12 +39,9 @@
 
 typedef std::vector< std::pair<std::string, std::string> > vector_pairs;
 
-enum state_e { REQUEST_LINE, READING_HEADERS, READING_BODY,
-				READY_TO_WRITE, WRITING, CLOSING };
-
 // ------------------------- Webserv Macros -------------------------//
 
-# define BUF_SIZE 10
+# define BUF_SIZE 10000
 # define MAX_EVENTS 1024
 # define TIMEOUT 1000
 # define ERROR -1

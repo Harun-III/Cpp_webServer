@@ -57,9 +57,9 @@ HttpResponse HttpResponseBuilder::handleAutoIndex(const std::string& path) const
     return response;
 }
 
-HttpResponse HttpResponseBuilder::buildResponse(Client& client) {
+HttpResponse HttpResponseBuilder::buildResponse(Request& request) {
     // check if the method is implemented
-    if (client.request.method != "GET" && client.request.method != "POST" && client.request.method != "DELETE") {
+    if (request.method != "GET" && request.method != "POST" && request.method != "DELETE") {
         HttpResponse response;
         response.setStatusCode(501);
         response.setContentType("text/html");
@@ -68,7 +68,7 @@ HttpResponse HttpResponseBuilder::buildResponse(Client& client) {
     }
 
     // check if METHOD is allowed in location
-    if (!isMethodAllowed(client.request.method, client.location)) {
+    if (!isMethodAllowed(request.method, request.location)) {
         HttpResponse response;
         response.setStatusCode(405);
         response.setContentType("text/html");
@@ -76,14 +76,15 @@ HttpResponse HttpResponseBuilder::buildResponse(Client& client) {
         return response;
     }
 
+    // check for redirection
 
     // route to handlers
-    if (client.request.method == "GET") {
-        return handleGet(client.request, client.location);
-    } else if (client.request.method == "DELETE") {
-        // return handleDelete(client.request, client.location);
-    } else if (client.request.method == "POST") {
-        // return handlePost(client.request, client.location);
+    if (request.method == "GET") {
+        return handleGet(request, request.location);
+    } else if (request.method == "DELETE") {
+        // return handleDelete(Connection.request, Connection.location);
+    } else if (request.method == "POST") {
+        // return handlePost(Connection.request, Connection.location);
     }
 
 
@@ -94,7 +95,7 @@ HttpResponse HttpResponseBuilder::buildResponse(Client& client) {
     return response;
 }
 
-HttpResponse HttpResponseBuilder::handleGet(const HttpRequest& request, const Location& location) {
+HttpResponse HttpResponseBuilder::handleGet(const Request& request, const Location& location) {
     HttpResponse response;
     std::string full_path = request.full_path;
 
@@ -105,7 +106,7 @@ HttpResponse HttpResponseBuilder::handleGet(const HttpRequest& request, const Lo
 // full_path = "./test_files/no_exist";
 // full_path = "./test_files";
 // full_path = "./test_files/";
-full_path = "./test_files/index.html";
+// full_path = "./test_files/index.html";
 // full_path = "./";
 // full_path = "/home/";
 /**********************************/

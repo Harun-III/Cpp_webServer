@@ -4,7 +4,7 @@
 #include "HttpResponse.hpp"
 #include "ServerConfig.hpp"
 #include "StaticFileHandler.hpp"
-#include "Client.hpp"
+#include "Connection.hpp"
 #include "ErrorHandler.hpp"
 
 #include <iostream>
@@ -24,9 +24,9 @@ public:
 
     bool            isMethodAllowed(const std::string& method, const Location& location) const;
     HttpResponse    handleAutoIndex(const std::string& path) const;
-    HttpResponse    buildResponse(Client& client);
+    HttpResponse    buildResponse(Request& request);
 
-    HttpResponse    handleGet(const HttpRequest& request, const Location& location);
+    HttpResponse    handleGet(const Request& request, const Location& location);
 };
 
 #endif

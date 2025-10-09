@@ -3,6 +3,13 @@
 
 # include "Core.hpp"
 # include "Request.hpp"
+# include "HttpResponse.hpp"
+# include "HttpResponseBuilder.hpp"
+
+enum state_e { REQUEST_LINE, READING_HEADERS, READING_BODY,
+				READY_TO_WRITE, WRITING, CLOSING, BAD };
+
+class Location;
 
 class Connection
 {
@@ -10,7 +17,7 @@ class Connection
 		Connection( void );
 		~Connection( void );
 
-		Connection( int );
+		Connection( int , ServerConfig );
 
 		int				getSoc( void );
 		int				getCode( void );
@@ -20,18 +27,16 @@ class Connection
 		void			setState( state_e );
 
 		void			requestProssessing( void );
-		// void			onSending( void );					// for response
-
-		void			buildResponseMinimal( void );		// for test response
+		void			reponseProssessing( void );
 
 	private:
 		int				soc;
 		int				code;
 		state_e			state;
 
-		// std::string		send;							// for response
-
 		Request			request;
+		ServerConfig	server;
+		HttpResponse	response;
 };
 
 #endif

@@ -25,9 +25,9 @@ class Server
 		void						accept_connection( int );
 		void						close_connection( int );
 
-		int							epoll_fd;
-		std::vector<int>			listeners;
-		std::map<int, Connection>	connections;
+		int								epoll_fd;
+		std::map<int, ServerConfig>		listeners;
+		std::map<int, Connection>		connections;
 };
 
 #endif

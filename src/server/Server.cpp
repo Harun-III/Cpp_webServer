@@ -5,8 +5,9 @@ Server::Server( void ) : epoll_fd(ERROR) { }
 Server::~Server( void ) {
 	std::cout << "Server Closed ...\n";
 
-	for (size_t index = 0; index < listeners.size(); index++)
-		close(listeners[index]);
+	for (std::map<int, ServerConfig>::iterator curr = listeners.begin();
+			curr != listeners.end(); curr++)
+		close(curr->first);
 	if (epoll_fd != ERROR) close(epoll_fd);
 }
 
@@ -39,7 +40,7 @@ void	Server::accept_connection( int sock )
 		throw std::runtime_error("<accept> " + std::string(strerror(errno)));
 
 	fcntl(conn_sock, F_SETFL, O_NONBLOCK);
-	connections[conn_sock] = Connection(conn_sock);
+	connections[conn_sock] = Connection(conn_sock, listeners.find(sock)->second);
 	socket_control(conn_sock, EPOLLIN | EPOLLRDHUP, EPOLL_CTL_ADD);
 }
 
@@ -62,7 +63,7 @@ void	Server::create( std::vector<ServerConfig> &servers ) {
 
 			listener.open();
 			socket_control(listener.get(), EPOLLIN, EPOLL_CTL_ADD);
-			listeners.push_back(listener.get());
+			listeners[listener.get()] = *current;
 			listener.release();
 		}
 	}
@@ -80,31 +81,36 @@ void	Server::run( void )
 		for (int curr_ev = 0; curr_ev < nfds; curr_ev++) {
 			int			curr_sock = events[curr_ev].data.fd;
 
-			if (find(listeners.begin(), listeners.end(), curr_sock) != listeners.end()) {
+			if (listeners.find(curr_sock) != listeners.end()) {
 				accept_connection(curr_sock);
 				continue ;
 			}
 
-			if (events[curr_ev].events & (EPOLLERR | EPOLLHUP | EPOLLRDHUP)) {
+			if ((events[curr_ev].events & (EPOLLERR | EPOLLHUP | EPOLLRDHUP))
+					|| connections[curr_sock].getState() == CLOSING) {
 				close_connection(curr_sock);
 				continue ;
 			}
 
-			state_e		state = connections[curr_sock].getState();
-
 			if (events[curr_ev].events & EPOLLIN) {
-				if (state == REQUEST_LINE || state == READING_HEADERS || state == READING_BODY)
+				if (connections[curr_sock].getState() == REQUEST_LINE
+						|| connections[curr_sock].getState() == READING_HEADERS
+						|| connections[curr_sock].getState() == READING_BODY)
 					connections[curr_sock].requestProssessing();
+				if (connections[curr_sock].getState() == READY_TO_WRITE
+						|| connections[curr_sock].getState() == WRITING
+						|| connections[curr_sock].getState() == BAD)
+					socket_control(connections[curr_sock].getSoc(), EPOLLOUT, EPOLL_CTL_MOD);
 				continue ;
 			}
 
 			if (events[curr_ev].events & EPOLLOUT) {
-				if (state == READY_TO_WRITE) {
-					// connections[curr_sock].buildResponseMinimal();
+				if (connections[curr_sock].getState() == READY_TO_WRITE
+						|| connections[curr_sock].getState() == WRITING
+						|| connections[curr_sock].getState() == BAD) {
+					connections[curr_sock].reponseProssessing();
 					connections[curr_sock].setState(CLOSING);
 				}
-				if (state == CLOSING)
-					close_connection(curr_sock);
 			}
 		}
 	}
