@@ -19,12 +19,12 @@ void	Connection::setCode( int code ) { this->code = code; }
 void	Connection::setState( state_e state ) { this->state = state; }
 
 void	Connection::requestProssessing( void ) {
-	RequestParser	parser;
 	char			buffer[BUF_SIZE];
 	ssize_t			len;
 	
 	if ((len = recv(soc, buffer, BUF_SIZE, false)) == ERROR) return ;
 
+	RequestParser	parser;
 	request.recv.append(buffer, len);
 
 	if (state == REQUEST_LINE) state = parser.requestLineParser(request);

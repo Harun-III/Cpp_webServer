@@ -36,8 +36,7 @@ void	Server::accept_connection( int sock )
 {
 	int		conn_sock = accept(sock, NULL, NULL);
 
-	if (conn_sock == ERROR)
-		throw std::runtime_error("<accept> " + std::string(strerror(errno)));
+	if (conn_sock == ERROR) return ;
 
 	fcntl(conn_sock, F_SETFL, O_NONBLOCK);
 	connections[conn_sock] = Connection(conn_sock, listeners.find(sock)->second);

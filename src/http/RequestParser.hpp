@@ -14,6 +14,9 @@ class RequestParser
 		state_e		requestLineParser( Request & );
 		state_e		headersParser( Request & );
 		state_e		bodyParser( Request & );
+
+	private:
+		// void		fun(void);
 };
 
 #endif

@@ -5,7 +5,7 @@
 # include <vector>
 # include "Location.hpp"
 
-typedef std::vector< std::pair<std::string, std::string> > vector_pairs;
+typedef std::map<std::string, std::string> map_t;
 
 class Request
 {
@@ -21,9 +21,9 @@ class Request
 
 		std::string				target;
 		std::string				version;
-		std::string				body;
+		std::string				query;
 
-		vector_pairs			headers;
+		map_t					headers;
 
 		bool					has_content_length;
 		size_t					content_length;
