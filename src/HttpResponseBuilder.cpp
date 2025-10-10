@@ -2,6 +2,7 @@
 
 // NOTE: Delte this later
 #include "../includes/HttpResponseBuilder.hpp"
+#include "../src/http/Request.hpp"
 
 HttpResponseBuilder::HttpResponseBuilder(const ServerConfig& config):
     server_config (config), error_handler (config) {
@@ -106,7 +107,7 @@ HttpResponse HttpResponseBuilder::handleGet(const Request& request, const Locati
 // full_path = "./test_files/no_exist";
 // full_path = "./test_files";
 // full_path = "./test_files/";
-// full_path = "./test_files/index.html";
+full_path = "./test_files/index.html";
 // full_path = "./";
 // full_path = "/home/";
 /**********************************/
