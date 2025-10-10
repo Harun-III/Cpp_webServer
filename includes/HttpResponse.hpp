@@ -5,6 +5,7 @@
 #include <map>
 #include <sstream>
 #include <fstream>
+#include <sys/stat.h>
 
 class HttpResponse {
 private:
@@ -25,6 +26,7 @@ public:
     void setStatusMessage(const std::string& message);
     void setContentType(const std::string& type);
     void setHeader(const std::string& name, const std::string& value);
+    void setLocation(const std::string& url);
 
     // Getters
     int                     getStatusCode() const;
@@ -36,9 +38,8 @@ public:
     static      std::string getStatusText(int code);
     void        setContentLength(size_t length);
     void        writeFileToBuffer(std::string full_path);
+    // This now also sets the "Content-Lenght"
     void        writeStringToBuffer(std::string str);
-
-
 };
 
 #endif

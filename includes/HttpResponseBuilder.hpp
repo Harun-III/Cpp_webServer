@@ -26,6 +26,7 @@ public:
     HttpResponse    handleAutoIndex(const std::string& path) const;
     HttpResponse    buildResponse(Request& request);
 
+    HttpResponse    handleRedirect(int status_code, const std::string& url) const;
     HttpResponse    handleGet(const Request& request, const Location& location);
 };
 

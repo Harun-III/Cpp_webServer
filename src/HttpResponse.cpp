@@ -26,6 +26,11 @@ void HttpResponse::setHeader(const std::string& name, const std::string& value) 
     headers[name] = value;
 }
 
+void HttpResponse::setLocation(const std::string& url) {
+    setHeader("Location", url);
+}
+
+#include <iostream>
 std::string HttpResponse::toString() const {
     std::stringstream ss;
     
@@ -86,20 +91,31 @@ void HttpResponse::setContentLength(size_t length) {
 
 void HttpResponse::writeStringToBuffer(std::string str) {
     body = str;
+    setContentLength(body.length());
 }
 
-#include <iostream>
-
 void HttpResponse::writeFileToBuffer(std::string full_path) {
+    struct stat s_buffer;
+    if (stat(full_path.c_str(), &s_buffer) != 0) {
+        setContentLength(0);
+        body = "";
+        return;
+    }
+
+    // Set content length before reading
+    setContentLength(s_buffer.st_size);
+
     std::ifstream file(full_path.c_str());
     if (!file.is_open()) {
+        setContentLength(0);
         body = "";
+        return;
     }
-    
-    std::stringstream buffer;
-    buffer << file.rdbuf();
+
+    // Reserve space in the string to avoid reallocations
+    body.resize(s_buffer.st_size);
+
+    file.read(&body[0], s_buffer.st_size);
     file.close();
-    
-    body = buffer.str();
 }
 

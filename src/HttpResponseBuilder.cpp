@@ -2,6 +2,7 @@
 
 // NOTE: Delte this later
 #include "../includes/HttpResponseBuilder.hpp"
+#include "../src/http/Request.hpp"
 
 HttpResponseBuilder::HttpResponseBuilder(const ServerConfig& config):
     server_config (config), error_handler (config) {
@@ -76,7 +77,15 @@ HttpResponse HttpResponseBuilder::buildResponse(Request& request) {
         return response;
     }
 
+// NOTE: test block redirection -------------
+std::string full_path = "https://www.google.com";
+request.location.setReturn(302, full_path);
+//
+
     // check for redirection
+    if (request.location.getReturn().first != 0) {
+        return handleRedirect(request.location.getReturn().first, request.location.getReturn().second);
+    }
 
     // route to handlers
     if (request.method == "GET") {
@@ -87,11 +96,27 @@ HttpResponse HttpResponseBuilder::buildResponse(Request& request) {
         // return handlePost(Connection.request, Connection.location);
     }
 
-
 //NOTE: these lines are here just to suppress the warning from the compiler
 // and it will work as default response
     HttpResponse response;
     response.setStatusCode(200);
+    return response;
+}
+
+HttpResponse    HttpResponseBuilder::handleRedirect(int status_code, const std::string& url) const {
+    HttpResponse response;
+    response.setStatusCode(status_code);
+    response.setContentType("text/html");
+    response.setLocation(url);
+
+    std::stringstream body;
+    body << "<html><head><title>Redirect</title></head>";
+    body << "<body><h1>Redirecting...</h1>";
+    body << "<p>You are being redirected to: " << url << "</p>";
+    body << "</body></html>";
+    
+    response.writeStringToBuffer(body.str());
+
     return response;
 }
 
@@ -101,7 +126,7 @@ HttpResponse HttpResponseBuilder::handleGet(const Request& request, const Locati
 
 /******** //NOTE: TESTING *********/
 // full_path = "./test_files/regular_readable_file";
-// full_path = "./test_files/no_permissions";
+full_path = "./test_files/no_permissions";
 // full_path = "./test_files/file.txt";
 // full_path = "./test_files/no_exist";
 // full_path = "./test_files";
