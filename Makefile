@@ -13,7 +13,7 @@ CC			=	c++
 FLAGS		=	-Wall -Wextra -Werror -fsanitize=address -g -std=c++98
 RM			=	rm -fr
 
-INCLUDES	=	-I src/config -I src/http -I src/server -I src/cgi -I src/core -I includes
+INCLUDES	=	-I src/config -I src/http -I src/server -I src/cgi -I src/core -I src/tools
 
 GREEN		=	"\033[1;32m"
 YELOW		=	"\033[1;33m"

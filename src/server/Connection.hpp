@@ -3,8 +3,8 @@
 
 # include "Core.hpp"
 # include "Request.hpp"
-# include "HttpResponse.hpp"
-# include "HttpResponseBuilder.hpp"
+# include "Response.hpp"
+# include "ResponseBuilder.hpp"
 
 enum state_e { REQUEST_LINE, READING_HEADERS, READING_BODY,
 				READY_TO_WRITE, WRITING, CLOSING, BAD };
@@ -35,7 +35,7 @@ class Connection
 		state_e			state;
 
 		Request			request;
-		HttpResponse	response;
+		Response		response;
 };
 
 #endif

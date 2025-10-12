@@ -2,17 +2,9 @@
 
 # include "ConfigParser.hpp"
 # include "ServerConfig.hpp"
-# include "HttpResponseBuilder.hpp"
-# include "HttpResponse.hpp"
+# include "ResponseBuilder.hpp"
+# include "Response.hpp"
 # include "Connection.hpp"
-
-// NOTE: Delte these later
-// #include "../core/core.hpp"
-// #include "../../includes/ConfigParser.hpp"
-// #include "../../includes/HttpResponseBuilder.hpp"
-// #include "../../includes/HttpResponse.hpp"
-// #include "../../includes/ServerConfig.hpp"
-// #include "../../includes/Connection.hpp"
 
 int	main( int argc, char **argv ) {
 	try {

@@ -1,5 +1,0 @@
-hello server {
-	error_page 401;;; error_page	402 /file/here/       ;
-}
-
-

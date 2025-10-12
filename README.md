@@ -19,8 +19,9 @@ webserv/
 ├─ bin/                     # simple CGI scripts (python, etc.)
 └─ src/
    ├─ config/
-   │  ├─ Config.hpp / .cpp          # parse config file → in-memory model
-   │  └─ Models.hpp                 # ServerBlock, Location, etc.
+   │  ├─ ServerConfig.hpp / .cpp    # parse config file → in-memory model
+   │  ├─ ConfigParser.hpp / .cpp    # parse config file → in-memory model
+   │  └─ Location.hpp / .cpp        # ServerBlock, Location, etc.
    ├─ http/
    │  ├─ Request.hpp / .cpp         # HTTP request structure + helpers
    │  ├─ RequestParser.hpp / .cpp   # parse start-line, headers, body (HTTP/1.0)

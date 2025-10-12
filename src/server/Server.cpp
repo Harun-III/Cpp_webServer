@@ -3,8 +3,6 @@
 Server::Server( void ) : epoll_fd(ERROR) { }
 
 Server::~Server( void ) {
-	std::cout << "Server Closed ...\n";
-
 	for (std::map<int, ServerConfig>::iterator curr = listeners.begin();
 			curr != listeners.end(); curr++)
 		close(curr->first);
@@ -14,6 +12,20 @@ Server::~Server( void ) {
 void	Server::create_epoll( void ) {
 	if ((epoll_fd = epoll_create(MAX_EVENTS)) == ERROR)
 		throw std::runtime_error("<epoll_create> " + std::string(strerror(errno)));
+}
+
+bool	Server::onReading( int sock ) {
+	state_e		state = connections.find(sock)->second.getState();
+
+	return state == REQUEST_LINE || state == READING_HEADERS
+				|| state == READING_BODY;
+}
+
+bool	Server::onWriting( int sock ) {
+	state_e		state = connections.find(sock)->second.getState();
+
+	return state == READY_TO_WRITE || state == WRITING
+				|| state == BAD;
 }
 
 void	Server::socket_control( int fd, int mode, int op ) {
@@ -92,24 +104,14 @@ void	Server::run( void )
 			}
 
 			if (events[curr_ev].events & EPOLLIN) {
-				if (connections[curr_sock].getState() == REQUEST_LINE
-						|| connections[curr_sock].getState() == READING_HEADERS
-						|| connections[curr_sock].getState() == READING_BODY)
-					connections[curr_sock].requestProssessing();
-				if (connections[curr_sock].getState() == READY_TO_WRITE
-						|| connections[curr_sock].getState() == WRITING
-						|| connections[curr_sock].getState() == BAD)
+				if (onReading(curr_sock) == true) connections[curr_sock].requestProssessing();
+				if (onWriting(curr_sock) == true)
 					socket_control(connections[curr_sock].getSoc(), EPOLLOUT, EPOLL_CTL_MOD);
 				continue ;
 			}
 
 			if (events[curr_ev].events & EPOLLOUT) {
-				if (connections[curr_sock].getState() == READY_TO_WRITE
-						|| connections[curr_sock].getState() == WRITING
-						|| connections[curr_sock].getState() == BAD) {
-					connections[curr_sock].reponseProssessing();
-					connections[curr_sock].setState(CLOSING);
-				}
+				if (onWriting(curr_sock) == true) connections[curr_sock].reponseProssessing();
 			}
 		}
 	}

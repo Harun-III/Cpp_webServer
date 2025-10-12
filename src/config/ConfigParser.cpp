@@ -9,8 +9,7 @@
 #include <string>
 #include <vector>
 
-// Delete this later
-#include "../includes/ConfigParser.hpp"
+# include "ConfigParser.hpp"
 
 ConfigParser::ConfigParser(const std::string& filename) 
     : filename(filename) {

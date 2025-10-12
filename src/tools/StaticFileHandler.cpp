@@ -4,7 +4,7 @@
 #include <cstdio>
 
 // NOTE: Delete this later
-#include "../includes/StaticFileHandler.hpp"
+#include "StaticFileHandler.hpp"
 
 StaticFileHandler::StaticFileHandler() {
 }

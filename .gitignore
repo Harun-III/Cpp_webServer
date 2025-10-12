@@ -44,3 +44,6 @@ exe
 
 # vscode files
 .vscode
+
+# test files
+test_files

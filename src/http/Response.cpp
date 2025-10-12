@@ -1,72 +1,125 @@
-// Response.cpp
+# include "Response.hpp"
 
-// #include "Core.hpp"
-// #include <fstream>
-// #include <iterator>
+Response::Response() : http_version("HTTP/1.0") { }
 
-// void	Connection::buildResponseMinimal(void) {
-// 	std::cout << "Client Socket: " << soc << std::endl;
+Response::~Response() {
+}
 
-// 	// --- Load file ./www/Index.html into 'body'
-// 	std::ifstream	file("./www/index.html", std::ios::in | std::ios::binary);
-// 	std::string		body;
-// 	bool			ok = false;
+void Response::setStatusCode(int code) {
+    status_code = code;
+    status_message = getStatusText(code);
+}
 
-// 	if (file) {
-// 		file.seekg(0, std::ios::end);
-// 		std::streampos sz = file.tellg();
-// 		if (sz > 0) {
-// 			body.resize((size_t)sz);
-// 			file.seekg(0, std::ios::beg);
-// 			file.read(&body[0], sz);
-// 			ok = true;
-// 		} else {
-// 			file.clear();
-// 			file.seekg(0, std::ios::beg);
-// 			body.assign(std::istreambuf_iterator<char>(file),
-// 						std::istreambuf_iterator<char>());
-// 			ok = true;
-// 		}
-// 	}
 
-// 	const char* status = ok ? "200 OK" : "404 Not Found";
-// 	if (!ok) {
-// 		body =
-// 			"<!DOCTYPE html>\n"
-// 			"<html><head><title>404 Not Found</title></head>\n"
-// 			"<body><h1>404 Not Found</h1></body></html>\n";
-// 	}
+void Response::setStatusMessage(const std::string& message) {
+    status_message = message;
+}
 
-// 	// --- HTTP/1.0 header (always close)
-// 	char header[256];
-// 	int header_len = std::snprintf(header, sizeof(header),
-// 		"HTTP/1.0 %s\r\n"
-// 		"Server: Webserv\r\n"
-// 		"Content-Type: text/html; charset=UTF-8\r\n"
-// 		"Content-Length: %lu\r\n"
-// 		"Connection: close\r\n"
-// 		"\r\n",
-// 		status, (unsigned long)body.size());
-// 	if (header_len < 0) header_len = 0;
-// 	if (header_len > (int)sizeof(header)) header_len = (int)sizeof(header);
+void Response::setContentType(const std::string& type) {
+    setHeader("Content-Type", type);
+}
 
-// 	state = WRITING;
+void Response::setHeader(const std::string& name, const std::string& value) {
+    headers[name] = value;
+}
 
-// 	// --- Send header (handle partial writes)
-// 	size_t off = 0;
-// 	while (off < (size_t)header_len) {
-// 		ssize_t n = ::send(soc, header + off, (size_t)header_len - off, MSG_NOSIGNAL);
-// 		if (n <= 0) break;
-// 		off += (size_t)n;
-// 	}
+void Response::setLocation(const std::string& url) {
+    setHeader("Location", url);
+}
 
-// 	// --- Send body (handle partial writes)
-// 	off = 0;
-// 	const char* p = body.empty() ? "" : body.c_str();
-// 	size_t blen = body.size();
-// 	while (off < blen) {
-// 		ssize_t n = ::send(soc, p + off, blen - off, MSG_NOSIGNAL);
-// 		if (n <= 0) break;
-// 		off += (size_t)n;
-// 	}
-// }
+void Response::generateErrorPage(const ServerConfig &server, int code) {
+    ErrorHandler    error_handler(server);
+
+    std::cout << "From Generate Error Page" << std::endl;
+    setStatusCode(code);
+    setContentType("text/html");
+    writeStringToBuffer(error_handler.generateErrorResponse(code));
+}
+
+std::string Response::toString() const {
+    std::stringstream ss;
+    
+    // Status line
+    ss << http_version << " " << status_code << " " << status_message << "\r\n";
+    
+    // Headers
+    for (std::map<std::string, std::string>::const_iterator it = headers.begin();
+         it != headers.end(); ++it) {
+        ss << it->first << ": " << it->second << "\r\n";
+    }
+
+    // Empty line between headers and body
+    ss << "\r\n";
+    // Body
+    ss << body;
+
+    return ss.str();
+}
+
+std::string Response::getStatusText(int code) {
+    switch (code) {
+        case 200: return "OK";
+        case 201: return "Created";
+        case 202: return "Accepted";
+        case 204: return "No Content";
+        
+        // 3xx Redirection
+        case 301: return "Moved Permanently";
+        case 302: return "Found";
+        case 303: return "See Other";
+        
+        // 4xx Client Error
+        case 400: return "Bad Request";
+        case 401: return "Unauthorized";
+        case 403: return "Forbidden";
+        case 404: return "Not Found";
+        case 405: return "Method Not Allowed";
+        case 408: return "Request Timeout";
+        case 413: return "Payload Too Large";
+        case 414: return "URI Too Long";
+        case 415: return "Unsupported Media Type";
+        
+        // 5xx Server Error
+        case 500: return "Internal Server Error";
+        case 501: return "Not Implemented";
+        case 505: return "HTTP Version Not Supported";
+        
+        default: return "Unknown";
+    }
+}
+
+void Response::setContentLength(size_t length) {
+    std::stringstream ss;
+    ss << length;
+    setHeader("Content-Length", ss.str());
+}
+
+void Response::writeStringToBuffer(std::string str) {
+    body = str;
+    setContentLength(body.length());
+}
+
+void Response::writeFileToBuffer(std::string full_path) {
+    struct stat s_buffer;
+    if (stat(full_path.c_str(), &s_buffer) != 0) {
+        setContentLength(0);
+        body = "";
+        return;
+    }
+
+    // Set content length before reading
+    setContentLength(s_buffer.st_size);
+
+    std::ifstream file(full_path.c_str());
+    if (!file.is_open()) {
+        setContentLength(0);
+        body = "";
+        return;
+    }
+
+    // Reserve space in the string to avoid reallocations
+    body.resize(s_buffer.st_size);
+
+    file.read(&body[0], s_buffer.st_size);
+    file.close();
+}

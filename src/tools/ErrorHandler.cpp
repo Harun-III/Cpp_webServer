@@ -1,10 +1,10 @@
 // #include "ErrorHandler.hpp"
-// #include "HttpResponseBuilder.hpp"
+// #include "ResponseBuilder.hpp"
 #include <sstream>
 
 // NOTE: Delte these later
-#include "../includes/ErrorHandler.hpp"
-#include "../includes/HttpResponseBuilder.hpp"
+#include "ErrorHandler.hpp"
+#include "ResponseBuilder.hpp"
 
 ErrorHandler::ErrorHandler(const ServerConfig& config) : server_config(config) {
 }
@@ -48,7 +48,7 @@ bool ErrorHandler::hasCustomErrorPage(int error_code) const {
 }
 
 std::string ErrorHandler::generateDefaultErrorPage(int error_code) const {
-    HttpResponse Response;
+    Response Response;
     std::string error_message = Response.getStatusText(error_code);
 
     std::stringstream ss;
