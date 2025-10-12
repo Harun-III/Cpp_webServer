@@ -6,9 +6,12 @@
 #include <sstream>
 #include <fstream>
 #include <sys/stat.h>
+#include "../includes/ErrorHandler.hpp"
 
 class HttpResponse {
 private:
+    ErrorHandler                        error_handler;
+
     std::string                         http_version;
     int                                 status_code;
     std::string                         status_message;
@@ -35,6 +38,7 @@ public:
     // Build the HTTP response string
     std::string toString() const;
 
+    void        generateErrorPage(int code);
     static      std::string getStatusText(int code);
     void        setContentLength(size_t length);
     void        writeFileToBuffer(std::string full_path);

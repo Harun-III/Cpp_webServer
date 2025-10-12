@@ -14,6 +14,7 @@ void HttpResponse::setStatusCode(int code) {
     status_message = getStatusText(code);
 }
 
+
 void HttpResponse::setStatusMessage(const std::string& message) {
     status_message = message;
 }
@@ -28,6 +29,12 @@ void HttpResponse::setHeader(const std::string& name, const std::string& value) 
 
 void HttpResponse::setLocation(const std::string& url) {
     setHeader("Location", url);
+}
+
+void HttpResponse::generateErrorPage(int code) {
+    setStatusCode(code);
+    setContentType("text/html");
+    writeStringToBuffer(error_handler.generateErrorResponse(404));
 }
 
 #include <iostream>
