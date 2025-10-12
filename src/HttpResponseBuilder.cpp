@@ -86,7 +86,7 @@ HttpResponse HttpResponseBuilder::buildResponse(Request& request) {
     if (request.method == "GET") {
         return handleGet(request, request.location);
     } else if (request.method == "DELETE") {
-        // return handleDelete(request, request.location);
+        return handleDelete(request.full_path);
     }
 
 //NOTE: these lines are here just to suppress the warning from the compiler
@@ -217,3 +217,12 @@ full_path = "./test_files/no_permissions";
     return response;
 }
 
+HttpResponse HttpResponseBuilder::handleDelete(const std::string& full_path) {
+    HttpResponse response;
+    (void)full_path;
+    /******** //NOTE: TESTING *********/
+    std::cout << "Test I'm in handleDelte function\n";
+    /**********************************/
+    return response;
+    
+}

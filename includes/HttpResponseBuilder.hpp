@@ -28,6 +28,7 @@ public:
 
     HttpResponse    handleRedirect(int status_code, const std::string& url) const;
     HttpResponse    handleGet(const Request& request, const Location& location);
+    HttpResponse    handleDelete(const std::string& full_path);
 };
 
 #endif
