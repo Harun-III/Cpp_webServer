@@ -1,6 +1,7 @@
 // #include "StaticFileHandler.hpp"
 #include <algorithm>
 #include <dirent.h>
+#include <cstdio>
 
 // NOTE: Delete this later
 #include "../includes/StaticFileHandler.hpp"
@@ -58,6 +59,10 @@ std::string StaticFileHandler::readFile(const std::string& path) const {
     file.close();
     
     return buffer.str();
+}
+
+bool    StaticFileHandler::deleteFile(const std::string& path) const {
+    return (std::remove(path.c_str()) == 0);
 }
 
 std::vector<std::string>    StaticFileHandler::listDirectory(const std::string& path) const {

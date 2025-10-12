@@ -220,18 +220,6 @@ full_path = "./test_files/index.html";
 HttpResponse HttpResponseBuilder::handleDelete(std::string full_path) {
     HttpResponse response;
 
-/******** //NOTE: TESTING *********/
-// full_path = "./test_files/regular_readable_file";
-// full_path = "./test_files/no_permissions";
-// full_path = "./test_files/file.txt";
-// full_path = "./test_files/no_exist";
-// full_path = "./test_files";
-// full_path = "./test_files/";
-// full_path = "./test_files/index.html";
-// full_path = "./";
-full_path = "/home/";
-/**********************************/
-
     // Check if path exists
     if (! static_handler.fileExists(full_path)) {
         response.setStatusCode(404);
@@ -240,6 +228,7 @@ full_path = "/home/";
         return response;
     }
 
+    // if Dir == forbidden
     if (static_handler.isDirectory(full_path)) {
         response.setStatusCode(403);
         response.setContentType("text/html");
@@ -247,9 +236,15 @@ full_path = "/home/";
         return response;
     }
 
-    /******** //NOTE: TESTING *********/
-    std::cout << "Test I'm in handleDelte function\n";
-    /**********************************/
+    if (static_handler.deleteFile(full_path)) {
+        response.setStatusCode(204);  // No Content
+        response.setContentType("text/html");
+        response.setContentLength(0);
+    } else {
+        response.setStatusCode(500);
+        response.setContentType("text/html");
+        response.writeStringToBuffer(error_handler.generateErrorResponse(500));
+    }
+
     return response;
-    
 }
