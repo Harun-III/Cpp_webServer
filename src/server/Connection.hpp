@@ -2,12 +2,9 @@
 # define CONNECTION_HPP
 
 # include "Core.hpp"
-# include "Request.hpp"
 # include "Response.hpp"
+# include "RequestParser.hpp"
 # include "ResponseBuilder.hpp"
-
-enum state_e { REQUEST_LINE, READING_HEADERS, READING_BODY,
-				READY_TO_WRITE, WRITING, CLOSING, BAD };
 
 class Location;
 
@@ -17,7 +14,7 @@ class Connection
 		Connection( void );
 		~Connection( void );
 
-		Connection( int , ServerConfig );
+		Connection( int , ServerConfig & );
 
 		int				getSoc( void );
 		int				getCode( void );
@@ -31,8 +28,7 @@ class Connection
 
 	private:
 		int				soc;
-		int				code;
-		state_e			state;
+		State			status;
 
 		Request			request;
 		Response		response;

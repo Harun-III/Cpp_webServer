@@ -25,7 +25,7 @@ bool	Server::onWriting( int sock ) {
 	state_e		state = connections.find(sock)->second.getState();
 
 	return state == READY_TO_WRITE || state == WRITING
-				|| state == BAD;
+				|| state == CLOSING || state == BAD;
 }
 
 void	Server::socket_control( int fd, int mode, int op ) {
@@ -44,8 +44,7 @@ void	Server::close_connection( int sock ) {
 	close(sock);
 }
 
-void	Server::accept_connection( int sock )
-{
+void	Server::accept_connection( int sock ) {
 	int		conn_sock = accept(sock, NULL, NULL);
 
 	if (conn_sock == ERROR) return ;

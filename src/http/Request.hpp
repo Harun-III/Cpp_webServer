@@ -15,16 +15,15 @@ class Request
 		~Request( void );
 
 		std::string				recv;
-
-		std::string				method;
-		Location				location;
 		std::string				full_path;
-
-		std::string				target;
-		std::string				version;
 		std::string				query;
 
+		std::string				method;
+		std::string				target;
+		std::string				version;
+
 		map_t					headers;
+		Location				location;
 		ServerConfig			server;
 
 		bool					has_content_length;
