@@ -9,11 +9,8 @@
 505 HTTP Version Not Supported — wrong HTTP version;
 -----------------------------------------------------------------------
 
-
-## HTTP/1.0:
-    - Reserved (as delimiters only): ; / ? : @ = &
-    - Percent-encodings: % HEX HEX
-    - Unsafe / disallowed in URLs (must be percent-encoded): space, #, <, >, ", {, }, |, \, ^, ~, [, ], `, plus all control characters (0x00–0x1F and 0x7F) and non-ASCII.
-
-+ Normalize dot-segments: Reject Traversal.
-+ Reject NULL Injection.
+Need To Handle In The URI:
+    + control chars (0x00–0x1F, 0x7F) are illegal -> 400
+    + Fragment (“#”) must not be present in a Request-URI. unsafe -> 400
+    + Reserved characters : ; / ? : @ = &. In HTTP, inside path and query, / ; ? are reserved
+        %2F, %3F, %3B etc., decoding them is still allowed by RFC 1945 (server must decode);

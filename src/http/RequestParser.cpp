@@ -9,15 +9,19 @@ bool	RequestParser::isValidMethod( const std::string &method ) {
 	return method == "GET" || method == "DELETE" || method == "POST";
 }
 
-bool	RequestParser::isValidVersion( const std::string &version ) {
-	return version == "HTTP/1.1" || version == "HTTP/1.0";
+bool RequestParser::containsChar( char c, const std::string& set ) {
+	return set.find(c) != std::string::npos;
 }
 
-bool	RequestParser::allDigits( const std::string &num ) {
-	return num.find_first_not_of("0123456789") == std::string::npos;
+bool RequestParser::containsAny( const std::string &str, const std::string &set ) {
+	return str.find_first_of(set) != std::string::npos;
 }
 
-std::string	RequestParser::toUpperInPlace( std::string token ) {
+bool RequestParser::containsOnly( const std::string &str, const std::string &set ) {
+	return !str.empty() && str.find_first_not_of(set) == std::string::npos;
+}
+
+std::string	RequestParser::strToUpper( std::string token ) {
 	for (size_t index = 0; index < token.size(); ++index)
 		token[index] = std::toupper(token[index]);
 	return token;
@@ -41,6 +45,7 @@ bool	RequestParser::percentDecode( const std::string &target ) {
 			if (index + 2 >= target.size()) return false;
 			if (!std::isxdigit(target[index + 1]) || !std::isxdigit(target[index + 2]))
 				return false;
+			// std::replace();
 			index += 2;
 		}
 	}
@@ -57,7 +62,7 @@ bool	RequestParser::methodParser( std::string &method, int &code) {
 			return false;
 
 	if (isValidMethod(method)) return true;
-	if (isValidMethod(toUpperInPlace(method))) return false;
+	if (isValidMethod(strToUpper(method))) return false;
 
 	return (code = 501, false);
 }
@@ -68,17 +73,16 @@ bool	RequestParser::targetParser( std::string &target, std::string &query ) {
 	if (target.find('#') != std::string::npos) return false;
 
 	for (size_t index = 0; index < target.size(); ++index) {
-		if (isCTL(target[index]) || target[index] == ' '
-				|| target[index] == '\t' || target[index] == '\\')
+		if (isCTL(target[index]) || containsChar(target[index], " \t\\"))
 			return false;
 	}
 
-	if (percentDecode(target) == false) return false; 
+	if (percentDecode(target) == false) return false;
 
 	if (target.find("..") != std::string::npos) return false;
 
 	size_t		pos;
-
+	
 	if((pos = target.find('?')) != std::string::npos) {
 		query = target.substr(pos + 1);
 		target.erase(pos);
@@ -87,13 +91,14 @@ bool	RequestParser::targetParser( std::string &target, std::string &query ) {
 	return true;
 }
 
-bool	RequestParser::versionParser( std::string &version, int &code ) {
+bool	RequestParser::versionParser( const std::string &version, int &code ) {
 	code = 400;
 
 	const std::string		prefix = "HTTP/";
+	const std::string		nums = "0123456789";
 
 	if (version.size() < prefix.size() + 3) return false;
-	if (version.compare(0, prefix.size(), prefix) != 0) return false;
+	if (version.compare(0, prefix.size(), prefix)) return false;
 
 	size_t			dot = version.find('.', prefix.size());
 	if (dot == std::string::npos) return false;
@@ -101,15 +106,17 @@ bool	RequestParser::versionParser( std::string &version, int &code ) {
 	std::string		major = version.substr(prefix.size(), dot - prefix.size());
 	std::string		minor = version.substr(dot + 1);
 
-	// if (!allDigits(major) || !allDigits(minor)) return false;
+	if (containsOnly(major, nums) == false || containsOnly(minor, nums) == false)
+		return false;
+
 	if (major == "1" && (minor == "0" || minor == "1")) return true;
 
-	return (code = 501, false);
+	return (code = 505, false);
 }
 
 State	RequestParser::requestLineParser( Request &request ) {	
 	size_t				pos;
-	std::string			CRLF("\r\n");
+	const std::string	CRLF("\r\n");
 
 	if ((pos = request.recv.find(CRLF)) == std::string::npos) {
 		if (request.recv.size() > MAX_REQUEST_LINE) return State(414, BAD);
@@ -124,7 +131,7 @@ State	RequestParser::requestLineParser( Request &request ) {
 	request.recv.erase(0, pos + CRLF.size());
 
 	char				sp, space, extra;
-	std::istringstream	streamLine(line);	
+	std::istringstream	streamLine(line);
 
 	streamLine >> std::noskipws >> request.method >> sp
 		>> request.target >> space >> request.version;
@@ -141,8 +148,7 @@ State	RequestParser::requestLineParser( Request &request ) {
 
 	if (streamLine >> extra) return State(400, BAD);
 
-	request.full_path = "." + request.server.getLocations().find("/")->second.getRoot()
-			+ request.target; // Full Path Handler
+	request.full_path = "." + request.target;
 
 	std::cout << "[ " << request.method <<  " ] " 
 			<< "[ " << request.target <<  " ] " 
@@ -152,7 +158,7 @@ State	RequestParser::requestLineParser( Request &request ) {
 }
 
 State	RequestParser::headersParser( Request &request ) {
-	std::string			DCRLF("\r\n");
+	std::string			DCRLF("\r\n\r\n");
 	size_t				pos;
 
 	if ((pos = request.recv.find(DCRLF)) == std::string::npos)
@@ -169,7 +175,7 @@ State	RequestParser::headersParser( Request &request ) {
 
 		std::string::size_type	colum = line.find(':');
 
-		if (line[0] == ' ' || line[0] == '\t' || colum == std::string::npos)
+		if (containsChar(line[0], " \t") || colum == std::string::npos)
 			return State(400, BAD);
 
 		std::string				name = line.substr(0, colum);
@@ -178,12 +184,12 @@ State	RequestParser::headersParser( Request &request ) {
 		std::transform(name.begin(), name.end(), name.begin(),
 			static_cast<int(*)(int)>(std::tolower));
 
-		for (size_t index = 0; index < value.size() && (value[index] == ' '
-				|| value[index] == '\t'); ++index)
+		for (size_t index = 0; index < value.size()
+				&& containsChar(value[index], " \t"); ++index)
 			value.erase(0, index);
 
-		for (size_t index = value.size(); index > 0 && (value[index - 1] == ' '
-				|| value[index - 1] == '\r'); --index)
+		for (size_t index = value.size(); index > 0
+				&& containsChar(value[index - 1], "\r \t"); --index)
 			value.erase(index - 1);
 
 		if (name == "transfer-encoding") return State(400, BAD);

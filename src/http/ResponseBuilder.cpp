@@ -138,6 +138,7 @@ Response ResponseBuilder::handleGet(const Request& request, const Location& loca
     server regular file
 */
 
+    (void) server_config;
     // Check if path exists
     if (! static_handler.fileExists(full_path)) {
         response.setStatusCode(404);
@@ -149,7 +150,6 @@ Response ResponseBuilder::handleGet(const Request& request, const Location& loca
     // Check if it's a directory
     if (static_handler.isDirectory(full_path)) {
         /******** //NOTE: TESTING *********/
-            std::cout << "It'a a direcory" << std::endl;
         /**********************************/
         // Try to serve index file if configured
         if (!location.getIndex().empty()) {
@@ -177,7 +177,6 @@ Response ResponseBuilder::handleGet(const Request& request, const Location& loca
         // Check if auto_index is enabled
         if (location.getAutoIndex()) {
             /******** //NOTE: TESTING *********/
-            std::cout << "AutoIndex is on\n";
             /**********************************/
             //TODO: AutoIndex method
             response = handleAutoIndex(full_path);

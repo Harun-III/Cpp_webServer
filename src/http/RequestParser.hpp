@@ -29,19 +29,19 @@ class RequestParser
 
 		static bool			isCTL( unsigned char c );
 		static bool			isTspecials( unsigned char c );
-
 		static bool			isValidMethod( const std::string & );
-		static bool			isValidVersion( const std::string & );
 
-		bool				allDigits( const std::string & );
-		static std::string	toUpperInPlace( std::string );
-
+		static std::string	strToUpper( std::string );
 		static bool			percentDecode( const std::string &target );
+
+		static bool			containsChar( char , const std::string & );
+		static bool			containsAny( const std::string & , const std::string & );
+		static bool			containsOnly( const std::string & , const std::string & );
 
 	private:
 		static bool			methodParser( std::string & , int & );
 		static bool			targetParser( std::string & , std::string & );
-		static bool			versionParser( std::string & , int & );
+		static bool			versionParser( const std::string & , int & );
 };
 
 #endif
