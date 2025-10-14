@@ -11,7 +11,7 @@
 
 class ResponseBuilder {
 private:
-    const ServerConfig&         server_config;
+    // const ServerConfig&         server_config;
     ErrorHandler                error_handler;
     StaticFileHandler           static_handler;
 

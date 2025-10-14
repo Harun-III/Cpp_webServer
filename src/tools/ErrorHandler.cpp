@@ -1,10 +1,6 @@
-// #include "ErrorHandler.hpp"
-// #include "ResponseBuilder.hpp"
-#include <sstream>
-
-// NOTE: Delte these later
 #include "ErrorHandler.hpp"
 #include "ResponseBuilder.hpp"
+#include <sstream>
 
 ErrorHandler::ErrorHandler(const ServerConfig& config) : server_config(config) {
 }
@@ -24,12 +20,7 @@ std::string ErrorHandler::getErrorPagePath(int error_code) const {
 }
 
 std::string ErrorHandler::generateErrorResponse(int error_code) const {
-    // First try to load custom error page
     if (hasCustomErrorPage(error_code)) {
-	// NOTE: use staticFileHandler to check if exist and readable
-	// if so return it
-
-	// TODO: method get path of the error_file from error code 
 	std::string error_page_path = getErrorPagePath(error_code);
 
 	StaticFileHandler static_handler;
@@ -38,7 +29,7 @@ std::string ErrorHandler::generateErrorResponse(int error_code) const {
 	    return static_handler.readFile(error_page_path);
 	}
     }
-    // Generate default error page
+
     return generateDefaultErrorPage(error_code);
 }
 

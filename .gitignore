@@ -47,3 +47,7 @@ exe
 
 # test files
 test_files
+
+# neovim clang
+compile_commands.json
+.cache

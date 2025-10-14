@@ -1,9 +1,6 @@
-// #include "StaticFileHandler.hpp"
 #include <algorithm>
 #include <dirent.h>
 #include <cstdio>
-
-// NOTE: Delete this later
 #include "StaticFileHandler.hpp"
 
 StaticFileHandler::StaticFileHandler() {

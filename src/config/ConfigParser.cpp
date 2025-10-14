@@ -1,4 +1,3 @@
-// #include "ConfigParser.hpp"
 #include <cctype>
 #include <cstddef>
 #include <cstdlib>
@@ -47,80 +46,32 @@ ServerConfig ConfigParser::parseServer() {
     ServerConfig server;
     std::map<std::string, bool> unique_listens;
 
-/*********************************TESTS BLOCK********************************/
-    // std::cout << "inside parseServer" << std::endl;
-/****************************************************************************/
-
-    // jump over the "server" token
     incrementTokenIndex();
-    
-    // Expect opening brace
-    if (getCurrentToken() != "{") {
-        throwParseError("Expected '{' after 'server'");
-    }
-
-    // jump over the "{" token
-    incrementTokenIndex();
+    expectToken("{");
 
     // loop until '}'
     while (hasMoreTokens() && getCurrentToken() != "}") {
-/*
-    std::vector<std::pair<std::string, int> >	listen; // ip:port pairs
-    std::map<std::string, Location>		locations;
-    std::map<int, std::string>			error_pages;
-    size_t					max_client_body_size;
-
-    Directives:
-	listen 
-	error_page
-	max_client_body_size
-	location
-*/
 	std::string directive = getCurrentToken();
-
 	if (directive == "listen") {
-	    //'listen' '127.0.0.1:8080' ';'
 	    incrementTokenIndex();
-	    //'127.0.0.1:8080' ';'
 	    std::string listen_value = getCurrentToken();
 	    std::pair<std::string, std::string> addr = parseListenDirective(listen_value);
 
 	    // NOTE: check if key is duplicated
 	    std::string listen_key = addr.first + ":" + addr.second;
-	    // Check if this ip:port combination already exists
 	    if (unique_listens.find(listen_key) != unique_listens.end()) {
 		throwParseError("Duplicate listen directive: " + listen_key);
 	    }
-	    // Add to the map of unique listens
 	    unique_listens[listen_key] = true;
-
 	    server.addListen(addr.first, addr.second);
 	    incrementTokenIndex();
-	    // --> we should technically have ';'
-	    // So we should check for it
-	    std::string token = getCurrentToken();
-	    if (token != ";") {
-		throwParseError("Expected ';' but found '" + token + "'");
-	    }
-	    // jump over the ';' token
-	    incrementTokenIndex();
+	    expectToken(";");
 	} else if (directive == "error_page") {
-//   # Error pages
-//     error_page 404 405 /errors/404.html;
-//     error_page 403 /errors/403.html;
 	    incrementTokenIndex();
             std::vector<int> error_codes = parseErrorCodes();
             std::string page = getCurrentToken();
 	    incrementTokenIndex();
-
-	    // check for ';'
-	    std::string token = getCurrentToken();
-	    if (token != ";") {
-		throwParseError("Expected ';' but found '" + token + "'");
-	    }
-	    // jump over the ';' token
-	    incrementTokenIndex();
-            
+	    expectToken(";");
             for (size_t i = 0; i < error_codes.size(); ++i) {
                 server.addErrorPage(error_codes[i], page);
             }
@@ -128,16 +79,8 @@ ServerConfig ConfigParser::parseServer() {
 	    incrementTokenIndex();
             size_t size = static_cast<size_t>(std::atoi(getCurrentToken().c_str()));
             server.setMaxClientBodySize(size);
-
 	    incrementTokenIndex();
-	    // check for ';'
-	    std::string token = getCurrentToken();
-	    if (token != ";") {
-		throwParseError("Expected ';' but found '" + token + "'");
-	    }
-	    // jump over the ';' token
-	    incrementTokenIndex();
-    // do logic
+	    expectToken(";");
 	} else if (directive == "location") {
 	    incrementTokenIndex();
 	    std::string path = getCurrentToken();
@@ -148,16 +91,11 @@ ServerConfig ConfigParser::parseServer() {
 	    throwParseError("Unknown directive in server block: '" + directive + "'");
 	}
     }
-/*********************************TESTS BLOCK********************************/
-// std::cout << "server getMaxClientBodySize " << server.getMaxClientBodySize() << std::endl;
-/****************************************************************************/
 
-    // Validate that server has at least one listen directive
     if (server.getListen().empty()) {
         throwParseError("Server block must have at least one 'listen' directive");
     }
 
-    // Validate that server has at least one location
     if (server.getLocations().empty()) {
         throwParseError("Server block must have at least one 'location' block");
     }
@@ -166,13 +104,6 @@ ServerConfig ConfigParser::parseServer() {
 }
 
 Location ConfigParser::parseLocation() {
-/*********************************TESTS BLOCK********************************/
-// std::cout << "tokens are: \n" << std::endl;
-// for (auto b = tokens.begin(); b != tokens.end(); b++) {
-//     std::cout << "\"" << *b << "\" ";
-// }
-// std::cout << std::endl;
-/****************************************************************************/
     Location location;
 
 //TODO: maybe make these into a function since I used them alot
@@ -184,89 +115,42 @@ Location ConfigParser::parseLocation() {
     // jump over the '{' token
     incrementTokenIndex();
 
-/* NOTE: location directives: 
-    +std::vector<std::string>              methods; // Allowed methods (GET, POST, DELETE)
-    +std::string                           root; // Root directory for this location
-    std::pair<int, std::string>           return_directive; // status code, redirect URL
-    std::string                           index; // Default file to serve (index.html)
-    bool                                  auto_index; // Enable/disable directory listing
-    bool                                  upload; // Allow file uploads
-    +std::string                           upload_location; // Directory to store uploaded files
-    std::map<std::string, std::string>    cgi; // extension -> cgi path
-*/
-
     while (hasMoreTokens() && getCurrentToken() != "}") {
         std::string directive = getCurrentToken();
         
         if (directive == "methods") {
 	    incrementTokenIndex();
-/*********************************TESTS BLOCK********************************/
-// NOTE: if you use this comment the second usage of the function parseMethodsList() below
-	    
-   // std::vector<std::string> string_of_allowed_methods = parseMethodsList();
-   // std::cout << "Block locaiton: mthods are: " << std::endl;
-   // for (size_t i = 0; i < string_of_allowed_methods.size(); i++) {
-   //   std::cout << i + 1 << ": " << string_of_allowed_methods[i] << " ";
-   // }
-   // std::cout << std::endl;
-/****************************************************************************/
 	    location.setMethods(parseMethodsList());
 	    expectToken(";");
         } else if (directive == "root") {
 	    incrementTokenIndex();
             location.setRoot(getCurrentToken());
-/*********************************TESTS BLOCK********************************/
-// std::cout << "location.root == " << location.getRoot() << std::endl;
-/****************************************************************************/
 	    incrementTokenIndex();
             expectToken(";");
         } else if (directive == "return") {
             std::pair<int, std::string> ret = parseReturnDirective();
-/*********************************TESTS BLOCK********************************/
-// std::cout << "Return: \n" << "\tcode: " << ret.first <<
-// 		"\n\tPath: " << ret.second << location.getRoot() << std::endl;
-/****************************************************************************/
 	    location.setReturn(ret.first, ret.second);
-/*********************************TESTS BLOCK********************************/
-// std::pair<int, std::string> test_ret = location.getReturn();
-// std::cout << "code: " << test_ret.first << std::endl;
-// std::cout << "Path: " << test_ret.second << std::endl;
-/****************************************************************************/
             expectToken(";");
         } else if (directive == "index") {
 	    incrementTokenIndex();
             location.setIndex(getCurrentToken());
-/*********************************TESTS BLOCK********************************/
-// std::cout << "location.index == " << location.getIndex() << std::endl;
-/****************************************************************************/
 	    incrementTokenIndex();
             expectToken(";");
         } else if (directive == "auto_index") {
 	    incrementTokenIndex();
             std::string value = getCurrentToken();
             location.setAutoIndex(value == "on" || value == "yes" || value == "true");
-/*********************************TESTS BLOCK********************************/
-//   std::cout << "location.auto_index == " << 
-// (location.getAutoIndex() ? "yes" : "no") << std::endl;
-/****************************************************************************/
 	    incrementTokenIndex();
             expectToken(";");
         } else if (directive == "upload") {
 	    incrementTokenIndex();
             std::string value = getCurrentToken();
             location.setUpload(value == "yes" || value == "on" || value == "true");
-/*********************************TESTS BLOCK********************************/
-//   std::cout << "location.Upload == " << 
-// (location.getUpload() ? "yes" : "no") << std::endl;
-/****************************************************************************/
 	    incrementTokenIndex();
             expectToken(";");
         } else if (directive == "upload_location") {
 	    incrementTokenIndex();
 	    location.setUploadLocation(getCurrentToken());
-/*********************************TESTS BLOCK********************************/
-// std::cout << "location.upload_location == " << location.getUploadLocation() << std::endl;
-/****************************************************************************/
 	    incrementTokenIndex();
             expectToken(";");
 	} else if (directive == "cgi") {
@@ -275,12 +159,6 @@ Location ConfigParser::parseLocation() {
 	    incrementTokenIndex();
 	    std::string path = getCurrentToken();
 	    location.addCgi(extension, path);
-/*********************************TESTS BLOCK********************************/
-// std::map<std::string, std::string>::const_iterator it = location.getCgi().begin();
-// for (; it != location.getCgi().end() ; it++) {
-//     std::cout << it->first << ": " << it->second << std::endl;
-// }
-/****************************************************************************/
 	    incrementTokenIndex();
 	    expectToken(";");
 	} else {
@@ -320,7 +198,6 @@ std::pair<int, std::string> ConfigParser::parseReturnDirective() {
 }
 
 std::vector<std::string> ConfigParser::parseMethodsList() {
-    //NOTE: e.g.: "POST," "DELETE" "," "get" "GET" ";"
     std::vector<std::string> methods;
 
     while (hasMoreTokens() && getCurrentToken() != ";") {
@@ -336,34 +213,29 @@ std::vector<std::string> ConfigParser::parseMethodsList() {
 	    }
 	    methods.push_back(method);
 	}
-	
 	incrementTokenIndex();
     }
     return methods;
 }
 
 bool ConfigParser::isValidMethod(const std::string& method) {
-    //NOTE: valid method: GET, POST, DELETE
     return method == "GET" || method == "POST" || method == "DELETE" ||
            method == "get" || method == "post" || method == "delete";
-
 }
 
 
 std::vector<int> ConfigParser::parseErrorCodes() {
-    std::vector<int> codes;
-    
-    bool firstLoop = true;
+    std::vector<int>	codes;
+    bool		firstLoop = true;
+
     while (hasMoreTokens()) {
         std::string token = getCurrentToken();
-/*********************************TESTS BLOCK********************************/
-// std::cout << "token --> " << token << std::endl;
-/****************************************************************************/
 	if (!firstLoop) {
 	    if (token == ";" || !std::isdigit(token[0])) {
 		break;
 	    }
 	}
+
 	firstLoop = false;
 
         // Check if entire token is numeric
@@ -384,9 +256,8 @@ std::vector<int> ConfigParser::parseErrorCodes() {
         if (code >= 400 && code < 600) {
             codes.push_back(code);
         } else {
-            throwParseError("Error code is out of range (must be 4xx)");
+            throwParseError("Error code is out of range (must be 4xx or 5xx)");
         }
-        
         incrementTokenIndex();
     }
     
@@ -450,42 +321,13 @@ bool ConfigParser::readFile() {
 }
 
 void ConfigParser::tokenize(const std::string& content) {
-/*********************************TESTS BLOCK********************************/
-    //    std::cout << "hello I'm the tokenizer" << std::endl;
-    //    std::cout << "And this is the file: " << std::endl;
-    //    for (auto it_b = content.begin(); it_b != content.end(); it_b++) {
-    // std::cout << *it_b;
-    //    }
-/****************************************************************************/
-/*
-    e.g.:
-	# this is a comment, testing
-	server {
-	    port 8080;
-	}
-
-    1_ get rid of comments and '\n'
-    e.g.:
-	# this is a comment, comments end with \n
-
-    So you will either encounter a white-space
-	a normal char of a special token ( "{" , "}" , ";")
-    2_ Special character tokens:
-	Suppose your config file contains:
-	e.g.:
-	server {
-	    port 8080;
-	}
-*/
-
-    bool in_comment = false;
-    std::stringstream ss;
+    bool		in_comment = false;
+    std::stringstream	ss;
 
     // loop over the whole string
     for (size_t i = 0; i < content.length(); ++i) {
 	char c = content[i];
 
-	// if we hit # set flag to true, this means we are in a comment
 	if (c == '#' && !in_comment) {
 	    in_comment = true;
 	    continue;
@@ -501,14 +343,10 @@ void ConfigParser::tokenize(const std::string& content) {
 	    continue;
 	}
 
-	//       8080;
-	//	     ^
 	if (c == '{' || c == '}' || c == ';') {
-	    //ss="       8080" && c = ';'
 	    if (!ss.str().empty()) {
 		std::string token = ss.str();
 		trim(token);
-		// token="8080"
 		if (!token.empty()) {
 		    tokens.push_back(token);
 		}
@@ -534,28 +372,12 @@ void ConfigParser::tokenize(const std::string& content) {
 	    tokens.push_back(token);
 	}
     }
-/*********************************TESTS BLOCK********************************/
-// size_t i = 0;
-// for (auto it_b = tokens.begin(); it_b != tokens.end(); it_b++) {
-//     std::cout << ++i << " : " << *it_b << std::endl;
-// }
-/****************************************************************************/
-
-/*********************************TESTS BLOCK********************************/
-// std::cout << "\nAnd this should be the file wihtout comments nor \'\\n\'" << std::endl;
-// std::string test = ss.str();
-// for (auto it_b = test.begin(); it_b != test.end(); it_b++) {
-//     std::cout << *it_b;
-// }
-/****************************************************************************/
 }
 
 void ConfigParser::trim(std::string& s) {
-    // leading white-space
     while (!s.empty() && std::isspace(s[0])) {
         s.erase(s.begin());
     }
-    // trailing white-space
     while (!s.empty() && std::isspace(s[s.size() - 1])) {
         s.erase(s.end() - 1);
     }
