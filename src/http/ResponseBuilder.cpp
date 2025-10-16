@@ -1,5 +1,6 @@
 # include "Request.hpp"
 # include "ResponseBuilder.hpp"
+# include "Style.hpp"
 
 ResponseBuilder::ResponseBuilder(const ServerConfig& config):
     error_handler (config) {
@@ -11,19 +12,22 @@ ResponseBuilder::~ResponseBuilder() {
 std::string ResponseBuilder::generateDirectoryListing(const std::string& path) const {
     std::stringstream ss;
     std::vector<std::string> entries = static_handler.listDirectory(path);
-    
-    ss << "<html><head><title>Index of " << path << "</title></head>\n";
-    ss << "<body>\n";
-    ss << "<h1>Index of " << path << "</h1>\n";
-    ss << "<hr>\n";   
 
-    for (size_t i = 0; i < entries.size(); i++) {
-        ss << entries[i] << "<br>\n";
-    }
-    
-    ss << "</body>\n";
-    ss << "</html>\n";
-    
+    ss << "<!DOCTYPE html><html lang=\"en\"><head>"
+       << "<meta charset=\"UTF-8\">"
+       << "<meta name=\"viewport\" content=\"width=device-width,initial-scale=1\">"
+       << "<title>Index of " << path << "</title>"
+       << WEBSERV_STYLE
+       << "<div class=\"container\">"
+       << "<h1>Index of " << path << "</h1><hr>"
+       << "<div class=\"list\">"
+       << "<div class=\"item\"><a href=\"../\">../</a></div>";
+
+    for (size_t i = 0; i < entries.size(); i++)
+        ss << "<div class=\"item\"><a href=\"" << entries[i] << "\">" << entries[i] << "</a></div>";
+
+    ss << "</div></div></body></html>";
+
     return ss.str();
 }
 
