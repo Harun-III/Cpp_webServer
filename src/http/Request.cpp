@@ -20,9 +20,8 @@ std::string	joinPath ( const std::string &root, const std::string &target ) {
 	return root + target;
 }
 
-void	Request::longestPrefixMatch( void ) {
+std::string	Request::longestPrefixMatch( void ) {
 	std::string			longest = "/";
-
 	const map_location	&locations = server.getLocations();
 
 	for (map_location::const_iterator curr = locations.begin();
@@ -39,16 +38,23 @@ void	Request::longestPrefixMatch( void ) {
 		longest = prefix;
 	}
 
-	map_location::const_iterator	hit = locations.find(longest);
-
-	if (hit != locations.end()) location = hit->second;
-	else if (!locations.empty()) location = locations.begin()->second;
+	return longest;
 }
 
 void	Request::setLocationPath( void ) {
-	longestPrefixMatch();
+	const map_location	&locations = server.getLocations();
 
-	path = joinPath(location.getRoot(), target);
-	/* I Will Join The Path Here*/
+	std::string		longestM = longestPrefixMatch();
+
+	map_location::const_iterator	hit = locations.find(longestM);
+	
+	if (hit != locations.end()) location = hit->second;
+	else location = locations.begin()->second;
+	
+	std::string		alias = target.substr(longestM.size());
+	
+	if (!alias.empty() && alias[0] != '/') alias.insert(0, "/"); // More Checks
+	path = joinPath(location.getRoot(), alias);
+
 	std::cout << path << std::endl;
 }
