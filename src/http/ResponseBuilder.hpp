@@ -6,16 +6,17 @@
 #include "StaticFileHandler.hpp"
 #include "Connection.hpp"
 #include "ErrorHandler.hpp"
+#include "CgiHandler.hpp"
 
 #include <iostream>
 
 class ResponseBuilder {
 private:
-    // const ServerConfig&         server_config;
     ErrorHandler                error_handler;
     StaticFileHandler           static_handler;
 
-	bool            isCgiRequest(const std::string& path, const Location& location) const;
+    bool            isCgiRequest(const std::string& path, const Location& location) const;
+    Response        handleCgi(Request& request);
 
 public:
     ResponseBuilder(const ServerConfig& config);
