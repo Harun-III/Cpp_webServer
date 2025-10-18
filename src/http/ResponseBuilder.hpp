@@ -15,6 +15,7 @@ private:
     ErrorHandler                error_handler;
     StaticFileHandler           static_handler;
 
+	bool            isCgiRequest(const std::string& path, const Location& location) const;
 
 public:
     ResponseBuilder(const ServerConfig& config);
@@ -23,12 +24,12 @@ public:
     std::string     generateDirectoryListing(const std::string& path) const;
 
     bool            isMethodAllowed(const std::string& method, const Location& location) const;
-    Response    handleAutoIndex(const std::string& path) const;
-    Response    buildResponse(Request& request);
+    Response		handleAutoIndex(const std::string& path) const;
+    Response		buildResponse(Request& request);
 
-    Response    handleRedirect(int status_code, const std::string& url) const;
-    Response    handleGet(const Request& request, const Location& location);
-    Response    handleDelete(std::string full_path);
+    Response		handleRedirect(int status_code, const std::string& url) const;
+    Response		handleGet(const Request& request, const Location& location);
+    Response		handleDelete(std::string full_path);
 };
 
 #endif

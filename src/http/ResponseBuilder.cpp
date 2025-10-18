@@ -60,6 +60,12 @@ Response ResponseBuilder::handleAutoIndex(const std::string& path) const {
     return response;
 }
 
+bool ResponseBuilder::isCgiRequest(const std::string& path, const Location& location) const {
+    (void)path;
+    (void)location;
+    return true;
+}
+
 Response ResponseBuilder::buildResponse(Request& request) {
     try {
         // check if METHOD is allowed in location
@@ -75,6 +81,20 @@ Response ResponseBuilder::buildResponse(Request& request) {
         if (request.location.getReturn().first != 0) {
             return handleRedirect(request.location.getReturn().first, request.location.getReturn().second);
         }
+
+        // Check if it's a CGI request
+        if (isCgiRequest(request.path, request.location)) {
+            // handle CGI
+// NOTE: test block
+std::cout << "Inside isGgiRequest: if this line is reach the request is an executable" << std::endl;
+Response response;
+response.setStatusCode(500);
+response.setContentType("text/html");
+response.writeStringToBuffer("<body>Inside Cgi</body>");
+return response;
+// NOTE: test block end
+        }
+
 
         // route to handlers
         if (request.method == "GET") {
