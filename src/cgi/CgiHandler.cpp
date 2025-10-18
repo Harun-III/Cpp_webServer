@@ -49,12 +49,33 @@ Response CgiHandler::execute() {
     }
 
     // Create pipes for communication
+	int pipe_in[2]; // send to CGI
+    int pipe_out[2];  // receiving from CGI
+    
+    if (pipe(pipe_out) < 0) {
+        response.generateErrorPage(request.server, 500);
+        return response;
+    }
+
     // For POST, use file instead of pipe for input
+// NOTE: chane this line when done testing
+	// if (request.method == "POST") {
+	if (0) {
+		// generate temp file name for input_file
+		// put str request.recv into file
+		// if anything fails == 500
+	} else if (pipe(pipe_in) < 0) {
+		close(pipe_out[0]);
+		close(pipe_out[1]);
+        response.generateErrorPage(request.server, 500);
+        return response;
+	}
+	
     // Build environment variables and arguments
     // Fork and execute CGI
 
 response.setStatusCode(999);
-response.writeStringToBuffer("<body>handle CGI block</doby>");
+response.writeStringToBuffer("<body><h1>handle CGI block</h1></doby>");
 return response;
 }
 

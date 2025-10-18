@@ -1,3 +1,4 @@
+#include "CgiHandler.hpp"
 # include "Request.hpp"
 # include "ResponseBuilder.hpp"
 # include "Style.hpp"
