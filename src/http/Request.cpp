@@ -7,6 +7,17 @@ Request::Request( ServerConfig &serv ) : server(serv),
 
 Request::~Request( void ) { }
 
+bool	Request::isMethodAllowed( void ) {
+	const std::vector<std::string>	&allowed = location.getMethods();
+
+	if (allowed.empty()) return (method == "GET");
+
+	for (size_t index = 0; index < allowed.size(); ++index)
+		if (allowed[index] == method) return true;
+
+	return false;
+}
+git 
 std::string	joinPath ( const std::string &root, const std::string &target ) {
 	if (root.empty()) return target;
 	if (target.empty()) return root;
@@ -21,8 +32,8 @@ std::string	joinPath ( const std::string &root, const std::string &target ) {
 }
 
 std::string	Request::longestPrefixMatch( void ) {
-	std::string			longest = "/";
-	const map_location	&locations = server.getLocations();
+	std::string						longest = "/";
+	const map_location				&locations = server.getLocations();
 
 	for (map_location::const_iterator curr = locations.begin();
 			curr != locations.end(); curr++) {
@@ -41,20 +52,19 @@ std::string	Request::longestPrefixMatch( void ) {
 	return longest;
 }
 
-void	Request::setLocationPath( void ) {
-	const map_location	&locations = server.getLocations();
-
-	std::string		longestM = longestPrefixMatch();
-
+State	Request::startProssessing( void ) {
+	const map_location				&locations = server.getLocations();
+	std::string						longestM = longestPrefixMatch();
 	map_location::const_iterator	hit = locations.find(longestM);
-	
+
 	if (hit != locations.end()) location = hit->second;
-	else location = locations.begin()->second;
-	
-	std::string		alias = target.substr(longestM.size());
-	
-	if (!alias.empty() && alias[0] != '/') alias.insert(0, "/"); // More Checks
-	path = joinPath(location.getRoot(), alias);
+	else return State(404, BAD);
+
+	if (!isMethodAllowed()) return State(405, BAD);
+
+	path = target.substr(longestM.size());
+	path = joinPath(location.getRoot(), path);
 
 	std::cout << path << std::endl;
+	return State(0, READING_HEADERS);
 }

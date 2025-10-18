@@ -53,4 +53,9 @@ typedef std::vector< std::pair<std::string, std::string> > vector_pairs;
 # define MAX_REQUEST_LINE 1024
 # define MAX_HEADER_BYTES 10240
 
+# define GR "\033[1;32m"
+# define YL "\033[1;33m"
+# define RD "\033[1;31m"
+# define RS "\033[0m"
+
 #endif

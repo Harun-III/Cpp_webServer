@@ -8,6 +8,7 @@
 #include <string>
 #include <vector>
 
+# include "Core.hpp"
 # include "ConfigParser.hpp"
 
 ConfigParser::ConfigParser(const std::string& filename) 
@@ -38,6 +39,9 @@ std::vector<ServerConfig> ConfigParser::parseConfig() {
     if (servers.empty()) {
         throwParseError("No server blocks found in configuration");
     }
+
+    std::cout << GR "[INFO] Loading configuration from "
+        << filename << RS << std::endl;
 
     return servers;
 }

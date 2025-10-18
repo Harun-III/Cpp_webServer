@@ -24,17 +24,15 @@ void	Connection::requestProssessing( void ) {
 	if ((len = recv(soc, buffer, BUF_SIZE, false)) == ERROR) return ;
 	request.recv.append(buffer, len);
 	
-	std::cout << "\x1b[2J\x1b[H" << std::flush;
-
-	if (getState() == REQUEST_LINE) {
+	if (getState() == REQUEST_LINE)
 		status = RequestParser::requestLineParser(request);
-		if (getState() == READING_HEADERS)
-			request.setLocationPath();		/* Location, Method */
-	}
+
+	if (getState() == READING_HEADERS)
+		status = request.startProssessing();
 
 	if (getState() == READING_HEADERS)
 		status = RequestParser::headersParser(request);
-	
+
 	if (getState() == READING_BODY) {
 		status = RequestParser::bodyParser(request);
 			/** POST <Headers> */
@@ -45,7 +43,7 @@ void	Connection::reponseProssessing( void ) {
 	ResponseBuilder		builder(request.server);
 
 	std::cout << std::setw(40) << std::left
-		<< "\e[1;33mCode: [ " << getCode() << " ]\033[0m" << std::endl;
+		<< GR "Code: [ " << getCode() << " ]" RS << std::endl;
 
 	if (getState() != BAD)
 		response = builder.buildResponse(request);

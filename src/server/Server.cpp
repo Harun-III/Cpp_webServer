@@ -66,13 +66,15 @@ void	Server::create( std::vector<ServerConfig> &servers ) {
 
 			const std::string	&ip   = curr_lis->first;
 			const std::string	&port = curr_lis->second;
-
-			std::cout << "Server Running " << ip << " - port:" << port << " ...\n";
-
+			
 			Listener	listener(ip, port);
-
+			
 			listener.open();
 			socket_control(listener.get(), EPOLLIN, EPOLL_CTL_ADD);
+
+			std::cout << GR "[INFO] Server " << ip << " listening on port "
+				<< port + RS << std::endl;
+
 			listeners[listener.get()] = *current;
 			listener.release();
 		}
@@ -83,6 +85,8 @@ void	Server::run( void )
 {
 	int				nfds;
 	event_t			events[MAX_EVENTS];
+
+	std::cout << GR "[SUCCESS] Server started successfully!" RS << std::endl;
 
 	while ( true ) {
 		if ((nfds = epoll_wait(epoll_fd, events, MAX_EVENTS, -1)) == ERROR)
