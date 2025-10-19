@@ -17,7 +17,7 @@ bool	Request::isMethodAllowed( void ) {
 
 	return false;
 }
-git 
+
 std::string	joinPath ( const std::string &root, const std::string &target ) {
 	if (root.empty()) return target;
 	if (target.empty()) return root;

@@ -1,4 +1,5 @@
 #include "CgiHandler.hpp"
+#include <cstring>
 #include <string>
 #include <unistd.h>
 
@@ -29,15 +30,15 @@ std::string CgiHandler::getCgiExecutable(const std::string& file_path) const{
 }
 
 Response CgiHandler::execute() {
-	Response response;
+    Response response;
 
-	getFileExtension(request.path);
+    getFileExtension(request.path);
     // Set script path and CGI executable
     script_path = request.path;
     cgi_executable = getCgiExecutable(script_path);
-    
+
     // Check if script exists and is executable
-	std::cout << "Script to check: " << script_path.c_str() << std::endl;
+    std::cout << "Script to check: " << script_path.c_str() << std::endl;
     if (access(script_path.c_str(), F_OK) != 0) {
         response.generateErrorPage(request.server, 404);
         return response;
@@ -49,7 +50,7 @@ Response CgiHandler::execute() {
     }
 
     // Create pipes for communication
-	int pipe_in[2]; // send to CGI
+    int pipe_in[2]; // send to CGI
     int pipe_out[2];  // receiving from CGI
     
     if (pipe(pipe_out) < 0) {
@@ -58,20 +59,22 @@ Response CgiHandler::execute() {
     }
 
     // For POST, use file instead of pipe for input
-// NOTE: chane this line when done testing
-	// if (request.method == "POST") {
-	if (0) {
-		// generate temp file name for input_file
-		// put str request.recv into file
-		// if anything fails == 500
-	} else if (pipe(pipe_in) < 0) {
-		close(pipe_out[0]);
-		close(pipe_out[1]);
-        response.generateErrorPage(request.server, 500);
-        return response;
-	}
-	
+    // NOTE: chane this line when done testing
+    // if (request.method == "POST") {
+    if (0) {
+	// generate temp file name for input_file
+	// put str request.recv into file
+	// if anything fails == 500
+    } else if (pipe(pipe_in) < 0) {
+	close(pipe_out[0]);
+	close(pipe_out[1]);
+	response.generateErrorPage(request.server, 500);
+	return response;
+    }
+
     // Build environment variables and arguments
+    char** env = buildEnvVariables();
+    
     // Fork and execute CGI
 
 response.setStatusCode(999);
@@ -79,4 +82,29 @@ response.writeStringToBuffer("<body><h1>handle CGI block</h1></doby>");
 return response;
 }
 
+char** CgiHandler::buildEnvVariables () const {
+// - Absolute minimal set to run a CGI script:
+// REQUEST_METHOD
+// SCRIPT_NAME
+// SERVER_NAME
+// SERVER_PORT
+// SERVER_PROTOCOL
+// GATEWAY_INTERFACE
+// - char CgiHandler::buildEnvVariables () const {
+// CONTENT_LENGTH
+// CONTENT_TYPE
+    std::vector<std::string> env_strings;
+
+    env_strings.push_back("REQUEST_METHOD=test");
+    env_strings.push_back("SCRIPT_NAME=test");
+    
+    char** env = new char*[env_strings.size() + 1];
+    for (size_t i = 0; i < env_strings.size(); ++i) {
+        env[i] = new char[env_strings[i].length() + 1];
+        std::strcpy(env[i], env_strings[i].c_str());
+    }
+    env[env_strings.size()] = NULL;
+    
+    return env;
+}
 
