@@ -75,6 +75,12 @@ Response CgiHandler::execute() {
     // Build environment variables and arguments
     char** env = buildEnvVariables();
     
+/////// TEST: print env
+for (int i = 0; env && env[i]; i++) {
+    std::cout << env[i] << std::endl;
+}
+/////// TEST: end
+
     // Fork and execute CGI
 
 response.setStatusCode(999);
@@ -83,21 +89,32 @@ return response;
 }
 
 char** CgiHandler::buildEnvVariables () const {
-// - Absolute minimal set to run a CGI script:
-// REQUEST_METHOD
-// SCRIPT_NAME
-// SERVER_NAME
-// SERVER_PORT
-// SERVER_PROTOCOL
-// GATEWAY_INTERFACE
-// - char CgiHandler::buildEnvVariables () const {
-// CONTENT_LENGTH
-// CONTENT_TYPE
     std::vector<std::string> env_strings;
 
-    env_strings.push_back("REQUEST_METHOD=test");
-    env_strings.push_back("SCRIPT_NAME=test");
-    
+    env_strings.push_back("REQUEST_METHOD=" + request.method);
+    env_strings.push_back("SCRIPT_FILENAME=" + script_path);
+    env_strings.push_back("SCRIPT_NAME=" + request.target);
+    env_strings.push_back("QUERY_STRING=" + request.query);
+    env_strings.push_back("SERVER_PROTOCOL=" + request.version);
+    env_strings.push_back("GATEWAY_INTERFACE=CGI/1.1");
+
+    const std::pair<std::string, std::string>& listen = request.server.getListen()[0];
+    env_strings.push_back("SERVER_NAME=" + listen.first);
+    env_strings.push_back("SERVER_PORT=" + listen.second);
+
+    // If method is POST get set CONTENT_LENGTH
+    // check if request.has_content_length
+    // set --> CONTENT_LENGTH= + request.content_length
+
+    // Content-Type from headers
+    map_t::const_iterator content_type = request.headers.find("content-type");
+    if (content_type != request.headers.end()) {
+        env_strings.push_back("CONTENT_TYPE=" + content_type->second);
+    }
+
+    // HTTP headers - these need to be convert to HTTP_* format
+    // 4.1.18.  Protocol-Specific Meta-Variables (RFC 3785)
+
     char** env = new char*[env_strings.size() + 1];
     for (size_t i = 0; i < env_strings.size(); ++i) {
         env[i] = new char[env_strings[i].length() + 1];
