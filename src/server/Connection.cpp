@@ -23,20 +23,23 @@ void	Connection::requestProssessing( void ) {
 
 	if ((len = recv(soc, buffer, BUF_SIZE, false)) == ERROR) return ;
 	request.recv.append(buffer, len);
-	
-	if (getState() == REQUEST_LINE)
-		status = RequestParser::requestLineParser(request);
 
-	if (getState() == READING_HEADERS)
-		status = request.startProssessing();
+	try {
+		if (getState() == REQUEST_LINE)
+			status = RequestParser::requestLineParser(request);
 
-	if (getState() == READING_HEADERS)
-		status = RequestParser::headersParser(request);
+		if (getState() == READING_HEADERS)
+			status = RequestParser::headersParser(request);
 
-	if (getState() == READING_BODY) {
-		status = RequestParser::bodyParser(request);
-			/** POST <Headers> */
+		if (getState() == READING_HEADERS)
+			status = request.startProssessing();
+
+		if (getState() == READING_BODY)
+			status = request.streamBodies();
 	}
+
+	catch( State &state ) { status = state; }
+	catch( ... ) { }
 }
 
 void	Connection::reponseProssessing( void ) {

@@ -260,8 +260,3 @@ State	RequestParser::headersParser( Request &request ) {
 	if (request.method == "POST") return State(0, READING_BODY);
 	return State(0, READY_TO_WRITE);
 }
-
-State	RequestParser::bodyParser( Request &request ) {
-	std::cout << request.recv << std::endl;
-	return State(0, READY_TO_WRITE);
-}

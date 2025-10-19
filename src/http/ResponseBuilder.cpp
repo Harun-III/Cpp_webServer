@@ -19,38 +19,27 @@ std::string ResponseBuilder::generateDirectoryListing(const std::string& path) c
 
     ss << "<!DOCTYPE html><html><head>";
     ss << "<title>Index of " << path << "</title>";
-    ss << STYLE;
+    ss << STYLE << DELETE_SCRIPT;
     ss << "</head><body>";
     ss << "<div class=c>";
     ss << "<h1>Index of " << path << "</h1><hr>";
     ss << "<div class=l>";
-    ss << "<div class=i><a href=../>../</a></div>";
+    ss << "<div class=i><a class=parent href=../>../</a></div>";
 
     for (size_t i = 0; i < entries.size(); i++) {
+        bool isDir = (entries[i][entries[i].length() - 1] == '/');
         ss << "<div class=i><a href=" << entries[i] << ">";
-        ss << entries[i] << "</a></div>";
+        ss << entries[i] << "</a>";
+
+        if (!isDir) ss << "<button class=d onclick=\"showModal('"
+            << entries[i] << "',this)\">DEL</button>";
+
+        ss << "</div>";
     }
 
     ss << "</div></div></body></html>";
 
     return ss.str();
-}
-
-bool ResponseBuilder::isMethodAllowed(const std::string& method, const Location& location) const {
-    const std::vector<std::string>& allowed = location.getMethods();
-    
-    if (allowed.empty()) {
-        // If no methods specified, allow GET by default
-        return (method == "GET");
-    }
-    
-    for (size_t i = 0; i < allowed.size(); ++i) {
-        if (allowed[i] == method) {
-            return true;
-        }
-    }
-    
-    return false;
 }
 
 Response ResponseBuilder::handleAutoIndex(const std::string& path) const {
@@ -104,8 +93,13 @@ return response;
             return handleGet(request, request.location);
         } else if (request.method == "DELETE") {
             return handleDelete(request.path);
+        } else if (request.method == "POST") {
+            Response response;
+            response.setStatusCode(200);
+            response.setContentLength(0);
+            return response;
         }
-        
+
         // should never reach here
         Response response;
         response.setStatusCode(500);

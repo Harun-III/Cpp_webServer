@@ -352,6 +352,357 @@
             transform: translateY(-2px);
         }
         
+        /* Upload Modal Styles */
+        .upload-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .upload-modal.show {
+            display: flex;
+        }
+        
+        .upload-modal-content {
+            background: linear-gradient(135deg, #1a1a1a, #0d1117);
+            border: 2px solid #00ff41;
+            border-radius: 12px;
+            padding: 40px;
+            max-width: 500px;
+            width: 90%;
+            box-shadow: 0 0 30px rgba(0, 255, 65, 0.3);
+            animation: slideIn 0.3s ease;
+        }
+        
+        @keyframes slideIn {
+            from {
+                transform: translateY(-50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+        
+        .upload-modal-title {
+            font-size: 1.8rem;
+            margin-bottom: 15px;
+            color: #00ff41;
+            text-shadow: 0 0 10px rgba(0, 255, 65, 0.5);
+            font-weight: 700;
+            text-align: center;
+        }
+        
+        .upload-modal-subtitle {
+            font-size: 1rem;
+            margin-bottom: 30px;
+            color: #66ff66;
+            text-align: center;
+            opacity: 0.8;
+        }
+        
+        .upload-drop-zone {
+            border: 2px dashed #00ff41;
+            border-radius: 8px;
+            padding: 40px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: rgba(0, 255, 65, 0.05);
+            margin-bottom: 20px;
+        }
+        
+        .upload-drop-zone:hover {
+            background: rgba(0, 255, 65, 0.1);
+            border-color: #66ff66;
+        }
+        
+        .upload-drop-zone.drag-over {
+            background: rgba(0, 255, 65, 0.2);
+            border-color: #00ff41;
+            transform: scale(1.02);
+        }
+        
+        .upload-icon {
+            font-size: 3rem;
+            margin-bottom: 15px;
+        }
+        
+        .upload-text {
+            font-size: 1.1rem;
+            color: #00ff41;
+            margin-bottom: 10px;
+        }
+        
+        .upload-hint {
+            font-size: 0.9rem;
+            color: #66ff66;
+            opacity: 0.7;
+        }
+        
+        .upload-file-input {
+            display: none;
+        }
+        
+        .upload-selected-file {
+            background: rgba(0, 255, 65, 0.1);
+            border: 1px solid #00ff41;
+            border-radius: 6px;
+            padding: 15px;
+            margin-bottom: 20px;
+            display: none;
+        }
+        
+        .upload-selected-file.show {
+            display: block;
+        }
+        
+        .upload-file-name {
+            color: #00ff41;
+            font-weight: 500;
+            margin-bottom: 5px;
+        }
+        
+        .upload-file-size {
+            color: #66ff66;
+            font-size: 0.9rem;
+        }
+        
+        .upload-buttons {
+            display: flex;
+            gap: 15px;
+        }
+        
+        .upload-btn {
+            flex: 1;
+            padding: 15px;
+            border: none;
+            border-radius: 6px;
+            font-family: 'Fira Code', monospace;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1rem;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+        
+        .upload-btn-cancel {
+            background: #555;
+            color: #fff;
+            border: 1px solid #777;
+        }
+        
+        .upload-btn-cancel:hover {
+            background: #666;
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
+        }
+        
+        .upload-btn-submit {
+            background: none;
+            border: 1px solid #00ff41;
+            color: #00ff41;
+        }
+        
+        .upload-btn-submit:hover:not(:disabled) {
+            background: #00ff41;
+            color: #000;
+            box-shadow: 0 0 14px rgba(0, 255, 65, 0.5);
+        }
+        
+        .upload-btn-submit:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+        
+        .upload-progress {
+            display: none;
+            margin-top: 20px;
+        }
+        
+        .upload-progress.show {
+            display: block;
+        }
+        
+        .upload-progress-bar {
+            width: 100%;
+            height: 30px;
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid #00ff41;
+            border-radius: 6px;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .upload-progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #00ff41, #66ff66);
+            width: 0%;
+            transition: width 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #000;
+            font-weight: 700;
+        }
+        
+        /* Notification Popup Styles */
+        .notification-popup {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: linear-gradient(135deg, #1a1a1a, #0d1117);
+            border-radius: 8px;
+            padding: 20px 25px;
+            min-width: 300px;
+            max-width: 400px;
+            box-shadow: 0 0 30px rgba(0, 255, 65, 0.5);
+            z-index: 2000;
+            animation: slideInRight 0.4s ease;
+            display: none;
+        }
+        
+        .notification-popup.show {
+            display: block;
+        }
+        
+        .notification-popup.hide {
+            animation: slideOutRight 0.4s ease;
+        }
+        
+        .notification-popup.success {
+            border: 2px solid #00ff41;
+        }
+        
+        .notification-popup.error {
+            border: 2px solid #ff4136;
+            box-shadow: 0 0 30px rgba(255, 65, 54, 0.5);
+        }
+        
+        @keyframes slideInRight {
+            from {
+                transform: translateX(450px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+        
+        @keyframes slideOutRight {
+            from {
+                transform: translateX(0);
+                opacity: 1;
+            }
+            to {
+                transform: translateX(450px);
+                opacity: 0;
+            }
+        }
+        
+        .notification-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 12px;
+        }
+        
+        .notification-icon {
+            font-size: 1.8rem;
+            line-height: 1;
+        }
+        
+        .notification-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+        }
+        
+        .notification-popup.success .notification-title {
+            color: #00ff41;
+            text-shadow: 0 0 8px rgba(0, 255, 65, 0.5);
+        }
+        
+        .notification-popup.error .notification-title {
+            color: #ff4136;
+            text-shadow: 0 0 8px rgba(255, 65, 54, 0.5);
+        }
+        
+        .notification-message {
+            font-size: 0.95rem;
+            line-height: 1.5;
+            margin-bottom: 15px;
+        }
+        
+        .notification-popup.success .notification-message {
+            color: #00ff41;
+        }
+        
+        .notification-popup.error .notification-message {
+            color: #00ff41;
+        }
+        
+        .notification-code {
+            border-radius: 4px;
+            padding: 8px 12px;
+            font-weight: 500;
+            font-size: 0.9rem;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        
+        .notification-popup.success .notification-code {
+            background: rgba(0, 255, 65, 0.1);
+            border: 1px solid #00ff41;
+            color: #00ff41;
+        }
+        
+        .notification-popup.error .notification-code {
+            background: rgba(255, 65, 54, 0.1);
+            border: 1px solid #ff4136;
+            color: #ff4136;
+        }
+        
+        .notification-close {
+            border: none;
+            padding: 8px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-family: 'Fira Code', monospace;
+            font-weight: 500;
+            width: 100%;
+            transition: all 0.3s ease;
+            letter-spacing: 1px;
+        }
+        
+        .notification-popup.success .notification-close {
+            background: #00ff41;
+            color: #000;
+        }
+        
+        .notification-popup.success .notification-close:hover {
+            box-shadow: 0 0 14px rgba(0, 255, 65, 0.7);
+            transform: translateY(-2px);
+        }
+        
+        .notification-popup.error .notification-close {
+            background: #ff4136;
+            color: #000;
+        }
+        
+        .notification-popup.error .notification-close:hover {
+            box-shadow: 0 0 14px rgba(255, 65, 54, 0.7);
+            transform: translateY(-2px);
+        }
+        
         @media (max-width: 768px) {
             .container {
                 padding: 15px;
@@ -420,6 +771,7 @@
             <a href="/bin/test.py" class="api-link">CGI Demo</a>
             <a href="/uploads/" class="api-link">File Upload</a>
             <a href="/docs/" class="api-link">Documentation</a>
+            <a href="javascript:void(0)" class="api-link" onclick="openUploadModal()">Upload File</a>
         </div>
         
         <section class="features-section">
@@ -485,5 +837,255 @@
             <p>Developed by Mehdi & Abdelkader • 2024</p>
         </footer>
     </div>
+    
+    <!-- Upload Modal -->
+    <div id="uploadModal" class="upload-modal" onclick="if(event.target === this) closeUploadModal()">
+        <div class="upload-modal-content">
+            <div class="upload-modal-title">Upload File</div>
+            <div class="upload-modal-subtitle">Test POST Method</div>
+            
+            <div id="uploadDropZone" class="upload-drop-zone" onclick="document.getElementById('fileInput').click()">
+                <div class="upload-icon">📁</div>
+                <div class="upload-text">Click to browse or drag & drop</div>
+                <div class="upload-hint">Any file type supported</div>
+            </div>
+            
+            <input type="file" id="fileInput" class="upload-file-input">
+            
+            <div id="selectedFile" class="upload-selected-file">
+                <div class="upload-file-name" id="fileName"></div>
+                <div class="upload-file-size" id="fileSize"></div>
+            </div>
+            
+            <div class="upload-buttons">
+                <button class="upload-btn upload-btn-cancel" onclick="closeUploadModal()">Cancel</button>
+                <button class="upload-btn upload-btn-submit" id="uploadBtn" onclick="uploadFile()" disabled>Upload</button>
+            </div>
+            
+            <div id="uploadProgress" class="upload-progress">
+                <div class="upload-progress-bar">
+                    <div id="progressFill" class="upload-progress-fill">0%</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Notification Popup -->
+    <div id="notificationPopup" class="notification-popup">
+        <div class="notification-header">
+            <div class="notification-icon" id="notificationIcon"></div>
+            <div class="notification-title" id="notificationTitle"></div>
+        </div>
+        <div class="notification-message" id="notificationMessage"></div>
+        <div class="notification-code" id="notificationCode"></div>
+        <button class="notification-close" onclick="hideNotification()">OK</button>
+    </div>
+    
+    <script>
+        let selectedFile = null;
+        
+        function showNotification(type, title, message, code) {
+            const popup = document.getElementById('notificationPopup');
+            const icon = document.getElementById('notificationIcon');
+            const titleEl = document.getElementById('notificationTitle');
+            const messageEl = document.getElementById('notificationMessage');
+            const codeEl = document.getElementById('notificationCode');
+            
+            // Set content
+            icon.textContent = type === 'success' ? '✓' : '🚨';
+            titleEl.textContent = title;
+            messageEl.textContent = message;
+            codeEl.textContent = code;
+            
+            // Set type class
+            popup.className = 'notification-popup ' + type;
+            popup.classList.add('show');
+            
+            // Auto close after 5 seconds
+            setTimeout(hideNotification, 5000);
+        }
+        
+        function hideNotification() {
+            const popup = document.getElementById('notificationPopup');
+            popup.classList.add('hide');
+            setTimeout(() => {
+                popup.classList.remove('show', 'hide');
+            }, 400);
+        }
+        
+        function openUploadModal() {
+            document.getElementById('uploadModal').classList.add('show');
+            resetUploadForm();
+        }
+        
+        function closeUploadModal() {
+            document.getElementById('uploadModal').classList.remove('show');
+            resetUploadForm();
+        }
+        
+        function resetUploadForm() {
+            selectedFile = null;
+            document.getElementById('fileInput').value = '';
+            document.getElementById('selectedFile').classList.remove('show');
+            document.getElementById('uploadBtn').disabled = true;
+            document.getElementById('uploadProgress').classList.remove('show');
+            document.getElementById('progressFill').style.width = '0%';
+            document.getElementById('progressFill').textContent = '0%';
+        }
+        
+        function formatFileSize(bytes) {
+            if (bytes < 1024) return bytes + ' B';
+            if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(2) + ' KB';
+            return (bytes / (1024 * 1024)).toFixed(2) + ' MB';
+        }
+        
+        document.getElementById('fileInput').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                selectedFile = file;
+                document.getElementById('fileName').textContent = file.name;
+                document.getElementById('fileSize').textContent = formatFileSize(file.size);
+                document.getElementById('selectedFile').classList.add('show');
+                document.getElementById('uploadBtn').disabled = false;
+            }
+        });
+        
+        // Drag and drop functionality
+        const dropZone = document.getElementById('uploadDropZone');
+        
+        dropZone.addEventListener('dragover', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            dropZone.classList.add('drag-over');
+        });
+        
+        dropZone.addEventListener('dragleave', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            dropZone.classList.remove('drag-over');
+        });
+        
+        dropZone.addEventListener('drop', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            dropZone.classList.remove('drag-over');
+            
+            const file = e.dataTransfer.files[0];
+            if (file) {
+                selectedFile = file;
+                document.getElementById('fileName').textContent = file.name;
+                document.getElementById('fileSize').textContent = formatFileSize(file.size);
+                document.getElementById('selectedFile').classList.add('show');
+                document.getElementById('uploadBtn').disabled = false;
+            }
+        });
+        
+        function uploadFile() {
+            if (!selectedFile) return;
+            
+            document.getElementById('uploadBtn').disabled = true;
+            document.getElementById('uploadProgress').classList.add('show');
+            
+            // Read file as binary and send as body
+            const reader = new FileReader();
+            
+            reader.onload = function(e) {
+                const xhr = new XMLHttpRequest();
+                
+                xhr.upload.addEventListener('progress', function(event) {
+                    if (event.lengthComputable) {
+                        const percentComplete = Math.round((event.loaded / event.total) * 100);
+                        document.getElementById('progressFill').style.width = percentComplete + '%';
+                        document.getElementById('progressFill').textContent = percentComplete + '%';
+                    }
+                });
+                
+                xhr.addEventListener('load', function() {
+                    if (xhr.status === 200 || xhr.status === 201) {
+                        document.getElementById('progressFill').style.width = '100%';
+                        document.getElementById('progressFill').textContent = '✓ Success!';
+                        setTimeout(() => {
+                            closeUploadModal();
+                            showNotification(
+                                'success',
+                                'Upload Successful',
+                                'Your file has been uploaded successfully. You can check it in the /uploads/ directory.',
+                                'HTTP ' + xhr.status
+                            );
+                        }, 500);
+                    } else if (xhr.status === 400) {
+                        closeUploadModal();
+                        showNotification(
+                            'error',
+                            'Bad Request',
+                            'The server could not understand the request. Please check your upload configuration.',
+                            'Error 400'
+                        );
+                    } else if (xhr.status === 500) {
+                        closeUploadModal();
+                        showNotification(
+                            'error',
+                            'Internal Server Error',
+                            'The server encountered an error while processing your upload.',
+                            'Error 500'
+                        );
+                    } else if (xhr.status === 403) {
+                        closeUploadModal();
+                        showNotification(
+                            'error',
+                            'Permission Denied',
+                            'You do not have permission to upload files to this location.',
+                            'Error 403'
+                        );
+                    } else if (xhr.status === 413) {
+                        closeUploadModal();
+                        showNotification(
+                            'error',
+                            'File Too Large',
+                            'The file you are trying to upload exceeds the maximum allowed size.',
+                            'Error 413'
+                        );
+                    } else {
+                        closeUploadModal();
+                        showNotification(
+                            'error',
+                            'Upload Failed',
+                            'Server returned status code: ' + xhr.status,
+                            'HTTP ' + xhr.status
+                        );
+                    }
+                });
+                
+                xhr.addEventListener('error', function() {
+                    closeUploadModal();
+                    showNotification(
+                        'error',
+                        'Network Error',
+                        'Failed to connect to the server. Please check your connection.',
+                        'Connection Failed'
+                    );
+                });
+                
+                // Send POST request with file data in body
+                xhr.open('POST', '/uploads', true);
+                xhr.setRequestHeader('Content-Length', e.target.result.byteLength.toString());
+                xhr.setRequestHeader('X-Filename', selectedFile.name);
+                xhr.send(e.target.result);
+            };
+            
+            reader.onerror = function() {
+                closeUploadModal();
+                showNotification(
+                    'error',
+                    'File Read Error',
+                    'Failed to read the file. Please try again.',
+                    'Read Failed'
+                );
+            };
+            
+            // Read file as ArrayBuffer (binary data)
+            reader.readAsArrayBuffer(selectedFile);
+        }
+    </script>
 </body>
 </html>

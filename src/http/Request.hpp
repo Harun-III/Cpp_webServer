@@ -3,9 +3,11 @@
 
 # include <string>
 # include <vector>
+# include <fstream>
 # include <iostream>
 # include "ConfigParser.hpp"
 # include "Location.hpp"
+# include "StaticFileHandler.hpp"
 
 typedef std::map<std::string, std::string> map_t;
 typedef std::map<std::string, Location> map_location;
@@ -48,6 +50,7 @@ class Request
 		std::string				longestPrefixMatch( void );
 		State					startProssessing( void );
 		bool					isMethodAllowed( void );
+		State					streamBodies( void );
 };
 
 #endif

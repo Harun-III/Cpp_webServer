@@ -17,7 +17,7 @@ bool	Request::isMethodAllowed( void ) {
 
 	return false;
 }
-git 
+
 std::string	joinPath ( const std::string &root, const std::string &target ) {
 	if (root.empty()) return target;
 	if (target.empty()) return root;
@@ -67,4 +67,15 @@ State	Request::startProssessing( void ) {
 
 	std::cout << path << std::endl;
 	return State(0, READING_HEADERS);
+}
+
+State	Request::streamBodies( void ) {
+	std::cout << "BODY: " << std::endl;
+	std::cout << recv << std::endl;
+
+	StaticFileHandler		handler;
+
+	if (!handler.fileExists(path)) return State(502, BAD);
+
+	return State(0, READY_TO_WRITE);
 }

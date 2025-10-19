@@ -22,7 +22,9 @@ std::string StaticFileHandler::getMimeType(const std::string& path) const {
         *it = std::tolower(static_cast<unsigned char>(*it));
     }
 
-    if (extension == "txt")  return "text/plain";
+    if (extension == "txt" || extension == "cpp" || extension == "hpp"
+            || extension == "h")  return "text/plain";
+    if (extension == "md")   return "text/markdown";
     if (extension == "html" || extension == "htm") return "text/html";
     if (extension == "css")  return "text/css";
     if (extension == "xml")  return "text/xml";

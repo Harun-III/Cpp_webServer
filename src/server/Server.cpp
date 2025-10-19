@@ -100,21 +100,23 @@ void	Server::run( void )
 				continue ;
 			}
 
+			Connection		&connection = connections.find(curr_sock)->second;
+
 			if ((events[curr_ev].events & (EPOLLERR | EPOLLHUP | EPOLLRDHUP))
-					|| connections[curr_sock].getState() == CLOSING) {
+					|| connection.getState() == CLOSING) {
 				close_connection(curr_sock);
 				continue ;
 			}
 
 			if (events[curr_ev].events & EPOLLIN) {
-				if (onReading(curr_sock) == true) connections[curr_sock].requestProssessing();
+				if (onReading(curr_sock) == true) connection.requestProssessing();
 				if (onWriting(curr_sock) == true)
-					socket_control(connections[curr_sock].getSoc(), EPOLLOUT, EPOLL_CTL_MOD);
+					socket_control(connection.getSoc(), EPOLLOUT, EPOLL_CTL_MOD);
 				continue ;
 			}
 
 			if (events[curr_ev].events & EPOLLOUT) {
-				if (onWriting(curr_sock) == true) connections[curr_sock].reponseProssessing();
+				if (onWriting(curr_sock) == true) connection.reponseProssessing();
 			}
 		}
 	}

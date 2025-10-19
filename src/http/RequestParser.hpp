@@ -11,7 +11,6 @@ class RequestParser
 	public:
 		static State		requestLineParser( Request & );
 		static State		headersParser( Request & );
-		static State		bodyParser( Request & );
 
 		static bool			isCTL( unsigned char c );
 		static bool			isTspecials( unsigned char c );

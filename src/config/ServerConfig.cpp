@@ -1,5 +1,3 @@
-// #include "ServerConfig.hpp"
-
 // delete this later
 #include "ServerConfig.hpp"
 
