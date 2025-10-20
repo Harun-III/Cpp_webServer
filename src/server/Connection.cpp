@@ -24,22 +24,17 @@ void	Connection::requestProssessing( void ) {
 	if ((len = recv(soc, buffer, BUF_SIZE, false)) == ERROR) return ;
 	request.recv.append(buffer, len);
 
-	try {
-		if (getState() == REQUEST_LINE)
-			status = RequestParser::requestLineParser(request);
+	if (getState() == REQUEST_LINE)
+		status = RequestParser::requestLineParser(request);
 
-		if (getState() == READING_HEADERS)
-			status = request.startProssessing();
+	if (getState() == READING_HEADERS)
+		status = request.startProssessing();
 
-		if (getState() == READING_HEADERS)
-			status = RequestParser::headersParser(request);
+	if (getState() == READING_HEADERS)
+		status = RequestParser::headersParser(request);
 
-		if (getState() == READING_BODY)
-			status = request.streamBodies();
-	}
-
-	catch( State &state ) { status = state; }
-	catch( ... ) { }
+	if (getState() == READING_BODY)
+		status = request.streamBodies();
 }
 
 void	Connection::reponseProssessing( void ) {

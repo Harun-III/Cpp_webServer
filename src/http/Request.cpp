@@ -18,10 +18,6 @@ bool	Request::isMethodAllowed( void ) {
 	return false;
 }
 
-bool	Request::isValidHeaders( void ) {
-	return true;
-}
-
 std::string	joinPath ( const std::string &root, const std::string &target ) {
 	if (root.empty()) return target;
 	if (target.empty()) return root;
@@ -56,6 +52,40 @@ std::string	Request::longestPrefixMatch( void ) {
 	return longest;
 }
 
+// State	Request::isValidHeaders( void ) {
+// 	if (headers.find("transfer-encoding") != headers.end())
+// 		return State(400, BAD);
+
+// 	if (method != "POST") return State(0, READY_TO_WRITE);
+
+// 	map_t::iterator		headerIter = headers.find("content-length");
+
+// 	if (headerIter == headers.end()) return State(400, BAD);
+
+// 	std::string		value = headerIter->second;
+
+// 	if (value.empty()) return State(400, BAD);
+
+// 	if (value.find_first_not_of("0123456789") != std::string::npos)
+// 		return State(400, BAD);
+
+// 	std::stringstream		convert(value);
+
+// 	has_conlen = true;
+// 	convert >> content_length;
+// 	if (convert.fail()) return State(400, BAD);
+
+// 	size_t	max_size = server.getMaxClientBodySize();
+// 	if (content_length > max_size) return State(413, BAD);
+
+// 	// headerIter = headers.find("content-type");
+// 	// if (headerIter != headers.end()) {
+// 	// 	;
+// 	// }
+
+// 	return State(0, READING_BODY);
+// }
+
 State	Request::startProssessing( void ) {
 	const map_location				&locations = server.getLocations();
 	std::string						longestM = longestPrefixMatch();
@@ -69,7 +99,9 @@ State	Request::startProssessing( void ) {
 	path = target.substr(longestM.size());
 	path = joinPath(location.getRoot(), path);
 
-	std::cout << path << std::endl;
+	std::cout << "[ " << longestM << " ]"
+				 "[ " << path << " ]" << std::endl;
+
 	return State(0, READING_HEADERS);
 }
 
@@ -84,8 +116,7 @@ State	Request::streamBodies( void ) {
 	}
 	else if (!content_length) {
 		outfile << recv.substr(0, content_length);
-		content_length = 0;
-		return State(0, READY_TO_WRITE);
+		return (outfile.close(), State(0, READY_TO_WRITE));
 	}
 
 	return State(0, READING_BODY);

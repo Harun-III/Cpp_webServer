@@ -48,7 +48,7 @@ class Request
 		size_t					content_length;
 
 		State					streamBodies( void );
-		bool					isValidHeaders( void );
+		// bool					isValidHeaders( void );
 		bool					isMethodAllowed( void );
 		State					startProssessing( void );
 		std::string				longestPrefixMatch( void );

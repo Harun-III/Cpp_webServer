@@ -202,6 +202,10 @@ State	RequestParser::requestLineParser( Request &request ) {
 
 	if (streamLine >> extra) return State(400, BAD);
 
+	std::cout << "[ " << request.method << " ]"
+			  << "[ " << request.target << " ]"
+			  << "[ " << request.version << " ]" << std::endl;
+
 	return State(0, READING_HEADERS);
 }
 
@@ -270,6 +274,9 @@ State	RequestParser::headersParser( Request &request ) {
 			size_t	max_size = request.server.getMaxClientBodySize();
 			if (request.content_length > max_size) return State(413, BAD);
 		}
+
+		std::cout << "[ " << name << " ]"
+				<< "[ " << value << " ]" << std::endl;
 
 		request.headers[name] = value;
 	}
