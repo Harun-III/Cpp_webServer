@@ -1,9 +1,7 @@
 #ifndef LOCATION_HPP
-#define LOCATION_HPP
+# define LOCATION_HPP
 
-#include <vector>
-#include <string>
-#include <map>
+# include "Core.hpp"
 
 class Location {
 private:
@@ -46,4 +44,3 @@ public:
 };
 
 #endif
-

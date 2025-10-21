@@ -1,28 +1,12 @@
 #ifndef REQUEST_HPP
 # define REQUEST_HPP
 
-# include <string>
-# include <vector>
-# include <fstream>
-# include <iostream>
-# include "ConfigParser.hpp"
+# include "Core.hpp"
 # include "Location.hpp"
+# include "ServerConfig.hpp"
 # include "StaticFileHandler.hpp"
 
-typedef std::map<std::string, std::string> map_t;
-typedef std::map<std::string, Location> map_location;
-
-enum state_e { REQUEST_LINE, READING_HEADERS, READING_BODY,
-				READY_TO_WRITE, WRITING, CLOSING, BAD };
-
-class State {
-	public:
-		State( short co , state_e st )
-				{ code = co; state = st; }
-
-		short			code;
-		state_e			state;
-};
+typedef std::map<std::string, Location>	map_location;
 
 class Request
 {
@@ -48,7 +32,7 @@ class Request
 		size_t					content_length;
 
 		State					streamBodies( void );
-		// bool					isValidHeaders( void );
+		State					isValidHeaders( void );
 		bool					isMethodAllowed( void );
 		State					startProssessing( void );
 		std::string				longestPrefixMatch( void );

@@ -1,8 +1,8 @@
 #ifndef ERRORHANDLER_HPP
-#define ERRORHANDLER_HPP
+# define ERRORHANDLER_HPP
 
-#include "ServerConfig.hpp"
-#include <string>
+# include "Core.hpp"
+# include "ServerConfig.hpp"
 
 class ErrorHandler {
 private:
@@ -19,4 +19,3 @@ public:
 };
 
 #endif
-

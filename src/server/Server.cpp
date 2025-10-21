@@ -54,10 +54,10 @@ void	Server::accept_connection( int sock ) {
 	socket_control(conn_sock, EPOLLIN | EPOLLRDHUP, EPOLL_CTL_ADD);
 }
 
-void	Server::create( std::vector<ServerConfig> &servers ) {
+void	Server::create( const std::vector<ServerConfig> &servers ) {
 	create_epoll();
 
-	for (std::vector<ServerConfig>::iterator current = servers.begin();
+	for (std::vector<ServerConfig>::const_iterator current = servers.begin();
 			current != servers.end(); current++)
 	{
 		const vector_pairs	&listen = current->getListen();

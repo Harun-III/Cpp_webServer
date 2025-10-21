@@ -1,11 +1,9 @@
 
 #ifndef CONFIGPARSER_HPP
-#define CONFIGPARSER_HPP
+# define CONFIGPARSER_HPP
 
-#include "ServerConfig.hpp"
-#include <cstddef>
-#include <string>
-#include <vector>
+# include "Core.hpp"
+# include "ServerConfig.hpp"
 
 class ConfigParser {
 private:
@@ -42,4 +40,3 @@ private:
 };
 
 #endif
-

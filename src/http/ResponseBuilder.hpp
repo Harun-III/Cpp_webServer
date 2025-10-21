@@ -1,13 +1,11 @@
 #ifndef HTTPRESPONSEBUILDER_HPP
-#define HTTPRESPONSEBUILDER_HPP
+# define HTTPRESPONSEBUILDER_HPP
 
-#include "Response.hpp"
-#include "ServerConfig.hpp"
-#include "StaticFileHandler.hpp"
-#include "Connection.hpp"
-#include "ErrorHandler.hpp"
-
-#include <iostream>
+# include "Request.hpp"
+# include "Response.hpp"
+# include "ErrorHandler.hpp"
+# include "ServerConfig.hpp"
+# include "StaticFileHandler.hpp"
 
 class ResponseBuilder {
 private:
@@ -33,4 +31,3 @@ public:
 };
 
 #endif
-

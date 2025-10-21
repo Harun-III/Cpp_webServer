@@ -1,11 +1,8 @@
 #ifndef SERVERCONFIG_HPP
-#define SERVERCONFIG_HPP
+# define SERVERCONFIG_HPP
 
-#include "Location.hpp"
-#include <cstddef>
-#include <map>
-#include <vector>
-#include <string>
+# include "Core.hpp"
+# include "Location.hpp"
 
 class ServerConfig {
 private:

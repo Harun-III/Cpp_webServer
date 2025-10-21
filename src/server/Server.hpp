@@ -18,7 +18,7 @@ class Server
 		~Server( void );
 		
 		void							run( void );
-		void							create( std::vector<ServerConfig> & );
+		void							create( const std::vector<ServerConfig> & );
 
 	private:
 		void							create_epoll( void );

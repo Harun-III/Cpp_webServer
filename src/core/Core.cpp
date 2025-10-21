@@ -1,10 +1,7 @@
 # include "Core.hpp"
-
+# include "Server.hpp"
 # include "ConfigParser.hpp"
 # include "ServerConfig.hpp"
-# include "ResponseBuilder.hpp"
-# include "Response.hpp"
-# include "Connection.hpp"
 
 int	main( int argc, char **argv ) {
 	try {
@@ -13,20 +10,22 @@ int	main( int argc, char **argv ) {
 			return EXIT_FAILURE;
 		}
 
-		ConfigParser parser(argv[1]);
-		std::vector<ServerConfig> servers = parser.parseConfig();
+		Server			server;
+		ConfigParser	parser(argv[1]);
 
-		Server	server;
-
-		server.create(servers);
+		server.create(parser.parseConfig());
 		server.run();
 
 		return EXIT_SUCCESS;
-
-	} catch ( const std::exception &e ) {
-		std::cerr << "Error: " << e.what() << std::endl;
-		return EXIT_FAILURE;
-	} catch ( ... ) {
-		std::cerr << "Error: all" << std::endl;
 	}
+
+	catch ( const std::exception &e ) {
+		std::cerr << "Error: " << e.what() << std::endl;
+	}
+
+	catch ( ... ) {
+		std::cerr << std::string(strerror(errno)) << std::endl;
+	}
+
+	return EXIT_FAILURE;
 }

@@ -281,8 +281,6 @@ State	RequestParser::headersParser( Request &request ) {
 		request.headers[name] = value;
 	}
 
-	std::cout << "Content Lenght: " << request.content_length << std::endl;
-
 	if (request.method == "POST") {
 		if (request.has_conlen == false) return State(400, BAD);
 		return State(0, READING_BODY);

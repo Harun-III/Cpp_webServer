@@ -1,14 +1,9 @@
 #ifndef HTTPRESPONSE_HPP
-#define HTTPRESPONSE_HPP
+# define HTTPRESPONSE_HPP
 
-#include <string>
-#include <map>
-#include <sstream>
-#include <fstream>
-#include <sys/stat.h>
-#include "ServerConfig.hpp"
-#include "ErrorHandler.hpp"
-# include <iostream>
+# include "Core.hpp"
+# include "ErrorHandler.hpp"
+# include "ServerConfig.hpp"
 
 class Response {
 private:
@@ -47,4 +42,3 @@ public:
 };
 
 #endif
-

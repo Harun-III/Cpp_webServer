@@ -3,59 +3,78 @@
 
 // ------------------------- System includes -------------------------//
 
-# include <sys/types.h>
-# include <sys/socket.h>
-# include <sys/epoll.h>
+# include <cctype>
+# include <cstddef>
 # include <netdb.h>
-# include <netinet/in.h>
-# include <arpa/inet.h>
 # include <fcntl.h>
 # include <unistd.h>
 # include <strings.h>
-# include <iomanip>
-# include <algorithm>
-# include <cctype>
+# include <sys/stat.h>
+# include <sys/epoll.h>
+# include <sys/types.h>
+# include <arpa/inet.h>
+# include <netinet/in.h>
+# include <sys/socket.h>
 
 // ------------------------- Standard library -------------------------//
 
+# include <map>
 # include <vector>
-# include <iostream>
-# include <iterator>
-# include <cstdlib>
-# include <ctype.h>
-# include <limits.h>
-# include <climits>
-# include <cstring>
 # include <bitset>
-# include <algorithm>
+# include <ctype.h>
 # include <fstream>
 # include <sstream>
-# include <map>
-
-// ------------------------- Webserv includes -------------------------//
-
-# include "ServerConfig.hpp"
-# include "ConfigParser.hpp"
-# include "Server.hpp"
+# include <climits>
+# include <cstdlib>
+# include <cstring>
+# include <iomanip>
+# include <iostream>
+# include <dirent.h>
+# include <iterator>
+# include <limits.h>
+# include <algorithm>
 
 // ------------------------- Webserv Typedefs -------------------------//
 
-typedef std::vector< std::pair<std::string, std::string> > vector_pairs;
+typedef std::map<std::string, std::string>					map_t;
+typedef struct addrinfo										addrinfo_t;
+typedef std::vector< std::pair<std::string, std::string> >	vector_pairs;
 
 // ------------------------- Webserv Macros -------------------------//
 
-# define BUF_SIZE 8000000
-# define MAX_EVENTS 1024
+# define BUF_SIZE			8000000
+# define MAX_EVENTS			1024
 
-# define ERROR -1
-# define TIMEOUT 1000
+# define ERROR				-1
+# define TIMEOUT			1000
 
-# define MAX_REQUEST_LINE 1024
-# define MAX_HEADER_BYTES 10240
+# define MAX_REQUEST_LINE	1024
+# define MAX_HEADER_BYTES	10240
 
-# define GR "\033[1;32m"
-# define YL "\033[1;33m"
-# define RD "\033[1;31m"
-# define RS "\033[0m"
+# define GR					"\033[1;32m"
+# define YL					"\033[1;33m"
+# define RD					"\033[1;31m"
+# define RS					"\033[0m"
+
+// ------------------------- Webserv Enum -------------------------//
+
+enum state_e {
+	REQUEST_LINE,
+	READING_HEADERS,
+	READING_BODY,
+	READY_TO_WRITE,
+	WRITING,
+	CLOSING,
+	BAD
+};
+
+class State {
+	public:
+		State( short co , state_e st )
+				{ code = co; state = st; }
+
+		short			code;
+		state_e			state;
+};
 
 #endif

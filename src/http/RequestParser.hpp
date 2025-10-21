@@ -1,9 +1,7 @@
 #ifndef REQUESTPARSER_HPP
 # define REQUESTPARSER_HPP
 
-# include <sstream>
-# include <iostream>
-# include <algorithm>
+# include "Core.hpp"
 # include "Request.hpp"
 
 class RequestParser

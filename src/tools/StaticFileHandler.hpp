@@ -1,14 +1,7 @@
 #ifndef STATICFILEHANDLER_HPP
-#define STATICFILEHANDLER_HPP
+# define STATICFILEHANDLER_HPP
 
-#include <sys/stat.h>
-#include <string>
-#include <unistd.h>
-#include <vector>
-#include <dirent.h>
-#include <sstream>
-#include <fstream>
-
+# include "Core.hpp"
 
 class StaticFileHandler {
 private:
@@ -32,4 +25,3 @@ public:
 };
 
 #endif
-

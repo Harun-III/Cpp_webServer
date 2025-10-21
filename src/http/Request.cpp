@@ -52,39 +52,39 @@ std::string	Request::longestPrefixMatch( void ) {
 	return longest;
 }
 
-// State	Request::isValidHeaders( void ) {
-// 	if (headers.find("transfer-encoding") != headers.end())
-// 		return State(400, BAD);
+State	Request::isValidHeaders( void ) {
+	if (headers.find("transfer-encoding") != headers.end())
+		return State(400, BAD);
 
-// 	if (method != "POST") return State(0, READY_TO_WRITE);
+	if (method != "POST") return State(0, READY_TO_WRITE);
 
-// 	map_t::iterator		headerIter = headers.find("content-length");
+	map_t::iterator		headerIter = headers.find("content-length");
 
-// 	if (headerIter == headers.end()) return State(400, BAD);
+	if (headerIter == headers.end()) return State(400, BAD);
 
-// 	std::string		value = headerIter->second;
+	std::string		value = headerIter->second;
 
-// 	if (value.empty()) return State(400, BAD);
+	if (value.empty()) return State(400, BAD);
 
-// 	if (value.find_first_not_of("0123456789") != std::string::npos)
-// 		return State(400, BAD);
+	if (value.find_first_not_of("0123456789") != std::string::npos)
+		return State(400, BAD);
 
-// 	std::stringstream		convert(value);
+	std::stringstream		convert(value);
 
-// 	has_conlen = true;
-// 	convert >> content_length;
-// 	if (convert.fail()) return State(400, BAD);
+	has_conlen = true;
+	convert >> content_length;
+	if (convert.fail()) return State(400, BAD);
 
-// 	size_t	max_size = server.getMaxClientBodySize();
-// 	if (content_length > max_size) return State(413, BAD);
+	size_t	max_size = server.getMaxClientBodySize();
+	if (content_length > max_size) return State(413, BAD);
 
-// 	// headerIter = headers.find("content-type");
-// 	// if (headerIter != headers.end()) {
-// 	// 	;
-// 	// }
+	// headerIter = headers.find("content-type");
+	// if (headerIter != headers.end()) {
+	// 	;
+	// }
 
-// 	return State(0, READING_BODY);
-// }
+	return State(0, READING_BODY);
+}
 
 State	Request::startProssessing( void ) {
 	const map_location				&locations = server.getLocations();

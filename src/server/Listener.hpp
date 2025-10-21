@@ -3,8 +3,6 @@
 
 # include "Core.hpp"
 
-typedef struct addrinfo addrinfo_t;
-
 class Listener
 {
 	public:
