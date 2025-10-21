@@ -73,9 +73,12 @@ Response CgiHandler::execute() {
     }
 
     // Build environment variables and arguments
+    char** args = buildArguments();
     char** env = buildEnvVariables();
     
-/////// TEST: print env
+/////// TEST: print env and args
+std::cout << "I'll excute the script: " << args[0] << std::endl;
+std::cout << "Using the following env:" << std::endl;
 for (int i = 0; env && env[i]; i++) {
     std::cout << env[i] << std::endl;
 }
@@ -125,3 +128,10 @@ char** CgiHandler::buildEnvVariables () const {
     return env;
 }
 
+char** CgiHandler::buildArguments() const {
+    char** args = new char*[2];
+    args[0] = new char[script_path.length() + 1];
+    std::strcpy(args[0], script_path.c_str());
+    args[1] = NULL;
+    return args;
+}

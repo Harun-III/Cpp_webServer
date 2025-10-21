@@ -14,6 +14,7 @@ private:
 
     std::string         getCgiExecutable(const std::string& file_path) const;
     std::string         getFileExtension(const std::string& path) const;
+    char**		buildArguments() const;
     char**		buildEnvVariables () const;
 
 public:
