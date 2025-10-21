@@ -6,6 +6,7 @@
 #include "Response.hpp"
 
 #define CGI_TIMEOUT 10  // timeout for CGI execution
+#define BUFFERREADSIZE 5000
 
 class CgiHandler {
 private:

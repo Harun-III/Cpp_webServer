@@ -1,5 +1,7 @@
 #include "CgiHandler.hpp"
+#include <algorithm>
 #include <cerrno>
+#include <csignal>
 #include <cstddef>
 #include <cstdio>
 #include <cstdlib>
@@ -155,17 +157,70 @@ for (int i = 0; env && env[i]; i++) {
     close (pipe_out[1]);
    
     int status;
-    bool rv = waitForCgiWithTimeout(pid, &status);
+    bool success = waitForCgiWithTimeout(pid, &status);
 
-response.setStatusCode(999);
-response.writeStringToBuffer("<body><h1>handle CGI block</h1></doby>");
-return response;
+    if (!success) {
+        close(pipe_out[0]);
+        if (request.method == "POST") {
+            // NOTE: should delete the file here
+            // std::remove(input_file.c_str());
+        }
+        freeEnvArray(args);
+        freeEnvArray(env);
+	response.generateErrorPage(request.server, 500);
+	return response;
+    }
+
+    if (!WIFEXITED(status) || WEXITSTATUS(status) != 0) {
+        close(pipe_out[0]);
+        if (request.method == "POST") {
+            // NOTE: should delete the file here
+            // std::remove(input_file.c_str());
+        }
+        freeEnvArray(args);
+        freeEnvArray(env);
+	response.generateErrorPage(request.server, 500);
+	return response;
+    }
+
+    // Read CGI output
+    std::string cgi_output;
+    char buffer[BUFFERREADSIZE];
+    ssize_t bytes_read;
+
+    while ((bytes_read = read(pipe_out[0], buffer, sizeof(buffer))) > 0) {
+        cgi_output.append(buffer, bytes_read);
+    }
+
+    close (pipe_out[0]);
+
+    // clean up
+    if (request.method == "POST") {
+        // NOTE: should delete the file here
+        // std::remove(input_file.c_str());
+    }
+    freeEnvArray(args);
+    freeEnvArray(env);
+
+    if (cgi_output.empty()) {
+        response.generateErrorPage(request.server, 500);
+        return response;
+    }
+
+    // set to success
+    response.setStatusCode(200);
+    
+    // Parse headers from CGI output
+    
+    // Extract body
+    
+    return response;
 }
 
 bool CgiHandler::waitForCgiWithTimeout(pid_t pid, int* status) const {
     time_t start_time = time(NULL);
 
-    if (1) {
+    while (true) {
         int result = waitpid(pid, status, WNOHANG); // WNOHANG: return immediately if no child has exited.
 
         if (result > 0) {
@@ -178,12 +233,13 @@ bool CgiHandler::waitForCgiWithTimeout(pid_t pid, int* status) const {
 
         // check time return false
         if (time(NULL) - start_time >= CGI_TIMEOUT) {
-            // kill child 
+            kill (pid, SIGKILL);
+            waitpid(pid, status, 0);
+            return false;
             // and return false
         }
     }
-
-    // test
+    // we should never reach this line
     return true;
 }
 
