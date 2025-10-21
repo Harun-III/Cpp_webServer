@@ -47,6 +47,7 @@ exe
 
 # test files
 test_files
+test_file_for_cgi.txt
 
 # neovim clang
 compile_commands.json
