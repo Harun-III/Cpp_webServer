@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>404 - ACCESS DENIED</title>
+    <title>404 - NOT FOUND</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@300;400;500;700&display=swap');
         
@@ -14,15 +14,15 @@
         }
         
         body {
-            background: linear-gradient(135deg, #0c0c0c 0%, #1a1a1a 50%, #0d1117 100%);
+            background: linear-gradient(135deg, #1a0000 0%, #330000 50%, #1a0000 100%);
             font-family: 'Fira Code', 'Courier New', monospace;
-            color: #00ff41;
+            color: #ff3333;
             height: 100vh;
             overflow: hidden;
             position: relative;
         }
         
-        .matrix-bg {
+        .error-lines {
             position: fixed;
             top: 0;
             left: 0;
@@ -30,21 +30,19 @@
             height: 100%;
             opacity: 0.1;
             z-index: 1;
-            background-image: 
-                repeating-linear-gradient(
-                    0deg,
-                    transparent,
-                    transparent 2px,
-                    rgba(0, 255, 65, 0.05) 2px,
-                    rgba(0, 255, 65, 0.05) 4px
-                ),
-                repeating-linear-gradient(
-                    90deg,
-                    transparent,
-                    transparent 2px,
-                    rgba(0, 255, 65, 0.05) 2px,
-                    rgba(0, 255, 65, 0.05) 4px
-                );
+            background: repeating-linear-gradient(
+                0deg,
+                transparent 0px,
+                transparent 2px,
+                #ff3333 2px,
+                #ff3333 4px
+            );
+            animation: scroll 20s linear infinite;
+        }
+        
+        @keyframes scroll {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(20px); }
         }
         
         .container {
@@ -59,110 +57,74 @@
             padding: 20px;
         }
         
-        .glitch {
+        .error-code {
             font-size: clamp(4rem, 15vw, 12rem);
             font-weight: 700;
-            text-transform: uppercase;
-            position: relative;
+            color: #ff0000;
             text-shadow: 
-                0.05em 0 0 #ff0040,
-                -0.025em -0.05em 0 #00ffff,
-                0.025em 0.05em 0 #ffff00;
-            animation: glitch 725ms infinite;
+                0 0 10px #ff0000,
+                0 0 20px #ff0000,
+                0 0 40px #ff0000;
+            animation: flicker 2s infinite;
             margin-bottom: 2rem;
+            filter: brightness(1.2);
         }
         
-        .glitch span {
-            position: absolute;
-            top: 0;
-            left: 0;
-        }
-        
-        .glitch span:first-child {
-            animation: glitch 500ms infinite;
-            color: #ff0040;
-            z-index: -1;
-        }
-        
-        .glitch span:last-child {
-            animation: glitch 375ms infinite;
-            color: #00ffff;
-            z-index: -2;
-        }
-        
-        @keyframes glitch {
-            0% {
+        @keyframes flicker {
+            0%, 18%, 22%, 25%, 53%, 57%, 100% {
+                opacity: 1;
                 text-shadow: 
-                    0.05em 0 0 #ff0040,
-                    -0.025em -0.05em 0 #00ffff,
-                    0.025em 0.05em 0 #ffff00;
+                    0 0 10px #ff0000,
+                    0 0 20px #ff0000,
+                    0 0 40px #ff0000;
             }
-            15% {
-                text-shadow: 
-                    0.05em 0 0 #ff0040,
-                    -0.025em -0.05em 0 #00ffff,
-                    0.025em 0.05em 0 #ffff00;
-            }
-            16% {
-                text-shadow: 
-                    -0.05em -0.025em 0 #ff0040,
-                    0.025em 0.025em 0 #00ffff,
-                    -0.05em -0.05em 0 #ffff00;
-            }
-            49% {
-                text-shadow: 
-                    -0.05em -0.025em 0 #ff0040,
-                    0.025em 0.025em 0 #00ffff,
-                    -0.05em -0.05em 0 #ffff00;
-            }
-            50% {
-                text-shadow: 
-                    0.025em 0.05em 0 #ff0040,
-                    0.05em 0 0 #00ffff,
-                    0 -0.05em 0 #ffff00;
-            }
-            99% {
-                text-shadow: 
-                    0.025em 0.05em 0 #ff0040,
-                    0.05em 0 0 #00ffff,
-                    0 -0.05em 0 #ffff00;
-            }
-            100% {
-                text-shadow: 
-                    0.05em 0 0 #ff0040,
-                    -0.025em -0.05em 0 #00ffff,
-                    0.025em 0.05em 0 #ffff00;
+            20%, 24%, 55% {
+                opacity: 0.5;
+                text-shadow: none;
             }
         }
         
         .error-title {
             font-size: clamp(1.5rem, 4vw, 3rem);
             margin-bottom: 1.5rem;
-            color: #ff4444;
+            color: #ffaaaa;
             text-transform: uppercase;
             letter-spacing: 0.2em;
+            animation: pulse 2s infinite;
+            position: relative;
+        }
+        
+        .error-title::after {
+            content: "";
+            position: absolute;
+            bottom: -5px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80%;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #ff3333, transparent);
             animation: pulse 2s infinite;
         }
         
         .error-message {
             font-size: clamp(1rem, 2.5vw, 1.5rem);
             margin-bottom: 2rem;
-            color: #888;
+            color: #cc6666;
             max-width: 800px;
             line-height: 1.6;
         }
         
         .terminal {
-            background: rgba(0, 0, 0, 0.8);
-            border: 2px solid #00ff41;
+            background: rgba(0, 0, 0, 0.9);
+            border: 2px solid #ff3333;
             border-radius: 10px;
             padding: 20px;
             margin: 2rem 0;
-            max-width: 600px;
+            max-width: 700px;
             text-align: left;
             box-shadow: 
-                0 0 20px rgba(0, 255, 65, 0.3),
-                inset 0 0 20px rgba(0, 255, 65, 0.1);
+                0 0 20px rgba(255, 51, 51, 0.4),
+                inset 0 0 20px rgba(255, 51, 51, 0.1);
         }
         
         .terminal-header {
@@ -170,7 +132,7 @@
             align-items: center;
             margin-bottom: 15px;
             padding-bottom: 10px;
-            border-bottom: 1px solid #333;
+            border-bottom: 1px solid #444;
         }
         
         .terminal-button {
@@ -185,33 +147,34 @@
         .maximize { background: #55ff55; }
         
         .terminal-title {
-            color: #00ff41;
+            color: #ff3333;
             font-size: 0.9rem;
             margin-left: 15px;
         }
         
         .terminal-content {
             font-family: 'Fira Code', monospace;
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             line-height: 1.4;
         }
         
         .prompt {
-            color: #00ff41;
+            color: #ff3333;
         }
         
         .command {
-            color: #ffffff;
+            color: #ff6666;
         }
         
         .output {
-            color: #ff4444;
+            color: #ff9999;
             margin-left: 20px;
+            font-size: 0.8rem;
         }
         
         .cursor {
             display: inline-block;
-            background: #00ff41;
+            background: #ff3333;
             width: 8px;
             height: 1.2em;
             animation: blink 1s infinite;
@@ -238,8 +201,8 @@
         
         .back-button {
             display: inline-block;
-            background: linear-gradient(45deg, #00ff41, #00cc33);
-            color: #000;
+            background: linear-gradient(45deg, #ff3333, #cc0000);
+            color: #fff;
             text-decoration: none;
             padding: 12px 24px;
             border-radius: 5px;
@@ -248,12 +211,12 @@
             letter-spacing: 1px;
             transition: all 0.3s ease;
             margin-top: 2rem;
-            box-shadow: 0 0 15px rgba(0, 255, 65, 0.3);
+            box-shadow: 0 0 15px rgba(255, 51, 51, 0.3);
         }
         
         .back-button:hover {
-            background: linear-gradient(45deg, #00cc33, #00ff41);
-            box-shadow: 0 0 25px rgba(0, 255, 65, 0.6);
+            background: linear-gradient(45deg, #cc0000, #ff3333);
+            box-shadow: 0 0 25px rgba(255, 51, 51, 0.6);
             transform: translateY(-2px);
         }
         
@@ -270,15 +233,10 @@
     </style>
 </head>
 <body>
-    <div class="matrix-bg"></div>
+    <div class="error-lines"></div>
     <div class="container">
-        <div class="glitch" data-text="404">
-            404
-            <span aria-hidden="true">404</span>
-            <span aria-hidden="true">404</span>
-        </div>
-        
-        <h1 class="error-title">ACCESS DENIED</h1>
+        <div class="error-code">404</div>
+        <h1 class="error-title">NOT FOUND</h1>
         <p class="error-message">
             The requested resource has been moved, deleted, or never existed.<br>
             Check your URL and try again, or contact the system administrator.
@@ -289,7 +247,7 @@
                 <div class="terminal-button close"></div>
                 <div class="terminal-button minimize"></div>
                 <div class="terminal-button maximize"></div>
-                <div class="terminal-title">root@webserv:~</div>
+                <div class="terminal-title">ERROR LOG - webserv</div>
             </div>
             <div class="terminal-content">
                 <div><span class="prompt">webserv@server:~$</span> <span class="command">ls -la /requested/resource</span></div>

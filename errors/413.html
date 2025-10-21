@@ -14,16 +14,16 @@
         }
         
         body {
-            background: linear-gradient(135deg, #001122 0%, #003344 50%, #004466 100%);
+            background: linear-gradient(135deg, #1a0000 0%, #330000 50%, #1a0000 100%);
             font-family: 'Fira Code', 'Courier New', monospace;
-            color: #00aaff;
+            color: #ff3333;
             min-height: 100vh;
             overflow-x: hidden;
             overflow-y: auto;
             position: relative;
         }
         
-        .data-stream {
+        .error-lines {
             position: fixed;
             top: 0;
             left: 0;
@@ -31,27 +31,19 @@
             height: 100%;
             opacity: 0.1;
             z-index: 1;
-            background: 
-                repeating-linear-gradient(
-                    90deg,
-                    transparent 0px,
-                    rgba(0, 170, 255, 0.1) 1px,
-                    transparent 2px,
-                    transparent 20px
-                ),
-                repeating-linear-gradient(
-                    0deg,
-                    transparent 0px,
-                    rgba(0, 170, 255, 0.05) 1px,
-                    transparent 2px,
-                    transparent 10px
-                );
-            animation: data-flow 15s linear infinite;
+            background: repeating-linear-gradient(
+                0deg,
+                transparent 0px,
+                transparent 2px,
+                #ff3333 2px,
+                #ff3333 4px
+            );
+            animation: scroll 20s linear infinite;
         }
         
-        @keyframes data-flow {
-            0% { transform: translateX(0) translateY(0); }
-            100% { transform: translateX(20px) translateY(10px); }
+        @keyframes scroll {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(20px); }
         }
         
         .container {
@@ -70,82 +62,63 @@
         .error-code {
             font-size: clamp(4rem, 15vw, 12rem);
             font-weight: 700;
-            color: #00aaff;
+            color: #ff0000;
             text-shadow: 
-                0 0 20px #00aaff,
-                0 0 40px #0088cc,
-                0 0 80px #006699;
+                0 0 10px #ff0000,
+                0 0 20px #ff0000,
+                0 0 40px #ff0000;
+            animation: flicker 2s infinite;
             margin-bottom: 2rem;
-            animation: size-warning 2s ease-in-out infinite;
+            filter: brightness(1.2);
         }
         
-        @keyframes size-warning {
-            0%, 100% {
-                transform: scale(1);
+        @keyframes flicker {
+            0%, 18%, 22%, 25%, 53%, 57%, 100% {
+                opacity: 1;
                 text-shadow: 
-                    0 0 20px #00aaff,
-                    0 0 40px #0088cc,
-                    0 0 80px #006699;
+                    0 0 10px #ff0000,
+                    0 0 20px #ff0000,
+                    0 0 40px #ff0000;
             }
-            50% {
-                transform: scale(1.05);
-                text-shadow: 
-                    0 0 30px #00aaff,
-                    0 0 60px #0088cc,
-                    0 0 120px #006699;
+            20%, 24%, 55% {
+                opacity: 0.5;
+                text-shadow: none;
             }
         }
         
         .error-title {
             font-size: clamp(1.5rem, 4vw, 3rem);
             margin-bottom: 1.5rem;
-            color: #66ccff;
+            color: #ffaaaa;
             text-transform: uppercase;
             letter-spacing: 0.2em;
+            animation: pulse 2s infinite;
             position: relative;
         }
         
-        .error-title::before,
         .error-title::after {
-            content: "⬆";
+            content: "";
             position: absolute;
-            color: #00aaff;
-            font-size: 1.2em;
-            animation: size-indicator 2s ease-in-out infinite;
-        }
-        
-        .error-title::before {
-            left: -2.5em;
-            animation-delay: 0s;
-        }
-        
-        .error-title::after {
-            right: -2.5em;
-            animation-delay: 1s;
-        }
-        
-        @keyframes size-indicator {
-            0%, 100% { 
-                transform: translateY(0) scale(1);
-                opacity: 1;
-            }
-            50% { 
-                transform: translateY(-10px) scale(1.2);
-                opacity: 0.7;
-            }
+            bottom: -5px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80%;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #ff3333, transparent);
+            animation: pulse 2s infinite;
         }
         
         .error-message {
             font-size: clamp(1rem, 2.5vw, 1.5rem);
             margin-bottom: 2rem;
-            color: #99d6ff;
+            color: #cc6666;
             max-width: 800px;
             line-height: 1.6;
         }
         
-        .size-panel {
-            background: rgba(0, 0, 0, 0.8);
-            border: 2px solid #00aaff;
+        .terminal {
+            background: rgba(0, 0, 0, 0.9);
+            border: 2px solid #ff3333;
             border-radius: 10px;
             padding: 20px;
             margin: 2rem 0;
@@ -154,8 +127,8 @@
             max-width: 700px;
             text-align: left;
             box-shadow: 
-                0 0 20px rgba(0, 170, 255, 0.3),
-                inset 0 0 20px rgba(0, 170, 255, 0.1);
+                0 0 20px rgba(255, 51, 51, 0.4),
+                inset 0 0 20px rgba(255, 51, 51, 0.1);
             box-sizing: border-box;
         }
         
@@ -169,9 +142,9 @@
         }
         
         .panel-title {
-            color: #00aaff;
-            font-size: 1rem;
-            font-weight: bold;
+            color: #ff3333;
+            font-size: 0.9rem;
+            margin-left: 15px;
             text-transform: uppercase;
             flex: 1;
         }
@@ -193,7 +166,7 @@
         
         .gauge-fill {
             height: 100%;
-            background: linear-gradient(90deg, #00ff00 0%, #ffff00 70%, #ff0000 100%);
+            background: linear-gradient(90deg, #ff6666 0%, #ff3333 70%, #ff0000 100%);
             width: 95%;
             animation: gauge-overflow 2s ease-in-out infinite;
         }
@@ -205,8 +178,8 @@
         
         .panel-content {
             font-family: 'Fira Code', monospace;
-            font-size: 0.9rem;
-            line-height: 1.5;
+            font-size: 0.85rem;
+            line-height: 1.4;
         }
         
         .size-info {
@@ -217,27 +190,26 @@
         }
         
         .info-item {
-            background: rgba(0, 170, 255, 0.1);
+            background: rgba(255, 51, 51, 0.1);
             border-radius: 5px;
             padding: 12px;
-            border-left: 3px solid #00aaff;
+            border-left: 3px solid #ff3333;
         }
         
         .info-label {
-            color: #66ccff;
+            color: #ff6666;
             font-size: 0.8rem;
             margin-bottom: 5px;
             text-transform: uppercase;
         }
         
         .info-value {
-            color: #ffffff;
+            color: #ff9999;
             font-size: 1.1rem;
-            font-weight: bold;
         }
         
         .oversized {
-            color: #ff6666;
+            color: #ff0000;
             animation: warning-flash 1.5s infinite;
         }
         
@@ -258,7 +230,7 @@
         
         .progress-fill {
             height: 100%;
-            background: linear-gradient(90deg, #00aaff 0%, #ff6666 100%);
+            background: linear-gradient(90deg, #ff3333 0%, #ff0000 100%);
             width: 0%;
             animation: progress-exceed 3s ease-out infinite;
             position: relative;
@@ -277,7 +249,6 @@
             transform: translate(-50%, -50%);
             color: white;
             font-size: 0.8rem;
-            font-weight: bold;
         }
         
         @keyframes pulse {
@@ -296,7 +267,7 @@
         
         .back-button {
             display: inline-block;
-            background: linear-gradient(45deg, #00aaff, #0088cc);
+            background: linear-gradient(45deg, #ff3333, #cc0000);
             color: #fff;
             text-decoration: none;
             padding: 12px 24px;
@@ -306,17 +277,17 @@
             letter-spacing: 1px;
             transition: all 0.3s ease;
             margin-top: 2rem;
-            box-shadow: 0 0 15px rgba(0, 170, 255, 0.3);
+            box-shadow: 0 0 15px rgba(255, 51, 51, 0.3);
         }
         
         .back-button:hover {
-            background: linear-gradient(45deg, #0088cc, #00aaff);
-            box-shadow: 0 0 25px rgba(0, 170, 255, 0.6);
+            background: linear-gradient(45deg, #cc0000, #ff3333);
+            box-shadow: 0 0 25px rgba(255, 51, 51, 0.6);
             transform: translateY(-2px);
         }
         
         @media (max-width: 768px) {
-            .size-panel {
+            .terminal {
                 margin: 1rem 0;
                 padding: 15px;
                 max-width: 95vw;
@@ -345,7 +316,7 @@
     </style>
 </head>
 <body>
-    <div class="data-stream"></div>
+    <div class="error-lines"></div>
     <div class="container">
         <div class="error-code">413</div>
         <h1 class="error-title">PAYLOAD TOO LARGE</h1>
@@ -354,11 +325,11 @@
             Reduce the size of your request and try again.
         </p>
         
-        <div class="size-panel">
+        <div class="terminal">
             <div class="panel-header">
                 <div class="panel-title">Payload Size Analysis</div>
                 <div class="size-gauge">
-                    <span style="color: #66ccff; font-size: 0.8rem;">Limit:</span>
+                    <span style="color: #ff6666; font-size: 0.8rem;">Limit:</span>
                     <div class="gauge-bar">
                         <div class="gauge-fill"></div>
                     </div>
@@ -389,8 +360,8 @@
                     </div>
                 </div>
                 
-                <div style="margin-top: 20px; padding: 15px; background: rgba(255, 102, 102, 0.1); border-radius: 5px; border-left: 3px solid #ff6666;">
-                    <div style="color: #ff9999; font-size: 0.9rem;">
+                <div style="margin-top: 20px; padding: 15px; background: rgba(255, 51, 51, 0.1); border-radius: 5px; border-left: 3px solid #ff3333;">
+                    <div style="color: #ff6666; font-size: 0.85rem;">
                         <strong>Recommendation:</strong> Split large files into smaller chunks or compress the data before uploading.
                     </div>
                 </div>
