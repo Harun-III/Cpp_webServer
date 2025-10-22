@@ -1,5 +1,4 @@
 #include "CgiHandler.hpp"
-#include <algorithm>
 #include <cerrno>
 #include <csignal>
 #include <cstddef>
@@ -22,7 +21,7 @@ CgiHandler::~CgiHandler() {
 }
 
 std::string CgiHandler::getFileExtension(const std::string& path) const {
-	size_t dot_pos = path.find_last_of('.');
+    size_t dot_pos = path.find_last_of('.');
     if (dot_pos == std::string::npos) {
         return "";
     }
@@ -30,7 +29,7 @@ std::string CgiHandler::getFileExtension(const std::string& path) const {
 }
 
 std::string CgiHandler::getCgiExecutable(const std::string& file_path) const{
-	std::string extension = getFileExtension(file_path);
+    std::string extension = getFileExtension(file_path);
     const std::map<std::string, std::string>& cgi_map = location.getCgi();
 
     std::map<std::string, std::string>::const_iterator it = cgi_map.find(extension);
@@ -211,10 +210,31 @@ for (int i = 0; env && env[i]; i++) {
     response.setStatusCode(200);
     
     // Parse headers from CGI output
+    // This parser should check for two things
+    // 1_ stat --> change state
+    // 2_ location if so change stats code accordingly
+    // 3_ content-length : this can be discarded since I calculate it when I want to set the body
     
     // Extract body
+    std::string body = extractBody(cgi_output);
     
+    response.writeStringToBuffer(body);
+
     return response;
+}
+
+std::string CgiHandler::extractBody(const std::string& cgi_output) const {
+    size_t body_start = cgi_output.find("\r\n\r\n");
+    if (body_start != std::string::npos) {
+        return cgi_output.substr(body_start + 4);
+    }
+
+    body_start = cgi_output.find("\n\n");
+    if (body_start != std::string::npos) {
+        return cgi_output.substr(body_start + 2);
+    }
+    
+    return cgi_output;
 }
 
 bool CgiHandler::waitForCgiWithTimeout(pid_t pid, int* status) const {

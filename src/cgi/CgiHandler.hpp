@@ -4,6 +4,7 @@
 #include "Request.hpp"
 #include "Location.hpp"
 #include "Response.hpp"
+#include <string>
 
 #define CGI_TIMEOUT 10  // timeout for CGI execution
 #define BUFFERREADSIZE 5000
@@ -21,6 +22,7 @@ private:
     char**		buildEnvVariables () const;
     void		freeEnvArray(char** env) const;
     bool                waitForCgiWithTimeout(pid_t pid, int* status) const;
+    std::string		extractBody(const std::string& cgi_output) const;
 
 
 public:
