@@ -23,7 +23,7 @@ private:
     void		freeEnvArray(char** env) const;
     bool                waitForCgiWithTimeout(pid_t pid, int* status) const;
     std::string		extractBody(const std::string& cgi_output) const;
-    void                parseHeaders(const std::string& cgi_output, Response& response) const;
+    void                parseHeaders(std::string& cgi_output, Response& response) const;
 
 
 public:

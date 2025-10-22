@@ -239,23 +239,51 @@ for (int i = 0; env && env[i]; i++) {
     // 1_ stat --> change state
     // 2_ location if so change stats code accordingly
     // 3_ content-length : this can be discarded since I calculate it when I want to set the body
-    
-    // Extract body
-    std::string body = extractBody(cgi_output);
-    
-    response.writeStringToBuffer(body);
+
+    response.writeStringToBuffer(cgi_output);
 
     return response;
 }
 
-void CgiHandler::parseHeaders(const std::string& cgi_output, Response& response) const {
-    size_t header_end = cgi_output.find("\r\n\r\n");
+void CgiHandler::parseHeaders( std::string& cgi_output, Response& response) const {
+    std::string delimiter = "\r\n\r\n";
+    size_t header_end = cgi_output.find(delimiter);
     if (header_end == std::string::npos) {
-        header_end = cgi_output.find("\n\n");
+        delimiter = "\n\n";
+        header_end = cgi_output.find(delimiter);
         if (header_end == std::string::npos) {
-            return;
+            return ;
         }
     }
+
+	std::stringstream	headersBlock;
+
+	headersBlock << cgi_output.substr(0, header_end);
+	cgi_output.erase(0, header_end + delimiter.size());
+
+	std::string			line;
+	while (std::getline(headersBlock, line)) {
+		if (line.empty()) continue ;
+
+		std::string::size_type	colum = line.find(':');
+
+		std::string				name = line.substr(0, colum);
+		std::string				value = line.substr(colum + 1);
+
+        if (name == "Status") {
+            int                 code;
+            std::stringstream   ss(value);
+
+            ss >> code;
+            response.setStatusCode(code);
+        }
+
+
+        if (name == "Location") { ; }
+        response.setHeader(name, value);
+	}
+
+    // CHECK
 
     // ...
 }
