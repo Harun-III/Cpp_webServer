@@ -3,6 +3,21 @@
 # include "ConfigParser.hpp"
 # include "ServerConfig.hpp"
 
+long getCurrentTimeMs() {
+    struct timeval tv;
+
+    if (gettimeofday(&tv, NULL) == -1) return 0;
+    return (tv.tv_sec * 1000) + (tv.tv_usec / 1000);
+}
+
+time_t	Core::now_ms( void ) {
+	struct timespec ts;
+	clock_gettime(CLOCK_MONOTONIC, &ts);
+
+	return (time_t)ts.tv_sec * 1000ull
+		+ (time_t)ts.tv_nsec / 1000000ull;
+}
+
 int	main( int argc, char **argv ) {
 	try {
 		if (argc != 2) {

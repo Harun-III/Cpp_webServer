@@ -95,7 +95,7 @@ return response;
             return handleDelete(request.path);
         } else if (request.method == "POST") {
             Response response;
-            response.setStatusCode(200);
+            response.setStatusCode(201);
             response.setContentLength(0);
             return response;
         }

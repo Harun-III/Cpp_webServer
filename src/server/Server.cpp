@@ -54,6 +54,20 @@ void	Server::accept_connection( int sock ) {
 	socket_control(conn_sock, EPOLLIN | EPOLLRDHUP, EPOLL_CTL_ADD);
 }
 
+void	Server::check_timeouts( void ) {
+	time_t		now = Core::now_ms();
+
+	for (std::map<int, Connection>::iterator loop = connections.begin();
+		loop != connections.end(); ++loop) {
+
+		Connection &conn = loop->second;
+		if (now - conn.getLastActive() > TIMEOUT) {
+			conn.setCode(408); conn.setState(BAD);
+			socket_control(conn.getSoc(), EPOLLOUT, EPOLL_CTL_MOD);
+		}
+	}
+}
+
 void	Server::create( const std::vector<ServerConfig> &servers ) {
 	create_epoll();
 
@@ -66,7 +80,7 @@ void	Server::create( const std::vector<ServerConfig> &servers ) {
 
 			const std::string	&ip   = curr_lis->first;
 			const std::string	&port = curr_lis->second;
-			
+
 			Listener	listener(ip, port);
 			
 			listener.open();
@@ -89,7 +103,7 @@ void	Server::run( void )
 	std::cout << GR "[SUCCESS] Server started successfully!" RS << std::endl;
 
 	while ( true ) {
-		if ((nfds = epoll_wait(epoll_fd, events, MAX_EVENTS, -1)) == ERROR)
+		if ((nfds = epoll_wait(epoll_fd, events, MAX_EVENTS, TIMEOUT)) == ERROR)
 			throw std::runtime_error("<epoll_wait> " + std::string(strerror(errno)));
 
 		for (int curr_ev = 0; curr_ev < nfds; curr_ev++) {
@@ -119,5 +133,6 @@ void	Server::run( void )
 				if (onWriting(curr_sock) == true) connection.reponseProssessing();
 			}
 		}
+		check_timeouts();
 	}
 }

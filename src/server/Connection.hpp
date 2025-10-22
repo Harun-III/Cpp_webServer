@@ -23,15 +23,19 @@ class Connection
 		void			setCode( int );
 		void			setState( state_e );
 
+		void			touch( void );
+		time_t			getLastActive( void );
+
 		void			requestProssessing( void );
 		void			reponseProssessing( void );
-
+		
 	private:
 		int				soc;
 		State			status;
 
 		Request			request;
 		Response		response;
+		time_t			last_active;
 };
 
 #endif

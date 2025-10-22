@@ -3,12 +3,14 @@
 
 // ------------------------- System includes -------------------------//
 
+# include <time.h>
 # include <cctype>
 # include <cstddef>
 # include <netdb.h>
 # include <fcntl.h>
 # include <unistd.h>
 # include <strings.h>
+# include <sys/time.h>
 # include <sys/stat.h>
 # include <sys/epoll.h>
 # include <sys/types.h>
@@ -42,11 +44,13 @@ typedef std::vector< std::pair<std::string, std::string> >	vector_pairs;
 
 // ------------------------- Webserv Macros -------------------------//
 
+# define ERROR				-1
 # define BUF_SIZE			8000000
 # define MAX_EVENTS			1024
 
-# define ERROR				-1
-# define TIMEOUT			1000
+# ifndef TIMEOUT
+#  define TIMEOUT 10000
+# endif
 
 # define MAX_REQUEST_LINE	1024
 # define MAX_HEADER_BYTES	10240
@@ -56,7 +60,14 @@ typedef std::vector< std::pair<std::string, std::string> >	vector_pairs;
 # define RD					"\033[1;31m"
 # define RS					"\033[0m"
 
+
 // ------------------------- Webserv Enum -------------------------//
+
+enum post_e {
+	POST_NONE,
+	POST_UPLOAD,
+	POST_CGI
+};
 
 enum state_e {
 	REQUEST_LINE,
@@ -75,6 +86,11 @@ class State {
 
 		short			code;
 		state_e			state;
+};
+
+class Core {
+	public:
+		static time_t			now_ms( void );
 };
 
 #endif

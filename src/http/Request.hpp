@@ -30,6 +30,7 @@ class Request
 
 		bool					has_conlen;
 		size_t					content_length;
+		post_e					post_dest;
 
 		void					streamBodies( void );
 		void					isValidHeaders( void );

@@ -1,9 +1,9 @@
 # include "Request.hpp"
 
-Request::Request( void ) { }
+Request::Request( void ) : content_length(0), post_dest(POST_NONE) { }
 
-Request::Request( ServerConfig &serv ) : server(serv),
-		has_conlen(false), content_length(0) { }
+Request::Request( ServerConfig &serv ) : server(serv), content_length(0),
+		post_dest(POST_NONE) { }
 
 Request::~Request( void ) { }
 
@@ -71,12 +71,12 @@ void	Request::isValidHeaders( void ) {
 
 	std::stringstream		convert(value);
 
-	has_conlen = true;
 	convert >> content_length;
 	if (convert.fail()) throw State(400, BAD);
 
 	size_t	max_size = server.getMaxClientBodySize();
 	if (content_length > max_size) throw State(413, BAD);
+	has_conlen = true;
 
 	headerIter = headers.find("content-type");
 	if (headerIter != headers.end()) {
@@ -94,9 +94,9 @@ void	Request::startProssessing( void ) {
 
 	if (!isMethodAllowed()) throw State(405, BAD);
 
-	std::cout << "startProssessing ..." << std::endl;
 	if (method == "POST") {
-		/* For Handling POST Requirement PATH UPLOAD*/
+		/* Decide CGI vs UPLOAD */
+		if (location.getUpload() == false) throw State(403, BAD);
 		path = joinPath(location.getUploadLocation(), target);
 	}
 
@@ -113,18 +113,20 @@ void	Request::startProssessing( void ) {
 }
 
 void	Request::streamBodies( void ) {
-	std::ofstream		outfile(path.c_str());
+	if (content_length > 0 && recv.empty()) throw State(0, READING_BODY);
+	if (has_conlen == false) throw State(400, BAD);
 
-	if (!outfile.is_open()) throw State(500, BAD);
+	size_t			to_write;
+	if ((to_write = std::min(recv.size(), content_length)) > 0) {
+		std::ofstream	outfile(path.c_str(), std::ios::binary | std::ios::app);
+		if (!outfile.is_open()) throw State(500, BAD);
 
-	if (recv.length() > content_length) {
-		outfile << recv;
-		content_length -= recv.length();
-		return ;
+		outfile.write(recv.data(), to_write);
+		if (!outfile.good()) { outfile.close(); throw State(500, BAD); }
+
+		recv.erase(0, to_write); content_length -= to_write;
+		outfile.close();
 	}
 
-	outfile << recv.substr(0, content_length);
-	outfile.close();
-
-	throw State(0, READY_TO_WRITE);
+	if (content_length == 0) throw State(0, READY_TO_WRITE);
 }

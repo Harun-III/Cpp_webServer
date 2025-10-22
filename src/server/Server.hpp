@@ -23,11 +23,14 @@ class Server
 	private:
 		void							create_epoll( void );
 		void							socket_control( int , int , int );
+
 		void							accept_connection( int );
 		void							close_connection( int );
 
 		bool							onReading( int );
 		bool							onWriting( int );
+
+		void							check_timeouts( void );
 
 		int								epoll_fd;
 		std::map<int, ServerConfig>		listeners;

@@ -1,9 +1,10 @@
 # include "Connection.hpp"
 
-Connection::Connection( void ) : soc(-1), status(0, REQUEST_LINE) { }
+Connection::Connection( void ) : soc(-1), status(0, REQUEST_LINE),
+		last_active(Core::now_ms()) { }
 
 Connection::Connection( int conn_sock, ServerConfig &server ) : soc(conn_sock),
-		status(0, REQUEST_LINE), request(server) { }
+		status(0, REQUEST_LINE), request(server), last_active(Core::now_ms()) { }
 
 Connection::~Connection( void ) { }
 
@@ -17,18 +18,22 @@ void	Connection::setCode( int code ) { status.code = code; }
 
 void	Connection::setState( state_e state ) { status.state = state; }
 
+void	Connection::touch( void) { last_active = Core::now_ms(); }
+
+time_t	Connection::getLastActive( void ) { return last_active; }
+
 void	Connection::requestProssessing( void ) {
 	char			buffer[BUF_SIZE];
 	ssize_t			len;
 
 	if ((len = recv(soc, buffer, BUF_SIZE, false)) == ERROR) return ;
-	request.recv.append(buffer, len);
+	request.recv.append(buffer, len); touch();
 
 	try {
 
 		if (getState() == REQUEST_LINE) {
 			RequestParser::requestLineParser(request);
-			status = State(0, READING_HEADERS);
+			status = State(0, READING_HEADERS); touch();
 		}
 
 		if (getState() == READING_HEADERS) {
@@ -37,12 +42,14 @@ void	Connection::requestProssessing( void ) {
 			request.isValidHeaders();
 			request.startProssessing();
 
-			status = State(0, READING_BODY);
+			status = State(0, READING_BODY); touch();
 		}
-		
-		if (getState() == READING_BODY) request.streamBodies();
-	}
 
+		if (getState() == READING_BODY) {
+			request.streamBodies(); touch();
+		}
+
+	}
 	catch( const State &state ) { status = state; }
 }
 
@@ -60,5 +67,6 @@ void	Connection::reponseProssessing( void ) {
 
 	send(soc, response.toString().c_str(),
 		response.toString().length(), MSG_NOSIGNAL);
-	setState(CLOSING);
+
+	touch(); setState(CLOSING);
 }
