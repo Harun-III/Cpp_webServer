@@ -20,14 +20,16 @@ public:
     std::string     generateDirectoryListing(const std::string& path) const;
 
     bool            isMethodAllowed(const std::string& method, const Location& location) const;
-    Response    handleAutoIndex(const std::string& path) const;
-    bool	isCgiRequest(const std::string& path, const Location& location) const;
-    Response    buildResponse(Request& request);
+    Response	    handleAutoIndex(const std::string& path) const;
+    bool	    isCgiRequest(const std::string& path, const Location& location) const;
+    void	    buildResponse(Request& request, Response& response);
 
-    Response    handleRedirect(int status_code, const std::string& url) const;
-    Response    handleGet(const Request& request, const Location& location);
-    Response    handleDelete(std::string full_path);
-    Response	handleCgi(Request& request);
+    void	    handleRedirect(int status_code, const std::string& url, Response& response) const;
+    void	    handleAutoIndex(const std::string& path, Response& response) const;
+    void	    handleGet(const Request& request, const Location& location, Response& response);
+    void	    handleDelete(const std::string& full_path, Response& response);
+    void	    handleCgi(Request& request, Response& response);
+
 };
 
 #endif

@@ -60,7 +60,7 @@ void	Connection::reponseProssessing( void ) {
 		<< GR "Code: [ " << getCode() << " ]" RS << std::endl;
 
 	if (getState() != BAD)
-		response = builder.buildResponse(request);
+		builder.buildResponse(request, response);
 
 	if (getState() == BAD)
 		response.generateErrorPage(request.server, getCode());

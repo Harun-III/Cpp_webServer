@@ -39,13 +39,11 @@ std::string CgiHandler::getCgiExecutable(const std::string& file_path) const{
     return "";
 }
 
-Response CgiHandler::execute() {
-    Response response;
-
+void CgiHandler::execute(Response& response) {
     std::string extension = getFileExtension(request.path);
     if (extension.empty()) {
         response.generateErrorPage(request.server, 500);
-        return response;
+        return;
     }
 
     // Set script path and CGI executable
@@ -53,19 +51,19 @@ Response CgiHandler::execute() {
     cgi_executable = getCgiExecutable(script_path);
     if (cgi_executable.empty()) {
         response.generateErrorPage(request.server, 500);
-        return response;
+        return;
     }
 
     // Check if script exists and is executable
     std::cout << "Script to check: " << script_path.c_str() << std::endl;
     if (access(script_path.c_str(), F_OK) != 0) {
         response.generateErrorPage(request.server, 404);
-        return response;
+        return;
     }
     
     if (access(script_path.c_str(), X_OK) != 0) {
         response.generateErrorPage(request.server, 403);
-        return response;
+        return;
     }
 
     // Create pipes for communication
@@ -75,7 +73,7 @@ Response CgiHandler::execute() {
     // Create output pipe first (always needed)
     if (pipe(pipe_out) < 0) {
         response.generateErrorPage(request.server, 500);
-        return response;
+        return;
     }
 
     // For POST, use file instead of pipe for input
@@ -89,7 +87,7 @@ Response CgiHandler::execute() {
             close(pipe_out[0]);
             close(pipe_out[1]);
             response.generateErrorPage(request.server, 500);
-            return response;
+            return;
         }
         input.close();
     } else {
@@ -98,7 +96,7 @@ Response CgiHandler::execute() {
             close(pipe_out[0]);
             close(pipe_out[1]);
             response.generateErrorPage(request.server, 500);
-            return response;
+            return;
         }
     }
 
@@ -130,8 +128,8 @@ for (int i = 0; env && env[i]; i++) {
         close(pipe_out[1]);
         freeEnvArray(args);
         freeEnvArray(env);
-	response.generateErrorPage(request.server, 500);
-	return response;
+        response.generateErrorPage(request.server, 500);
+        return;
     }
 
     if (pid == 0) {
@@ -188,8 +186,8 @@ for (int i = 0; env && env[i]; i++) {
         }
         freeEnvArray(args);
         freeEnvArray(env);
-	response.generateErrorPage(request.server, 500);
-	return response;
+        response.generateErrorPage(request.server, 500);
+        return;
     }
 
     if (!WIFEXITED(status) || WEXITSTATUS(status) != 0) {
@@ -200,8 +198,8 @@ for (int i = 0; env && env[i]; i++) {
         }
         freeEnvArray(args);
         freeEnvArray(env);
-	response.generateErrorPage(request.server, 500);
-	return response;
+        response.generateErrorPage(request.server, 500);
+        return;
     }
 
     // Read CGI output
@@ -225,7 +223,7 @@ for (int i = 0; env && env[i]; i++) {
 
     if (cgi_output.empty()) {
         response.generateErrorPage(request.server, 500);
-        return response;
+        return;
     }
 
     // Set default status if not set by CGI
@@ -235,8 +233,6 @@ for (int i = 0; env && env[i]; i++) {
     parseHeaders(cgi_output, response);
 
     response.writeStringToBuffer(cgi_output);
-
-    return response;
 }
 
 void CgiHandler::parseHeaders( std::string& cgi_output, Response& response) const {

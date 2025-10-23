@@ -30,7 +30,7 @@ public:
     CgiHandler(const Request& req, const Location& loc);
     ~CgiHandler();
 
-    Response            execute();
+    void		execute(Response& response);
 };
 
 #endif
