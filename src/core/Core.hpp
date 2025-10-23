@@ -3,14 +3,13 @@
 
 // ------------------------- System includes -------------------------//
 
-# include <time.h>
+# include <ctime>
 # include <cctype>
 # include <cstddef>
 # include <netdb.h>
 # include <fcntl.h>
 # include <unistd.h>
 # include <strings.h>
-# include <sys/time.h>
 # include <sys/stat.h>
 # include <sys/epoll.h>
 # include <sys/types.h>
@@ -60,7 +59,6 @@ typedef std::vector< std::pair<std::string, std::string> >	vector_pairs;
 # define RD					"\033[1;31m"
 # define RS					"\033[0m"
 
-
 // ------------------------- Webserv Enum -------------------------//
 
 enum post_e {
@@ -90,7 +88,7 @@ class State {
 
 class Core {
 	public:
-		static time_t			now_ms( void );
+		static time_t			nowTime( void );
 };
 
 #endif
