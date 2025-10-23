@@ -16,6 +16,10 @@ void Response::setStatusMessage(const std::string& message) {
     status_message = message;
 }
 
+const std::string&      Response::getStatusMessage() const {
+    return status_message;
+}
+
 void Response::setContentType(const std::string& type) {
     setHeader("Content-Type", type);
 }
