@@ -116,6 +116,11 @@ void	Request::startProssessing( void ) {
 	if (method != "POST") {
 		path = target.substr(longestM.size());
 		path = joinPath(location.getRoot(), path);
+
+	std::cout << "[ " << longestM << " ]"
+			  << "[ " << content_length << " ]"
+				 "[ " << path << " ]" << std::endl;
+
 		throw State(0, READY_TO_WRITE);
 	}
 
@@ -126,7 +131,8 @@ void	Request::startProssessing( void ) {
 		}
 		else if (location.getUpload() == true) {
 			detectPost = UPLOAD;
-			path = joinPath(location.getUploadLocation(), target);
+			path = target.substr(longestM.size());
+			path = joinPath(location.getUploadLocation(), path);
 
 			if (fileHandler.isDirectory(path))
 				path = joinPath(path, generateUniqueName());
@@ -139,7 +145,6 @@ void	Request::startProssessing( void ) {
 	std::cout << "[ " << longestM << " ]"
 			  << "[ " << content_length << " ]"
 				 "[ " << path << " ]" << std::endl;
-
 }
 
 void	Request::streamBodies( void ) {

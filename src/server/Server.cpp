@@ -61,6 +61,9 @@ void	Server::check_timeouts( void ) {
 	loop != connections.end(); ++loop) {
 		
 		Connection &conn = loop->second;
+		std::cout << "STATE: " << conn.getState() << " :SOC: " <<  conn.getSoc()
+			<< " :CODE: " << conn.getCode() << std::endl;
+		if (conn.getState() == BAD || conn.getState() == CLOSING ) continue;
 		if (now - conn.getLastActive() >= TIMEOUT) {
 			conn.setCode(408); conn.setState(BAD);
 			socket_control(conn.getSoc(), EPOLLOUT, EPOLL_CTL_MOD);
@@ -82,7 +85,7 @@ void	Server::create( const std::vector<ServerConfig> &servers ) {
 			const std::string	&port = curr_lis->second;
 
 			Listener	listener(ip, port);
-			
+
 			listener.open();
 			socket_control(listener.get(), EPOLLIN, EPOLL_CTL_ADD);
 

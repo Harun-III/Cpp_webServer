@@ -1,6 +1,6 @@
 #include "Location.hpp"
 
-Location::Location() {
+Location::Location() : upload(false) {
 }
 
 Location::~Location() {

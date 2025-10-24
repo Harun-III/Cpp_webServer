@@ -58,9 +58,8 @@ void	Connection::requestProssessing( void ) {
 
 void	Connection::reponseProssessing( void ) {
 	std::string			buffer;
-	
 	std::cout << GR "Request Exit Code: [ " << getCode() << " ]" RS << std::endl;
-	
+
 	if (getState() != BAD) {
 		ResponseBuilder		builder(request.server);
 
@@ -79,6 +78,8 @@ void	Connection::reponseProssessing( void ) {
 
 	else if (getState() == BAD) {
 		response.generateErrorPage(request.server, getCode());
+		buffer = response.generateHead();
+		buffer += response.getBody();
 		setState(CLOSING);
 		touch();
 	}
