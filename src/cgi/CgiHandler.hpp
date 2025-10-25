@@ -15,6 +15,16 @@ private:
     const Location&     location;
     std::string         script_path;
     std::string         cgi_executable;
+    time_t              start_time;
+
+    int                 pid;
+    cgi_e               cgi_status;
+    // Create pipes for communication
+    int                 pipe_in[2];   // send to CGI
+    int                 pipe_out[2];  // receiving from CGI
+
+    char**              env;
+    char**              args;
 
     std::string         getCgiExecutable(const std::string& file_path) const;
     std::string         getFileExtension(const std::string& path) const;
@@ -22,7 +32,7 @@ private:
     char**		buildEnvVariables () const;
     void		freeEnvArray(char** env) const;
     bool                waitForCgiWithTimeout(pid_t pid, int* status) const;
-    std::string		extractBody(const std::string& cgi_output) const;
+    std::string		    extractBody(const std::string& cgi_output) const;
     void                parseHeaders(std::string& cgi_output, Response& response) const;
 
 

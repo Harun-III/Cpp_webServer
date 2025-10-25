@@ -11,6 +11,7 @@
 # include <unistd.h>
 # include <strings.h>
 # include <sys/stat.h>
+# include <sys/wait.h>
 # include <sys/epoll.h>
 # include <sys/types.h>
 # include <arpa/inet.h>
@@ -20,10 +21,14 @@
 // ------------------------- Standard library -------------------------//
 
 # include <map>
+# include <cstdio>
 # include <vector>
+# include <cerrno>
 # include <bitset>
+# include <cstdlib>
 # include <ctype.h>
 # include <fstream>
+# include <csignal>
 # include <sstream>
 # include <climits>
 # include <cstdlib>
@@ -60,6 +65,12 @@ typedef std::vector< std::pair<std::string, std::string> >	vector_pairs;
 # define RS					"\033[0m"
 
 // ------------------------- Webserv Enum -------------------------//
+
+enum cgi_e {
+	CGI_INIT,
+	CGI_PROSSESS,
+	CGI_END,
+};
 
 enum post_e {
 	NONE,

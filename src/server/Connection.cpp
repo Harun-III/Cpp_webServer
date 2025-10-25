@@ -66,9 +66,10 @@ void	Connection::reponseProssessing( void ) {
 		builder.buildResponse(request, response);
 		if (getState() == READY_TO_WRITE) {
 			buffer = response.generateHead();
-			setState(WRITING);
+			if (request.location.getReturn().first) setState(CLOSING);
+			else setState(WRITING);
 		}
-	
+
 		else if (getState() == WRITING) {
 			buffer = response.getBody();
 			setState(CLOSING);

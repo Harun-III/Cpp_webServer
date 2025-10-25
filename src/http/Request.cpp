@@ -1,9 +1,9 @@
 # include "Request.hpp"
 
-Request::Request( void ) : content_length(0), detectPost(NONE) { }
+Request::Request( void ) : content_length(0), detectRoute(NONE) { }
 
 Request::Request( ServerConfig &serv ) : server(serv), content_length(0),
-		detectPost(NONE) { }
+		detectRoute(NONE) { }
 
 Request::~Request( void ) { }
 
@@ -112,11 +112,13 @@ void	Request::startProssessing( void ) {
 	else throw State(404, BAD);
 
 	if (hit->second.getReturn().first) {
-		std::cout << "[ REDIR IN REQUEST ]" << std::endl;
+		std::cout << RD "[ REDIR IN REQUEST ]" RS << std::endl;
 		throw State(0, READY_TO_WRITE);
 	}
 
 	if (!isMethodAllowed()) throw State(405, BAD);
+
+	if (isCgiRequest()) detectRoute = CGI;
 
 	if (method != "POST") {
 		path = target.substr(longestM.size());
@@ -130,12 +132,10 @@ void	Request::startProssessing( void ) {
 	}
 
 	if (method == "POST") {
-		if (isCgiRequest()) {
+		if (detectRoute == CGI)
 			cgiPath = joinPath(location.getUploadLocation(), generateUniqueName());
-			detectPost = CGI;
-		}
 		else if (location.getUpload() == true) {
-			detectPost = UPLOAD;
+			detectRoute = UPLOAD;
 			path = target.substr(longestM.size());
 			path = joinPath(location.getUploadLocation(), path);
 
@@ -159,8 +159,8 @@ void	Request::streamBodies( void ) {
 	std::string		filePath;
 	size_t			to_write;
 
-	if (detectPost == CGI) filePath = cgiPath;
-	else if (detectPost == UPLOAD) filePath = path;
+	if (detectRoute == CGI) filePath = cgiPath;
+	else if (detectRoute == UPLOAD) filePath = path;
 	else throw State(500, BAD); 
 
 	if ((to_write = std::min(recv.size(), content_length)) > 0) {

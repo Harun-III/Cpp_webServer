@@ -53,19 +53,20 @@ void ResponseBuilder::buildResponse(Request& request, Response& response) {
     try {
         // check for redirection
         if (request.location.getReturn().first != 0) {
-            std::cout << "[ REDIR IN REQUEST ]" << std::endl;
+            std::cout << RD "[ REDIR IN BUILDER ]" RS << std::endl;
             handleRedirect(request.location.getReturn().first, request.location.getReturn().second, response);
             return;
         }
 
         // Check if it's a CGI request
-        if (request.detectPost == CGI) {
+        if (request.detectRoute == CGI) {
             handleCgi(request, response);
             return;
         }
 
         // route to handlers
         if (request.method == "GET") {
+            std::cout << RD "[ GET IN BUILDER ]" RS << std::endl;
             handleGet(request, request.location, response);
             return;
         } else if (request.method == "DELETE") {
@@ -193,4 +194,3 @@ void ResponseBuilder::handleCgi(Request& request, Response& response) {
     CgiHandler cgi_handler(request, request.location);
     cgi_handler.execute(response);
 }
-

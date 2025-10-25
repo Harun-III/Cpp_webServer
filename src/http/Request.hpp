@@ -35,7 +35,7 @@ class Request
 
 		int						cgiFd;
 		std::string				cgiPath;
-		post_e					detectPost;
+		post_e					detectRoute;
 
 		// Post					;
 
