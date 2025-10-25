@@ -53,6 +53,7 @@ void ResponseBuilder::buildResponse(Request& request, Response& response) {
     try {
         // check for redirection
         if (request.location.getReturn().first != 0) {
+            std::cout << "[ REDIR IN REQUEST ]" << std::endl;
             handleRedirect(request.location.getReturn().first, request.location.getReturn().second, response);
             return;
         }

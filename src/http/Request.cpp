@@ -111,7 +111,11 @@ void	Request::startProssessing( void ) {
 	if (hit != locations.end()) location = hit->second;
 	else throw State(404, BAD);
 
-	if (hit->second.getReturn().first) throw State(0, READY_TO_WRITE);
+	if (hit->second.getReturn().first) {
+		std::cout << "[ REDIR IN REQUEST ]" << std::endl;
+		throw State(0, READY_TO_WRITE);
+	}
+
 	if (!isMethodAllowed()) throw State(405, BAD);
 
 	if (method != "POST") {
