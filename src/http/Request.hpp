@@ -1,6 +1,7 @@
 #ifndef REQUEST_HPP
 # define REQUEST_HPP
 
+// # include "Post.hpp"
 # include "Core.hpp"
 # include "Location.hpp"
 # include "MimeResolver.hpp"
@@ -32,8 +33,11 @@ class Request
 		size_t					content_length;
 		std::string				content_type;
 
+		int						cgiFd;
 		std::string				cgiPath;
 		post_e					detectPost;
+
+		// Post					;
 
 		MimeResolver			extMime;
 		StaticFileHandler		fileHandler;

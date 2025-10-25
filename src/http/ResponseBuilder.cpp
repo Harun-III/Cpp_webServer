@@ -49,19 +49,6 @@ void ResponseBuilder::handleAutoIndex(const std::string& path, Response& respons
     response.writeStringToBuffer(listing);
 }
 
-bool ResponseBuilder::isCgiRequest(const std::string& path, const Location& location) const {
-    size_t dot_pos = path.find_last_of(".");
-    if (dot_pos == std::string::npos) {
-        return false;
-    }
-
-    std::string extension = path.substr(dot_pos);
-
-    const std::map<std::string, std::string>& cgi_map = location.getCgi();
-
-    return cgi_map.find(extension) != cgi_map.end();
-}
-
 void ResponseBuilder::buildResponse(Request& request, Response& response) {
     try {
         // check for redirection
@@ -71,7 +58,7 @@ void ResponseBuilder::buildResponse(Request& request, Response& response) {
         }
 
         // Check if it's a CGI request
-        if (isCgiRequest(request.path, request.location)) {
+        if (request.detectPost == CGI) {
             handleCgi(request, response);
             return;
         }

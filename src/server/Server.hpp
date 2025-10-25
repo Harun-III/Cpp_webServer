@@ -31,10 +31,14 @@ class Server
 		bool							onWriting( int );
 
 		void							check_timeouts( void );
+		event_t							events[MAX_EVENTS];
 
-		int								epoll_fd;
+		int								nfds;
+		int								epfd;
+
 		std::map<int, ServerConfig>		listeners;
 		std::map<int, Connection>		connections;
+
 };
 
 #endif

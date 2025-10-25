@@ -111,15 +111,16 @@ void	Request::startProssessing( void ) {
 	if (hit != locations.end()) location = hit->second;
 	else throw State(404, BAD);
 
+	if (hit->second.getReturn().first) throw State(0, READY_TO_WRITE);
 	if (!isMethodAllowed()) throw State(405, BAD);
 
 	if (method != "POST") {
 		path = target.substr(longestM.size());
 		path = joinPath(location.getRoot(), path);
 
-	std::cout << "[ " << longestM << " ]"
-			  << "[ " << content_length << " ]"
-				 "[ " << path << " ]" << std::endl;
+		std::cout << "[ " << longestM << " ]"
+				<< "[ " << content_length << " ]"
+					"[ " << path << " ]" << std::endl;
 
 		throw State(0, READY_TO_WRITE);
 	}
@@ -169,5 +170,11 @@ void	Request::streamBodies( void ) {
 		outfile.close();
 	}
 
-	if (content_length == 0) throw State(0, READY_TO_WRITE);
+	if (content_length == 0) {
+		if ((cgiFd = open(filePath.c_str(), O_RDONLY)) == -1)
+			throw State(500, BAD);
+
+		std::remove(filePath.c_str());
+		throw State(0, READY_TO_WRITE);
+	}
 }

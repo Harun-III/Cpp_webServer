@@ -122,7 +122,7 @@ for (int i = 0; env && env[i]; i++) {
             close(pipe_in[1]);
         } else {
             // remove the file given by Abdlkader (request.input_file)
-            // std::remove()
+            std::remove(input_file.c_str());
         }
         close(pipe_out[0]);
         close(pipe_out[1]);
@@ -154,7 +154,7 @@ for (int i = 0; env && env[i]; i++) {
         if (!script_dir.empty()) {
             chdir(script_dir.c_str());
         }
-
+        // python3 ./bin/test
         std::string script_filename = script_path.substr(script_path.find_last_of('/') + 1);
 
         char* new_args[3];
@@ -182,7 +182,7 @@ for (int i = 0; env && env[i]; i++) {
         close(pipe_out[0]);
         if (request.method == "POST") {
             // NOTE: should delete the file here
-            // std::remove(input_file.c_str());
+            std::remove(input_file.c_str());
         }
         freeEnvArray(args);
         freeEnvArray(env);
@@ -194,7 +194,7 @@ for (int i = 0; env && env[i]; i++) {
         close(pipe_out[0]);
         if (request.method == "POST") {
             // NOTE: should delete the file here
-            // std::remove(input_file.c_str());
+            std::remove(input_file.c_str());
         }
         freeEnvArray(args);
         freeEnvArray(env);
@@ -216,7 +216,7 @@ for (int i = 0; env && env[i]; i++) {
     // clean up
     if (request.method == "POST") {
         // NOTE: should delete the file here
-        // std::remove(input_file.c_str());
+        std::remove(input_file.c_str());
     }
     freeEnvArray(args);
     freeEnvArray(env);

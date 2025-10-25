@@ -1,16 +1,16 @@
 # include "Server.hpp"
 
-Server::Server( void ) : epoll_fd(ERROR) { }
+Server::Server( void ) : epfd(ERROR) { }
 
 Server::~Server( void ) {
 	for (std::map<int, ServerConfig>::iterator curr = listeners.begin();
 			curr != listeners.end(); curr++)
 		close(curr->first);
-	if (epoll_fd != ERROR) close(epoll_fd);
+	if (epfd != ERROR) close(epfd);
 }
 
 void	Server::create_epoll( void ) {
-	if ((epoll_fd = epoll_create(MAX_EVENTS)) == ERROR)
+	if ((epfd = epoll_create(MAX_EVENTS)) == ERROR)
 		throw std::runtime_error("<epoll_create> " + std::string(strerror(errno)));
 }
 
@@ -29,7 +29,7 @@ bool	Server::onWriting( int sock ) {
 }
 
 void	Server::close_connection( int sock ) {
-	epoll_ctl(epoll_fd, EPOLL_CTL_DEL, sock, NULL);
+	epoll_ctl(epfd, EPOLL_CTL_DEL, sock, NULL);
 	connections.erase(sock);
 	close(sock);
 }
@@ -40,7 +40,7 @@ void	Server::socket_control( int fd, int mode, int op ) {
 	bzero(&ev, sizeof(event_t));
 	ev.events = mode, ev.data.fd = fd;
 
-	if (epoll_ctl(epoll_fd, op, ev.data.fd, &ev) == ERROR)
+	if (epoll_ctl(epfd, op, ev.data.fd, &ev) == ERROR)
 		throw std::runtime_error("<epoll_ctl> " + std::string(strerror(errno)));
 }		
 
@@ -61,8 +61,6 @@ void	Server::check_timeouts( void ) {
 	loop != connections.end(); ++loop) {
 		
 		Connection &conn = loop->second;
-		std::cout << "STATE: " << conn.getState() << " :SOC: " <<  conn.getSoc()
-			<< " :CODE: " << conn.getCode() << std::endl;
 		if (conn.getState() == BAD || conn.getState() == CLOSING ) continue;
 		if (now - conn.getLastActive() >= TIMEOUT) {
 			conn.setCode(408); conn.setState(BAD);
@@ -100,13 +98,10 @@ void	Server::create( const std::vector<ServerConfig> &servers ) {
 
 void	Server::run( void )
 {
-	int				nfds;
-	event_t			events[MAX_EVENTS];
-
 	std::cout << GR "[SUCCESS] Server started successfully!" RS << std::endl;
 
 	while ( true ) {
-		if ((nfds = epoll_wait(epoll_fd, events, MAX_EVENTS, TIMEOUT)) == ERROR)
+		if ((nfds = epoll_wait(epfd, events, MAX_EVENTS, TIMEOUT)) == ERROR)
 			throw std::runtime_error("<epoll_wait> " + std::string(strerror(errno)));
 
 		for (int curr_ev = 0; curr_ev < nfds; curr_ev++) {
@@ -121,8 +116,7 @@ void	Server::run( void )
 
 			if ((events[curr_ev].events & (EPOLLERR | EPOLLHUP | EPOLLRDHUP))
 					|| connection.getState() == CLOSING) {
-				close_connection(curr_sock);
-				continue ;
+				close_connection(curr_sock); continue ;
 			}
 
 			if (events[curr_ev].events & EPOLLIN) {
@@ -132,8 +126,11 @@ void	Server::run( void )
 				continue ;
 			}
 
-			if (events[curr_ev].events & EPOLLOUT) {
+			if (events[curr_ev].events & EPOLLOUT)
 				if (onWriting(curr_sock) == true) connection.reponseProssessing();
+
+			if (connection.getState() == CLOSING) {
+				close_connection(curr_sock); continue ;
 			}
 		}
 		check_timeouts();

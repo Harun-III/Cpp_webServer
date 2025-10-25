@@ -180,6 +180,10 @@ void	RequestParser::requestLineParser( Request &request ) {
 
 	if (sp != ' ' || space != ' ') throw State(400, BAD);
 
+	std::cout << "- [ " << request.method << " ]"
+			  << "[ " << request.target << " ]"
+			  << "[ " << request.version << " ]" << std::endl;
+
 	methodParser(request.method);
 	targetParser(request.target, request.query);
 	versionParser(request.version);
