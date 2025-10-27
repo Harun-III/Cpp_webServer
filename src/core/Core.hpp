@@ -69,13 +69,20 @@ typedef std::vector< std::pair<std::string, std::string> >	vector_pairs;
 enum cgi_e {
 	CGI_INIT,
 	CGI_PROSSESS,
-	CGI_END,
+	CGI_END
 };
 
 enum post_e {
 	NONE,
 	UPLOAD,
+	REDIR,
 	CGI
+};
+
+enum res_e {
+	START,
+	READ,
+	FINISH
 };
 
 enum state_e {

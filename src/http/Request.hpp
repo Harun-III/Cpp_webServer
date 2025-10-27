@@ -47,8 +47,9 @@ class Request
 		void					startProssessing( void );
 		std::string				longestPrefixMatch( void );
 
-		bool					isCgiRequest( void ) const;
 		void					streamBodies( void );
+		bool					isCgiRequest( void ) const;
+		void					routePost( const std::string & );
 		std::string				generateUniqueName( void );
 };
 

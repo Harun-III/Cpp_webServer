@@ -103,6 +103,23 @@ bool	Request::isCgiRequest( void ) const {
 	return location.getCgi().find(extension) != location.getCgi().end();
 }
 
+void	Request::routePost( const std::string &longestM ) {
+	detectRoute = UPLOAD;
+	if (detectRoute == CGI)
+		cgiPath = joinPath(location.getUploadLocation(), generateUniqueName());
+	else if (location.getUpload() == true) {
+		detectRoute = UPLOAD;
+		path = target.substr(longestM.size());
+		path = joinPath(location.getUploadLocation(), path);
+
+		if (fileHandler.isDirectory(path))
+			path = joinPath(path, generateUniqueName());
+
+		if (fileHandler.fileExists(path)) fileHandler.deleteFile(path);
+	}
+	else throw State(403, BAD);
+}
+
 void	Request::startProssessing( void ) {
 	const map_location				&locations = server.getLocations();
 	std::string						longestM = longestPrefixMatch();
@@ -112,8 +129,7 @@ void	Request::startProssessing( void ) {
 	else throw State(404, BAD);
 
 	if (hit->second.getReturn().first) {
-		std::cout << RD "[ REDIR IN REQUEST ]" RS << std::endl;
-		throw State(0, READY_TO_WRITE);
+		detectRoute = REDIR; throw State(0, READY_TO_WRITE);
 	}
 
 	if (!isMethodAllowed()) throw State(405, BAD);
@@ -131,21 +147,7 @@ void	Request::startProssessing( void ) {
 		throw State(0, READY_TO_WRITE);
 	}
 
-	if (method == "POST") {
-		if (detectRoute == CGI)
-			cgiPath = joinPath(location.getUploadLocation(), generateUniqueName());
-		else if (location.getUpload() == true) {
-			detectRoute = UPLOAD;
-			path = target.substr(longestM.size());
-			path = joinPath(location.getUploadLocation(), path);
-
-			if (fileHandler.isDirectory(path))
-				path = joinPath(path, generateUniqueName());
-
-			if (fileHandler.fileExists(path)) fileHandler.deleteFile(path);
-		}
-		else throw State(403, BAD);
-	}
+	if (method == "POST") routePost(longestM);
 
 	std::cout << "[ " << longestM << " ]"
 			  << "[ " << content_length << " ]"

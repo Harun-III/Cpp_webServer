@@ -44,39 +44,35 @@ std::string ResponseBuilder::generateDirectoryListing(const std::string& path) c
 
 void ResponseBuilder::handleAutoIndex(const std::string& path, Response& response) const {
     std::string listing = generateDirectoryListing(path);
-    response.setResponseLine(200);
+    response.setStatusCode(200);
     response.setContentType("text/html");
     response.writeStringToBuffer(listing);
 }
 
 void ResponseBuilder::buildResponse(Request& request, Response& response) {
-    // check for redirection
-    if (request.location.getReturn().first != 0) {
-        std::cout << RD "[ REDIR IN BUILDER ]" RS << std::endl;
+    if (request.detectRoute == REDIR) {
         handleRedirect(request.location.getReturn().first, request.location.getReturn().second, response);
         throw State(0, WRITING);
     }
 
-    // Check if it's a CGI request
     if (request.detectRoute == CGI) {
         handleCgi(request, response);
-        return;
+        return ;
     }
 
-    // route to handlers
     if (request.method == "GET") {
-        std::cout << RD "[ GET IN BUILDER ]" RS << std::endl;
         handleGet(request, request.location, response);
     } else if (request.method == "DELETE") {
         handleDelete(request.path, response);
     } else if (request.method == "POST") {
-        response.setResponseLine(201);
+        response.setStatusCode(201);
         response.setContentLength(0);
+        response.setContentType("text/html");
     }
 }
 
 void ResponseBuilder::handleRedirect(int status_code, const std::string& url, Response& response) const {
-    response.setResponseLine(status_code);
+    response.setStatusCode(status_code);
     response.setContentType("text/html");
     response.setLocation(url);
 
@@ -112,8 +108,9 @@ void ResponseBuilder::handleGet(const Request& request, const Location& location
             }
             index_path += location.getIndex();
             if (static_handler.fileExists(index_path) && !static_handler.isDirectory(index_path)) {
-                response.setResponseLine(200);
+                response.setStatusCode(200);
                 response.setContentType(static_handler.getContentType(index_path));
+                // TODO: optimize to avoid set head twice
                 response.writeFileToBuffer(index_path);
                 throw State(0, CLOSING);
             }
@@ -133,7 +130,7 @@ void ResponseBuilder::handleGet(const Request& request, const Location& location
         throw State(403, BAD);
     }
 
-    response.setResponseLine(200);
+    response.setStatusCode(200);
     response.setContentType(static_handler.getContentType(full_path));
     response.writeFileToBuffer(full_path);
 }
@@ -150,7 +147,7 @@ void ResponseBuilder::handleDelete(const std::string& full_path, Response& respo
     }
 
     if (static_handler.deleteFile(full_path)) {
-        response.setResponseLine(204);
+        response.setStatusCode(204);
         response.setContentType("text/html");
         response.setContentLength(0);
     } else {

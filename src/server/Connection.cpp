@@ -30,7 +30,6 @@ void	Connection::requestProssessing( void ) {
 	request.recv.append(buffer, len); touch();
 
 	try {
-
 		if (getState() == REQUEST_LINE) {
 			RequestParser::requestLineParser(request);
 			status = State(0, READING_HEADERS);
@@ -51,34 +50,33 @@ void	Connection::requestProssessing( void ) {
 			request.streamBodies();
 			touch();
 		}
-
 	}
 	catch( const State &state ) { status = state; touch(); }
 }
 
 void	Connection::reponseProssessing( void ) {
-	std::cout << GR "Request Exit Code: [ " << getCode() << " ]" RS << std::endl;
-
 	try {
-
-		if (getState() != BAD && getState() == READY_TO_WRITE) {
+		if (getState() == READY_TO_WRITE) {
 			ResponseBuilder		builder(request.server);
+
 			builder.buildResponse(request, response);
-			touch();
+			setState(WRITING); touch();
 		}
-
 	}
-
 	catch( const State &state ) { status = state; touch(); }
 
-	if (getState() == BAD) {
-		response.generateErrorPage(request.server, getCode());
-		setState(CLOSING);
+	if (getState() == WRITING) {
+		// Api That Cal Function That Will Read The Resonse Body
 		touch();
 	}
 
-	std::string	&generated = response.generated;
-	// std::cout << response.generated << std::endl;
-	send(soc, generated.c_str(), generated.length(), MSG_NOSIGNAL);
-	touch();
+	else if (getState() == BAD) {
+		response.generateErrorPage(request.server, getCode());
+		setState(CLOSING); touch();
+	}
+
+	const char				*buffer = response.generated.c_str();
+	size_t					length = response.generated.length();
+
+	send(soc, buffer, length, MSG_NOSIGNAL); touch();
 }

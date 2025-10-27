@@ -21,7 +21,7 @@ public:
     ~Response();
 
     void setTotalSize(size_t code);
-    void setResponseLine(int code);
+    void setStatusCode(int code);
     void setStatusMessage(const std::string& message);
     void setContentType(const std::string& type);
     void setHeader(const std::string& name, const std::string& value);
@@ -39,8 +39,9 @@ public:
     void                    writeFileToBuffer(std::string full_path);
 
     // This now also sets the "Content-Lenght"
+    void                    generateHead();
     void                    writeStringToBuffer(std::string str);
-    std::string            generated;
+    std::string             generated;
 };
 
 #endif
