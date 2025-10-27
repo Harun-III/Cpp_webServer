@@ -42,6 +42,16 @@ std::string CgiHandler::getCgiExecutable(const std::string& file_path) const{
     return "";
 }
 
+std::string CgiHandler::generateOutputFilename() const {
+	std::time_t wallTime = std::time(NULL);
+	std::clock_t cpuTicks = std::clock();
+
+	std::ostringstream orand;
+	orand << "/tmp/cgi_output_" << wallTime << "_" << cpuTicks << "_" << pid;
+
+	return orand.str();
+}
+
 void CgiHandler::execute(Response& response) {
     // Set script path and CGI executable    
     if (cgi_status == CGI_INIT) {
