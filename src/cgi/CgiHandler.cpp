@@ -3,10 +3,24 @@
 
 CgiHandler::CgiHandler(const Request& req, const Location& loc)
     : request(req), location(loc), script_path(""), cgi_executable(""),
-        cgi_status(CGI_INIT) {
+    start_time(0), pid(-1), cgi_status(CGI_INIT), env(NULL), args(NULL),
+    output_file(""), output_fd(-1) {
 }
 
 CgiHandler::~CgiHandler() {
+    // Clean up if destructor is called before completion
+    if (output_fd != -1) {
+        close(output_fd);
+    }
+    if (!output_file.empty()) {
+        std::remove(output_file.c_str());
+    }
+    if (args) {
+        freeEnvArray(args);
+    }
+    if (env) {
+        freeEnvArray(env);
+    }
 }
 
 std::string CgiHandler::getFileExtension(const std::string& path) const {
