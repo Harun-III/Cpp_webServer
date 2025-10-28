@@ -4,7 +4,7 @@
 CgiHandler::CgiHandler(const Request& req, const Location& loc)
     : request(req), location(loc), script_path(""), cgi_executable(""),
     start_time(0), pid(-1), cgi_status(CGI_INIT), env(NULL), args(NULL),
-    output_fd(-1) {
+    output_fd(-1), cgi_output("") {
 }
 
 CgiHandler::~CgiHandler() {
@@ -148,7 +148,7 @@ void CgiHandler::execute(Response& response) {
         int result = waitpid(pid, &status, WNOHANG);
         if (result == 0) {
             // Child still running, return and check again later
-            return;
+            throw (0, READY_TO_WRITE);
         }
         if (result < 0) {
             // waitpid error
@@ -160,49 +160,74 @@ void CgiHandler::execute(Response& response) {
             response.generateErrorPage(request.server, 500);
             return;
         }
+
+        // Open and read the entire file
+        file(output_file.c_str(), std::ios::binary);
+        if (!file.is_open()) {
+            throw Stat(500, BAD);
+        }
+
         // Child exited successfully, transition to END state
         cgi_status = CGI_END;
     }
     // ==================== CGI_END ====================
     if (cgi_status == CGI_END) {
-        // Open and read the entire file
-        std::ifstream file(output_file.c_str(), std::ios::binary);
-        if (!file.is_open()) {
-            response.generateErrorPage(request.server, 500);
-            return;
+        // Read CGI output
+        char buffer[CGI_BUFFER];
+        size_t bytes_read;
+
+        file.read(buffer, CGI_BUFFER);
+        // gcout() return the number of bytes read
+        bytes_read = static_cast<size_t>(file.gcout());
+        
+        // response.cgi_offset += bytes_read;
+
+        // check for "\r\n\r\n" 
+        std::string delimiter = "\r\n\r\n";
+        size_t header_end = cgi_output.find(delimiter);
+        if (header_end == std::string::npos) {
+            delimiter = "\n\n";
+            header_end = cgi_output.find(delimiter);
+            if (header_end == std::string::npos) {
+                response.cgi_offset = header_end;
+                // Set default status if not set by CGI
+                response.setStatusCode(200);
+                parseHeaders(cgi_output, response);
+                response.setContentLength(getCgiFileLength(output_file));
+                response.generateHead();
+                throw (0, WRITING);
+            }
         }
-        
-        // Set default status if not set by CGI
-        response.setStatusCode(200);
-        
-        // Parse headers
-        parseHeaders(headers_part, response);
-        
-        // Write headers to response
-        response.generateHead();
-        
-        // Open the file for reading the body later
-        output_fd = open(output_file.c_str(), O_RDONLY);
-        if (output_fd == -1) {
-            response.generateErrorPage(request.server, 500);
-            return;
+
+        if (cgi_output.size() == 0) {
+            throw Stat(500, BAD);
         }
+
+        if (cgi_output.size() > CGI_STRING_MAX_OUTPUT) {
+            throw Stat(500, BAD);
+        }
+
+        // throw READY_TO_WRITE to stop here and re-enter the loop
+        throw (0, READY_TO_WRITE);
     }
 }
 
-void CgiHandler::parseHeaders( std::string& cgi_output, Response& response) const {
-    std::string delimiter = "\r\n\r\n";
-    size_t header_end = cgi_output.find(delimiter);
-    if (header_end == std::string::npos) {
-        delimiter = "\n\n";
-        header_end = cgi_output.find(delimiter);
-        if (header_end == std::string::npos) {
-            return ;
-        }
+size_t    CgiHandler::getCgiFileLength(const std::string pathToCgiFile, size_t headSize) const {
+    struct stat s_buffer;
+
+    if (stat(pathToCgiFile.c_str(), &s_buffer) != 0) {
+        return (0);
     }
+
+    return (s_buffer.st_size - headSize);
+}
+
+void CgiHandler::parseHeaders(std::string& cgi_output, Response& response) const {
     std::stringstream	headersBlock;
+
     headersBlock << cgi_output.substr(0, header_end);
     cgi_output.erase(0, header_end + delimiter.size());
+
     std::string			line;
     while (std::getline(headersBlock, line)) {
         if (line.empty()) continue ;

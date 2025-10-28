@@ -8,6 +8,9 @@
 
 #define CGI_TIMEOUT 5  // timeout for CGI execution in seconds
 
+#define CGI_STRING_MAX_OUTPUT 100000
+#define CGI_BUFFER 10000
+
 class CgiHandler {
 private:
 	const Request&      request;
@@ -24,6 +27,7 @@ private:
 	
 	int                 output_fd;    // File descriptor for output file
 
+	size_t				getCgiFileLength(const std::string pathToCgiFile, size_t headSize) const;
 	std::string         getCgiExecutable(const std::string& file_path) const;
 	std::string         getFileExtension(const std::string& path) const;
 	char**              buildArguments() const;
@@ -35,7 +39,8 @@ private:
 public:
 	CgiHandler(const Request& req, const Location& loc);
 	~CgiHandler();
-
+	
+	std::string			cgi_output;
 	void                execute(Response& response);
 };
 
