@@ -52,18 +52,15 @@ void CgiHandler::execute(Response& response) {
         script_path = request.path;
         cgi_executable = getCgiExecutable(script_path);
         if (cgi_executable.empty()) {
-            response.generateErrorPage(request.server, 500);
-            return;
+            State(500, BAD);
         }
         // Check if script exists
         if (access(script_path.c_str(), F_OK) != 0) {
-            response.generateErrorPage(request.server, 404);
-            return;
+            State(404, BAD);
         }
         // Check if script is executable
         if (access(script_path.c_str(), X_OK) != 0) {
-            response.generateErrorPage(request.server, 403);
-            return;
+            State(403, BAD);
         }
         // Build environment variables and arguments
         env = buildEnvVariables();
@@ -76,8 +73,7 @@ void CgiHandler::execute(Response& response) {
         pid = fork();
         if (pid < 0) {
             // Fork failed
-            response.generateErrorPage(request.server, 500);
-            return;
+            State(500, BAD);
         }
         if (pid == 0) {
             // ==================== CHILD PROCESS ====================
@@ -141,32 +137,31 @@ void CgiHandler::execute(Response& response) {
         if (curr_time - start_time >= CGI_TIMEOUT) {
             kill(pid, SIGKILL);
             waitpid(pid, &status, 0);
-            response.generateErrorPage(request.server, 500);
-            return;
+            State(500, BAD);
         }
         // Non-blocking check if child has terminated
         int result = waitpid(pid, &status, WNOHANG);
         if (result == 0) {
             // Child still running, return and check again later
-            throw (0, READY_TO_WRITE);
+            throw State(0, READY_TO_WRITE);
         }
         if (result < 0) {
             // waitpid error
-            response.generateErrorPage(request.server, 500);
-            return;
+            State(500, BAD);
         }
         // Child has terminated (result > 0)
         if (!WIFEXITED(status) || WEXITSTATUS(status) != 0) {
-            response.generateErrorPage(request.server, 500);
-            return;
+            State(500, BAD);
         }
 
         // Open and read the entire file
-        file(output_file.c_str(), std::ios::binary);
-        if (!file.is_open()) {
-            throw Stat(500, BAD);
+        response.file.open(output_file.c_str(), std::ios::binary);
+        if (!response.file.is_open()) {
+            throw State(500, BAD);
         }
 
+        std::cout << RD "CGI script executed successfully, reading output from " RS
+                  << response.file << std::endl;
         // Child exited successfully, transition to END state
         cgi_status = CGI_END;
     }
@@ -176,10 +171,11 @@ void CgiHandler::execute(Response& response) {
         char buffer[CGI_BUFFER];
         size_t bytes_read;
 
-        file.read(buffer, CGI_BUFFER);
+        response.file.read(buffer, CGI_BUFFER);
         // gcout() return the number of bytes read
-        bytes_read = static_cast<size_t>(file.gcout());
+        bytes_read = static_cast<size_t>(response.file.gcount());
         
+        (void)bytes_read;
         // response.cgi_offset += bytes_read;
 
         // check for "\r\n\r\n" 
@@ -193,22 +189,23 @@ void CgiHandler::execute(Response& response) {
                 // Set default status if not set by CGI
                 response.setStatusCode(200);
                 parseHeaders(cgi_output, response);
-                response.setContentLength(getCgiFileLength(output_file));
+                size_t con_len = getCgiFileLength(output_file, header_end + delimiter.size());
+                response.setContentLength(con_len);
                 response.generateHead();
-                throw (0, WRITING);
+                throw State(0, WRITING);
             }
         }
 
         if (cgi_output.size() == 0) {
-            throw Stat(500, BAD);
+            throw State(500, BAD);
         }
 
         if (cgi_output.size() > CGI_STRING_MAX_OUTPUT) {
-            throw Stat(500, BAD);
+            throw State(500, BAD);
         }
 
         // throw READY_TO_WRITE to stop here and re-enter the loop
-        throw (0, READY_TO_WRITE);
+        throw State(0, READY_TO_WRITE);
     }
 }
 
@@ -225,8 +222,7 @@ size_t    CgiHandler::getCgiFileLength(const std::string pathToCgiFile, size_t h
 void CgiHandler::parseHeaders(std::string& cgi_output, Response& response) const {
     std::stringstream	headersBlock;
 
-    headersBlock << cgi_output.substr(0, header_end);
-    cgi_output.erase(0, header_end + delimiter.size());
+    headersBlock << cgi_output;
 
     std::string			line;
     while (std::getline(headersBlock, line)) {

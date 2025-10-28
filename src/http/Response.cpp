@@ -36,21 +36,14 @@ void Response::setLocation(const std::string& url) {
 	setHeader("Location", url);
 }
 
-void Response::setTotalSize(size_t size) {
-	total_size = size;
-}
-
-size_t Response::getTotalSize() const {
-	return total_size;
-}
-
 void Response::setContentLength(size_t length) {
 	setHeader("Content-Length", to_string(length));
 }
 
 void Response::writeStringToBuffer(std::string str) {
 	setContentLength(str.length());
-	generateHead(); generated += str;
+	generateHead();
+	generated += str;
 }
 
 void Response::generateErrorPage(const ServerConfig &server, int code) {

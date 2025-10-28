@@ -104,7 +104,6 @@ bool	Request::isCgiRequest( void ) const {
 }
 
 void	Request::routePost( const std::string &longestM ) {
-	detectRoute = RT_UPLOAD;
 	if (detectRoute == RT_CGI)
 		cgiPath = joinPath(location.getUploadLocation(), generateUniqueName());
 	else if (location.getUpload() == true) {

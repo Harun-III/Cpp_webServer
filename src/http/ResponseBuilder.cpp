@@ -12,7 +12,7 @@ ResponseBuilder::ResponseBuilder(const ServerConfig& config):
 ResponseBuilder::~ResponseBuilder() { }
 
 void ResponseBuilder::handleCgi(Request& request, Response& response) {
-	CgiHandler cgi_handler(request, request.location);
+	CgiHandler	cgi_handler(request, request.location);
 	cgi_handler.execute(response);
 }
 
@@ -35,19 +35,20 @@ void ResponseBuilder::buildResponse(Request& request, Response& response) {
 		handleRedirect(request, response);
 	}
 
-	if (request.detectRoute == RT_CGI) {
-		response.cgiHandler.execute(response);
+	else if (request.detectRoute == RT_CGI) {
+		// response.cgi_handler.execute(response);
+		handleCgi(request, response);
 	}
 
-	if (request.method == "GET") {
+	else if (request.method == "GET") {
 		handleGet(request, request.location, response);
 	}
 
-	if (request.method == "DELETE") {
+	else if (request.method == "DELETE") {
 		handleDelete(request.path, response);
 	}
 
-	if (request.method == "POST") {
+	else if (request.method == "POST") {
 		handlePost(response);
 	}
 }
@@ -124,6 +125,7 @@ void ResponseBuilder::handleDelete(const std::string& full_path, Response& respo
 		response.setStatusCode(204);
 		response.setContentType("text/html");
 		response.setContentLength(0);
+		response.generateHead();
 	}
 
 	else throw State(500, BAD);
@@ -146,7 +148,7 @@ void ResponseBuilder::handleGet(const Request& request, const Location& location
 				&& !static_handler.isDirectory(index_path)) {
 			target = index_path;
 		}
-	
+
 		// Handle autoindex
 		else if (location.getAutoIndex()) {
 			handleAutoIndex(target, response); return;

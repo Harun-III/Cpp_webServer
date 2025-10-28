@@ -26,6 +26,7 @@ private:
 	char**              args;
 	
 	int                 output_fd;    // File descriptor for output file
+	std::string			output_file;
 
 	size_t				getCgiFileLength(const std::string pathToCgiFile, size_t headSize) const;
 	std::string         getCgiExecutable(const std::string& file_path) const;
