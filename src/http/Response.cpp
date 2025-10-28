@@ -1,5 +1,4 @@
 # include "Response.hpp"
-#include "Request.hpp"
 
 Response::Response() : http_version("HTTP/1.0") { }
 

@@ -1,8 +1,7 @@
-# include "Core.hpp"
 # include "CgiHandler.hpp"
+# include "Response.hpp"
 
-CgiHandler::CgiHandler(const Request& req, const Location& loc)
-    : request(req), location(loc), script_path(""), cgi_executable(""),
+CgiHandler::CgiHandler() : script_path(""), cgi_executable(""),
     start_time(0), pid(-1), cgi_status(CGI_INIT), env(NULL), args(NULL),
     output_fd(-1), cgi_output("") {
 }
@@ -28,7 +27,7 @@ std::string CgiHandler::getFileExtension(const std::string& path) const {
     return path.substr(dot_pos);
 }
 
-std::string CgiHandler::getCgiExecutable(const std::string& file_path) const{
+std::string CgiHandler::getCgiExecutable(Location& location, const std::string& file_path) const {
     std::string extension = getFileExtension(file_path);
     const std::map<std::string, std::string>& cgi_map = location.getCgi();
     std::map<std::string, std::string>::const_iterator it = cgi_map.find(extension);
@@ -46,34 +45,39 @@ std::string CgiHandler::generateOutputFilename() const {
 	return orand.str();
 }
 
-void CgiHandler::execute(Response& response) {
+void CgiHandler::execute(Request& request, Response& response) {
     // ==================== CGI_INIT ====================
     if (cgi_status == CGI_INIT) {
+        std::cout << GR "Starting CGI execution for script: " RS
+                  << request.path << std::endl;
+
         script_path = request.path;
-        cgi_executable = getCgiExecutable(script_path);
+        cgi_executable = getCgiExecutable(request.location, script_path);
         if (cgi_executable.empty()) {
-            State(500, BAD);
+            throw State(500, BAD);
         }
         // Check if script exists
         if (access(script_path.c_str(), F_OK) != 0) {
-            State(404, BAD);
+            throw State(404, BAD);
         }
         // Check if script is executable
         if (access(script_path.c_str(), X_OK) != 0) {
-            State(403, BAD);
+            throw State(403, BAD);
         }
         // Build environment variables and arguments
-        env = buildEnvVariables();
+        env = buildEnvVariables(request);
         args = buildArguments();
         
         // Generate output filename BEFORE forking so both parent and child have it
         output_file = generateOutputFilename();
         
+        std::cout << GR "CGI output will be written to: " RS
+                  << output_file << std::endl;
         // Fork and execute CGI
         pid = fork();
         if (pid < 0) {
             // Fork failed
-            State(500, BAD);
+            throw State(500, BAD);
         }
         if (pid == 0) {
             // ==================== CHILD PROCESS ====================
@@ -118,18 +122,24 @@ void CgiHandler::execute(Response& response) {
             perror("execve");
             exit(EXIT_FAILURE);
         }
+        std::cout << GR "Forked CGI process with PID: " RS
+                  << pid << std::endl;
         // ==================== PARENT PROCESS ====================
         // Close the input fd if it was for POST
         if (request.method == "POST" && request.cgiFd != -1) {
             close(request.cgiFd);
         }
+
         // Record start time and transition to PROCESS state
         start_time = std::time(NULL);
         cgi_status = CGI_PROSSESS;
-        return;  // Exit and wait for next call
+        throw State(0, READY_TO_WRITE);
     }
+
     // ==================== CGI_PROSSESS ====================
     if (cgi_status == CGI_PROSSESS) {
+        std::cout << GR "Checking CGI process status for PID: " RS
+                  << pid << std::endl;
         int status;
 
         time_t curr_time = std::time(NULL);
@@ -137,7 +147,7 @@ void CgiHandler::execute(Response& response) {
         if (curr_time - start_time >= CGI_TIMEOUT) {
             kill(pid, SIGKILL);
             waitpid(pid, &status, 0);
-            State(500, BAD);
+            throw State(500, BAD);
         }
         // Non-blocking check if child has terminated
         int result = waitpid(pid, &status, WNOHANG);
@@ -147,11 +157,11 @@ void CgiHandler::execute(Response& response) {
         }
         if (result < 0) {
             // waitpid error
-            State(500, BAD);
+            throw State(500, BAD);
         }
         // Child has terminated (result > 0)
         if (!WIFEXITED(status) || WEXITSTATUS(status) != 0) {
-            State(500, BAD);
+            throw State(500, BAD);
         }
 
         // Open and read the entire file
@@ -162,11 +172,14 @@ void CgiHandler::execute(Response& response) {
 
         std::cout << RD "CGI script executed successfully, reading output from " RS
                   << response.file << std::endl;
+
         // Child exited successfully, transition to END state
         cgi_status = CGI_END;
     }
     // ==================== CGI_END ====================
     if (cgi_status == CGI_END) {
+        std::cout << GR "Processing CGI output for PID: " RS
+                  << pid << std::endl;
         // Read CGI output
         char buffer[CGI_BUFFER];
         size_t bytes_read;
@@ -174,7 +187,11 @@ void CgiHandler::execute(Response& response) {
         response.file.read(buffer, CGI_BUFFER);
         // gcout() return the number of bytes read
         bytes_read = static_cast<size_t>(response.file.gcount());
-        
+
+        cgi_output.append(buffer, bytes_read);
+        std::cout << RD "OUTPUT FROM CGI:\n" RS
+                  << cgi_output << std::endl;
+
         (void)bytes_read;
         // response.cgi_offset += bytes_read;
 
@@ -250,7 +267,7 @@ void CgiHandler::parseHeaders(std::string& cgi_output, Response& response) const
     }
 }
 
-char** CgiHandler::buildEnvVariables () const {
+char** CgiHandler::buildEnvVariables (Request& request) const {
     std::vector<std::string> env_strings;
     env_strings.push_back("REQUEST_METHOD=" + request.method);
     env_strings.push_back("SCRIPT_FILENAME=" + script_path);

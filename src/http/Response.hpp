@@ -2,8 +2,9 @@
 # define HTTPRESPONSE_HPP
 
 # include "Core.hpp"
+# include "Request.hpp"
 # include "ErrorHandler.hpp"
-// # include "ServerConfig.hpp"
+# include "CgiHandler.hpp"
 
 class ServerConfig;
 
@@ -40,9 +41,10 @@ public:
     void                    generateHead();
     void                    writeStringToBuffer(std::string str);
 
-	std::ifstream			file;
+	std::fstream			file;
     std::string             generated;
     std::fstream            bodyStream;
+	CgiHandler              cgi_handler;
 };
 
 #endif

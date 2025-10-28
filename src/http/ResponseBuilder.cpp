@@ -11,11 +11,6 @@ ResponseBuilder::ResponseBuilder(const ServerConfig& config):
 
 ResponseBuilder::~ResponseBuilder() { }
 
-void ResponseBuilder::handleCgi(Request& request, Response& response) {
-	CgiHandler	cgi_handler(request, request.location);
-	cgi_handler.execute(response);
-}
-
 void ResponseBuilder::handleAutoIndex(const std::string& path, Response& response) const {
 	std::string listing = generateDirectoryListing(path);
 	response.setStatusCode(200);
@@ -36,8 +31,7 @@ void ResponseBuilder::buildResponse(Request& request, Response& response) {
 	}
 
 	else if (request.detectRoute == RT_CGI) {
-		// response.cgi_handler.execute(response);
-		handleCgi(request, response);
+		response.cgi_handler.execute(request, response);
 	}
 
 	else if (request.method == "GET") {
