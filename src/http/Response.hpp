@@ -36,12 +36,14 @@ public:
     void                    generateErrorPage(const ServerConfig &server, int code);
     static                  std::string getStatusText(int code);
     void                    setContentLength(size_t length);
-    void                    writeFileToBuffer(std::string full_path);
+    bool                    continueStreaming( void );
 
     // This now also sets the "Content-Lenght"
     void                    generateHead();
     void                    writeStringToBuffer(std::string str);
+
     std::string             generated;
+    std::fstream            bodyStream;
 };
 
 #endif

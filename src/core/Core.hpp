@@ -49,15 +49,15 @@ typedef std::vector< std::pair<std::string, std::string> >	vector_pairs;
 // ------------------------- Webserv Macros -------------------------//
 
 # define ERROR				-1
-# define BUF_SIZE			8000000
+# define BUF_SIZE			(32 * 1024)
 # define MAX_EVENTS			1024
 
 # ifndef TIMEOUT
-#  define TIMEOUT 10000
+#  define TIMEOUT 10
 # endif
 
 # define MAX_REQUEST_LINE	1024
-# define MAX_HEADER_BYTES	10240
+# define MAX_HEADER_BYTES	(10 * 1024)
 
 # define GR					"\033[1;32m"
 # define YL					"\033[1;33m"
@@ -104,9 +104,9 @@ class State {
 		state_e			state;
 };
 
-class Core {
-	public:
-		static time_t			nowTime( void );
-};
+// class Core {
+// 	public:
+// 		static time_t			nowTime( void );
+// };
 
 #endif

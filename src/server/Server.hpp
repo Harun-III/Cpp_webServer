@@ -37,7 +37,7 @@ class Server
 		int								epfd;
 
 		std::map<int, ServerConfig>		listeners;
-		std::map<int, Connection>		connections;
+		std::map<int, Connection *>		connections;
 
 };
 

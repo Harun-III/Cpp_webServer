@@ -18,7 +18,7 @@ bool	Request::isMethodAllowed( void ) {
 	return false;
 }
 
-std::string	joinPath ( const std::string &root, const std::string &target ) {
+std::string	Request::joinPath ( const std::string &root, const std::string &target ) const {
 	if (root.empty()) return target;
 	if (target.empty()) return root;
 
@@ -177,10 +177,10 @@ void	Request::streamBodies( void ) {
 	}
 
 	if (content_length == 0) {
-		if ((cgiFd = open(filePath.c_str(), O_RDONLY)) == -1)
+		if (detectRoute == CGI && (cgiFd = open(filePath.c_str(), O_RDONLY)) == -1)
 			throw State(500, BAD);
 
-		std::remove(filePath.c_str());
+		if (detectRoute == CGI) std::remove(filePath.c_str());
 		throw State(0, READY_TO_WRITE);
 	}
 }

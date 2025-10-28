@@ -53,4 +53,4 @@ test_file_for_cgi.txt
 compile_commands.json
 .cache
 
-uploads/*
+# uploads/*

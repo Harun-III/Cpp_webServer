@@ -1,10 +1,10 @@
 # include "Connection.hpp"
 
 Connection::Connection( void ) : soc(-1), status(0, REQUEST_LINE),
-		last_active(Core::nowTime()) { }
+		last_active(std::time(NULL)) { }
 
 Connection::Connection( int conn_sock, ServerConfig &server ) : soc(conn_sock),
-		status(0, REQUEST_LINE), request(server), last_active(Core::nowTime()) { }
+		status(0, REQUEST_LINE), request(server), last_active(std::time(NULL)) { }
 
 Connection::~Connection( void ) { }
 
@@ -18,9 +18,21 @@ void	Connection::setCode( int code ) { status.code = code; }
 
 void	Connection::setState( state_e state ) { status.state = state; }
 
-void	Connection::touch( void) { last_active = Core::nowTime(); }
+void	Connection::touch( void) { last_active = std::time(NULL); }
 
 time_t	Connection::getLastActive( void ) { return last_active; }
+
+void	Connection::sending( void ) {
+	if (response.generated.empty()) return;
+
+	const char		*buffer = response.generated.data();
+	size_t			to_send = std::min(response.generated.size(), (size_t)BUF_SIZE);
+
+	ssize_t			readed = send(soc, buffer, to_send, MSG_NOSIGNAL); touch();
+	if (readed > 0) { response.generated.erase(0, to_send); return ; }
+
+	setCode(500); setState(BAD); touch();
+}
 
 void	Connection::requestProssessing( void ) {
 	char			buffer[BUF_SIZE];
@@ -55,28 +67,29 @@ void	Connection::requestProssessing( void ) {
 }
 
 void	Connection::reponseProssessing( void ) {
-	try {
-		if (getState() == READY_TO_WRITE) {
+	if (getState() == READY_TO_WRITE) {
+		try {
 			ResponseBuilder		builder(request.server);
 
 			builder.buildResponse(request, response);
 			setState(WRITING); touch();
 		}
+		catch( const State &state ) { status = state; touch(); }
 	}
-	catch( const State &state ) { status = state; touch(); }
 
 	if (getState() == WRITING) {
-		// Api That Cal Function That Will Read The Resonse Body
-		touch();
+		if (response.continueStreaming() && response.generated.empty()) {
+			setState(CLOSING); touch(); return ;
+		} touch();
 	}
 
-	else if (getState() == BAD) {
+	if (getState() == BAD) {
+		if (response.bodyStream.is_open()) response.bodyStream.close();
+
+		response.generated.clear();
 		response.generateErrorPage(request.server, getCode());
-		setState(CLOSING); touch();
+		setState(WRITING); touch();
 	}
 
-	const char				*buffer = response.generated.c_str();
-	size_t					length = response.generated.length();
-
-	send(soc, buffer, length, MSG_NOSIGNAL); touch();
+	if (getState() == WRITING) sending();
 }

@@ -1,7 +1,6 @@
 #ifndef REQUEST_HPP
 # define REQUEST_HPP
 
-// # include "Post.hpp"
 # include "Core.hpp"
 # include "Location.hpp"
 # include "MimeResolver.hpp"
@@ -37,8 +36,6 @@ class Request
 		std::string				cgiPath;
 		post_e					detectRoute;
 
-		// Post					;
-
 		MimeResolver			extMime;
 		StaticFileHandler		fileHandler;
 
@@ -50,6 +47,7 @@ class Request
 		void					streamBodies( void );
 		bool					isCgiRequest( void ) const;
 		void					routePost( const std::string & );
+		std::string				joinPath( const std::string & , const std::string & ) const;
 		std::string				generateUniqueName( void );
 };
 

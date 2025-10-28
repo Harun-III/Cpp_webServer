@@ -15,14 +15,14 @@ void	Server::create_epoll( void ) {
 }
 
 bool	Server::onReading( int sock ) {
-	state_e		state = connections.find(sock)->second.getState();
+	state_e		state = connections.find(sock)->second->getState();
 
 	return state == REQUEST_LINE || state == READING_HEADERS
 				|| state == READING_BODY;
 }
 
 bool	Server::onWriting( int sock ) {
-	state_e		state = connections.find(sock)->second.getState();
+	state_e		state = connections.find(sock)->second->getState();
 
 	return state == READY_TO_WRITE || state == WRITING
 				|| state == CLOSING || state == BAD;
@@ -30,6 +30,7 @@ bool	Server::onWriting( int sock ) {
 
 void	Server::close_connection( int sock ) {
 	epoll_ctl(epfd, EPOLL_CTL_DEL, sock, NULL);
+	delete connections.find(sock)->second;
 	connections.erase(sock);
 	close(sock);
 }
@@ -50,21 +51,21 @@ void	Server::accept_connection( int sock ) {
 	if (conn_sock == ERROR) return ;
 
 	fcntl(conn_sock, F_SETFL, O_NONBLOCK);
-	connections[conn_sock] = Connection(conn_sock, listeners.find(sock)->second);
+	connections[conn_sock] = new Connection(conn_sock, listeners.find(sock)->second);
 	socket_control(conn_sock, EPOLLIN | EPOLLRDHUP, EPOLL_CTL_ADD);
 }
 
 void	Server::check_timeouts( void ) {
-	time_t		now = Core::nowTime();
-	
-	for (std::map<int, Connection>::iterator loop = connections.begin();
-	loop != connections.end(); ++loop) {
-		
-		Connection &conn = loop->second;
-		if (conn.getState() == BAD || conn.getState() == CLOSING ) continue;
-		if (now - conn.getLastActive() >= TIMEOUT) {
-			conn.setCode(408); conn.setState(BAD);
-			socket_control(conn.getSoc(), EPOLLOUT, EPOLL_CTL_MOD);
+	time_t			now = std::time(NULL);
+
+	for (std::map<int, Connection *>::iterator loop = connections.begin();
+		loop != connections.end(); ++loop) {
+
+		Connection	*conn = loop->second;
+		if (conn->getState() == BAD || conn->getState() == CLOSING ) continue;
+		if (now - conn->getLastActive() >= TIMEOUT) {
+			conn->setCode(408); conn->setState(BAD);
+			socket_control(conn->getSoc(), EPOLLOUT, EPOLL_CTL_MOD);
 		}
 	}
 }
@@ -112,24 +113,24 @@ void	Server::run( void )
 				continue ;
 			}
 
-			Connection		&connection = connections.find(curr_sock)->second;
+			Connection		*connection = connections.find(curr_sock)->second;
 
 			if ((events[curr_ev].events & (EPOLLERR | EPOLLHUP | EPOLLRDHUP))
-					|| connection.getState() == CLOSING) {
+					|| connection->getState() == CLOSING) {
 				close_connection(curr_sock); continue ;
 			}
 
 			if (events[curr_ev].events & EPOLLIN) {
-				if (onReading(curr_sock) == true) connection.requestProssessing();
+				if (onReading(curr_sock) == true) connection->requestProssessing();
 				if (onWriting(curr_sock) == true)
-					socket_control(connection.getSoc(), EPOLLOUT, EPOLL_CTL_MOD);
+					socket_control(connection->getSoc(), EPOLLOUT, EPOLL_CTL_MOD);
 				continue ;
 			}
 
 			if (events[curr_ev].events & EPOLLOUT)
-				if (onWriting(curr_sock) == true) connection.reponseProssessing();
+				if (onWriting(curr_sock) == true) connection->reponseProssessing();
 
-			if (connection.getState() == CLOSING) {
+			if (connection->getState() == CLOSING) {
 				close_connection(curr_sock); continue ;
 			}
 		}

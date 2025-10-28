@@ -3,10 +3,6 @@
 # include "ConfigParser.hpp"
 # include "ServerConfig.hpp"
 
-time_t	Core::nowTime(void) {
-	return static_cast<time_t>(std::time(NULL) * 1000);
-}
-
 int	main( int argc, char **argv ) {
 	try {
 		if (argc > 2) {
