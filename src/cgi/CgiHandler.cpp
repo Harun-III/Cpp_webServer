@@ -1,3 +1,4 @@
+#include "Core.hpp"
 # include "CgiHandler.hpp"
 # include "Response.hpp"
 
@@ -7,7 +8,6 @@ CgiHandler::CgiHandler() : script_path(""), cgi_executable(""),
 }
 
 CgiHandler::~CgiHandler() {
-    // Clean up if destructor is called before completion
     if (args) {
         freeEnvArray(args);
     }
@@ -64,7 +64,7 @@ std::string CgiHandler::generateOutputFilename() const {
 	std::time_t wallTime = std::time(NULL);
 	std::clock_t cpuTicks = std::clock();
 	std::ostringstream orand;
-	orand << "/tmp/cgi_output_" << wallTime << "_" << cpuTicks << "_" << pid;
+	orand << "/tmp/server_cgi_tmp_" << wallTime << "_" << cpuTicks;
 	return orand.str();
 }
 
@@ -120,8 +120,6 @@ char** CgiHandler::buildEnvVariables (Request& request) const {
     if (content_type != request.headers.end()) {
         env_strings.push_back("CONTENT_TYPE=" + content_type->second);
     }
-    // HTTP headers - these need to be convert to HTTP_* format
-    // 4.1.18.  Protocol-Specific Meta-Variables (RFC 3785)
     for (map_s::const_iterator it = request.headers.begin(); 
     it != request.headers.end(); ++it) {
         std::string header_name = it->first;
@@ -134,7 +132,7 @@ char** CgiHandler::buildEnvVariables (Request& request) const {
         }
         env_strings.push_back("HTTP_" + header_name + "=" + it->second);
     }
-    // 10.12.6.7
+
     char** env = new char*[env_strings.size() + 1];
     for (size_t i = 0; i < env_strings.size(); ++i) {
         env[i] = new char[env_strings[i].length() + 1];
@@ -187,50 +185,45 @@ void    CgiHandler::checkProcess(Response &response) {
     // Open and read the entire file
     readFile.open(output_file.c_str(), std::ios::binary);
     response.bodyStream.open(output_file.c_str(), std::ios::binary);
-    if (!readFile.is_open() || !response.bodyStream.is_open()) {
+
+    if (!response.bodyStream.is_open() || !readFile.is_open()) {
         throw State(500, BAD);
     }
 
-    std::remove(output_file.c_str());
-    std::cout << RD "CGI script executed successfully, reading output from " RS
-                << readFile << std::endl;
+    setStatus(CGI_END);
+
+    throw State(0, READY_TO_WRITE);
 }
 
-void    CgiHandler::processOutput(Response& response) {
-    std::cout << GR "Processing CGI output for PID: " RS
-                << pid << std::endl;
-
-    // Read CGI output
-    char buffer[CGI_BUFFER];
+void CgiHandler::processOutput(Response& response) {
+    char *buffer = new char[CGI_BUFFER];
     size_t bytes_read;
 
     readFile.read(buffer, CGI_BUFFER);
-    // gcout() return the number of bytes read
     bytes_read = static_cast<size_t>(readFile.gcount());
-
     cgi_output.append(buffer, bytes_read);
-    std::cout << RD "OUTPUT FROM CGI:\n" RS
-                << cgi_output << std::endl;
 
-    (void)bytes_read;
-    // response.cgi_offset += bytes_read;
+    delete[] buffer;
 
-    // check for "\r\n\r\n" 
+    // Check for header delimiter
     std::string delimiter = "\r\n\r\n";
     size_t header_end = cgi_output.find(delimiter);
+    
     if (header_end == std::string::npos) {
         delimiter = "\n\n";
         header_end = cgi_output.find(delimiter);
-        if (header_end == std::string::npos) {
-            response.cgi_offset = header_end;
-            // Set default status if not set by CGI
-            response.setStatusCode(200);
-            parseHeaders(cgi_output, response);
-            size_t con_len = getCgiFileLength(output_file, header_end + delimiter.size());
-            response.setContentLength(con_len);
-            response.generateHead();
-            throw State(0, WRITING);
-        }
+    }
+    
+    // If we FOUND the delimiter , process headers
+    if (header_end != std::string::npos) {
+        response.cgi_offset = header_end;
+        response.setStatusCode(200);  // Default status
+        parseHeaders(cgi_output, response);
+        
+        size_t con_len = getCgiFileLength(output_file, header_end + delimiter.size());
+        response.setContentLength(con_len);
+        response.generateHead();
+        throw State(0, WRITING);
     }
 
     if (cgi_output.size() == 0) {
@@ -241,13 +234,14 @@ void    CgiHandler::processOutput(Response& response) {
         throw State(500, BAD);
     }
 
-    // throw READY_TO_WRITE to stop here and re-enter the loop
+    // If headers not complete yet, wait for more data
     throw State(0, READY_TO_WRITE);
 }
 
 void CgiHandler::execute(Request& request) {
     script_path = request.path;
     cgi_executable = getCgiExecutable(request.location, script_path);
+
     if (cgi_executable.empty()) {
         throw State(500, BAD);
     }
@@ -265,9 +259,6 @@ void CgiHandler::execute(Request& request) {
     
     // Generate output filename BEFORE forking so both parent and child have it
     output_file = generateOutputFilename();
-    
-    std::cout << GR "CGI output will be written to: " RS
-                << output_file << std::endl;
 
     // Fork and execute CGI
     pid = fork();
@@ -319,9 +310,6 @@ void CgiHandler::execute(Request& request) {
         perror("execve");
         exit(EXIT_FAILURE);
     }
-
-    std::cout << GR "Forked CGI process with PID: " RS
-                << pid << std::endl;
     // ==================== PARENT PROCESS ====================
     // Close the input fd if it was for POST
     if (request.method == "POST" && request.cgiFd != -1) {
@@ -330,5 +318,7 @@ void CgiHandler::execute(Request& request) {
 
     // Record start time and transition to PROCESS state
     start_time = std::time(NULL);
-    cgi_status = CGI_PROSSESS;
+
+    setStatus(CGI_PROSSESS);
+    throw State(0, READY_TO_WRITE);
 }

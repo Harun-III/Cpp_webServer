@@ -42,7 +42,7 @@ public:
     void                    writeStringToBuffer(std::string str);
 
     std::string             generated;
-    std::fstream            bodyStream;
+    std::ifstream            bodyStream;
 	CgiHandler              cgiHandler;
 };
 

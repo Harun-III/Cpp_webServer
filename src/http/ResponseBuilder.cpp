@@ -1,10 +1,8 @@
 #include "CgiHandler.hpp"
+#include "Core.hpp"
 # include "Request.hpp"
 # include "ResponseBuilder.hpp"
 # include "Style.hpp"
-#include <cstddef>
-#include <ostream>
-#include <string>
 
 ResponseBuilder::ResponseBuilder(const ServerConfig& config):
 	error_handler (config) { }
@@ -25,30 +23,20 @@ void ResponseBuilder::handlePost(Response& response) {
 	response.generateHead();
 }
 
-void	ResponseBuilder::handleCgi(Request& request, Response& response) {
-	switch (response.cgiHandler.getStatus()) {
+void ResponseBuilder::handleCgi(Request& request, Response& response) {
+    switch (response.cgiHandler.getStatus()) {
+    case CGI_INIT:
+        response.cgiHandler.execute(request);
+        // State is set inside execute()
+	/* fall through */
 
-	case CGI_INIT:
-		std::cout << GR "Handling CGI for request: " RS
-					<< request.target << std::endl;
-		response.cgiHandler.execute(request);
-		response.cgiHandler.setStatus(CGI_PROSSESS);
-		break;
+    case CGI_PROSSESS:
+        response.cgiHandler.checkProcess(response);
+	/* fall through */
 
-	case CGI_PROSSESS:
-		std::cout << GR "Processing CGI for request: " RS
-					<< request.target << std::endl;
-		response.cgiHandler.checkProcess(response);
-		response.cgiHandler.setStatus(CGI_END);
-		break;
-
-	case CGI_END:
-		std::cout << GR "Finalizing CGI for request: " RS
-					<< request.target << std::endl;
-		response.cgiHandler.processOutput(response);
-		break;
-	}
-
+    case CGI_END:
+        response.cgiHandler.processOutput(response);
+    }
 }
 
 void ResponseBuilder::buildResponse(Request& request, Response& response) {

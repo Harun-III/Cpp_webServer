@@ -1,4 +1,5 @@
 # include "Connection.hpp"
+#include <iostream>
 
 Connection::Connection( void ) : soc(ERROR), status(0, REQUEST_LINE),
 		last_active(std::time(NULL)) { }
@@ -81,6 +82,8 @@ void	Connection::reponseProssessing( void ) {
 
 	std::cout << RD "Connection::reponseProssessing State: " << getState()
 			<< RS << std::endl;
+	// std::cerr << RD "Connection::reponseProssessing State: " << getState()
+	// 		<< RS << std::endl;
 
 	if (getState() == WRITING) {
 		if (response.continueStreaming() && response.generated.empty()) {

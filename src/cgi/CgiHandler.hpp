@@ -25,7 +25,6 @@ private:
 
 	std::string			output_file;
 	std::string			cgi_output;
-	std::fstream		readFile;
 
 	size_t				getCgiFileLength(const std::string pathToCgiFile, size_t headSize) const;
 	std::string         getCgiExecutable(Location& location, const std::string& file_path) const;
@@ -40,6 +39,7 @@ public:
 	CgiHandler();
 	~CgiHandler();
 
+	std::ifstream		readFile;
 	cgi_e               getStatus() const;
 	void				setStatus(cgi_e status);
 
