@@ -48,6 +48,9 @@ void Response::writeStringToBuffer(std::string str) {
 void Response::generateErrorPage(const ServerConfig &server, int code) {
 	ErrorHandler    error_handler(server);
 
+	if (bodyStream.is_open()) bodyStream.close();
+	generated.clear();
+
 	setStatusCode(code);
 	setContentType("text/html");
 	writeStringToBuffer(error_handler.generateErrorResponse(code));

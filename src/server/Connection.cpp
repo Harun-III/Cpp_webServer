@@ -38,13 +38,18 @@ void	Connection::sending( void ) {
 }
 
 void	Connection::requestProssessing( void ) {
-	char			buffer[BUF_SIZE];
+	char*			buffer = new char[BUF_SIZE];
 	ssize_t			len;
 
-	if ((len = recv(soc, buffer, BUF_SIZE, false)) == ERROR) return ;
-	request.recv.append(buffer, len); touch();
-
 	try {
+		if (!buffer) throw State(500, BAD);
+		if ((len = recv(soc, buffer, BUF_SIZE, 0)) <= 0) {
+			if (len == 0) setState(CLOSING);
+			throw State(0, getState());
+		}
+
+		request.recv.append(buffer, len); touch();
+
 		if (getState() == REQUEST_LINE) {
 			RequestParser::requestLineParser(request);
 			status = State(0, READING_HEADERS);
@@ -67,6 +72,7 @@ void	Connection::requestProssessing( void ) {
 		}
 	}
 	catch( const State &state ) { status = state; touch(); }
+	delete[] buffer;
 }
 
 void	Connection::reponseProssessing( void ) {
@@ -80,11 +86,6 @@ void	Connection::reponseProssessing( void ) {
 		catch( const State &state ) { status = state; touch(); }
 	}
 
-	std::cout << RD "Connection::reponseProssessing State: " << getState()
-			<< RS << std::endl;
-	// std::cerr << RD "Connection::reponseProssessing State: " << getState()
-	// 		<< RS << std::endl;
-
 	if (getState() == WRITING) {
 		if (response.continueStreaming() && response.generated.empty()) {
 			setState(CLOSING); touch(); return ;
@@ -92,9 +93,6 @@ void	Connection::reponseProssessing( void ) {
 	}
 
 	if (getState() == BAD) {
-		if (response.bodyStream.is_open()) response.bodyStream.close();
-
-		response.generated.clear();
 		response.generateErrorPage(request.server, getCode());
 		setState(WRITING); touch();
 	}

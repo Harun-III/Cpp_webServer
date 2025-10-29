@@ -310,6 +310,7 @@ void CgiHandler::execute(Request& request) {
         perror("execve");
         exit(EXIT_FAILURE);
     }
+
     // ==================== PARENT PROCESS ====================
     // Close the input fd if it was for POST
     if (request.method == "POST" && request.cgiFd != -1) {

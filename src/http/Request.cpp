@@ -139,23 +139,14 @@ void	Request::startProssessing( void ) {
 		path = target.substr(longestM.size());
 		path = joinPath(location.getRoot(), path);
 
-		std::cout << "[ " << longestM << " ]"
-				<< "[ " << content_length << " ]"
-					"[ " << path << " ]" << std::endl;
-
 		throw State(0, READY_TO_WRITE);
 	}
 
 	if (method == "POST") routePost(longestM);
-
-	std::cout << "[ " << longestM << " ]"
-			  << "[ " << content_length << " ]"
-				 "[ " << path << " ]" << std::endl;
 }
 
 void	Request::streamBodies( void ) {
 	if (content_length > 0 && recv.empty()) throw State(0, READING_BODY);
-	std::cout << "Streaming ..." << std::endl;
 
 	std::string		filePath;
 	size_t			to_write;

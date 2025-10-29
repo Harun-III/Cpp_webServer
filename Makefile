@@ -10,7 +10,7 @@ OBJS		=	$(addprefix $(OBJS_DIR), $(SRCS:.cpp=.o))
 HEADERS		=	$(shell find src -name "*.hpp")
 
 CC			=	c++
-FLAGS		=	-Wall -Wextra -Werror -fsanitize=address -g -std=c++98
+FLAGS		=	-Wall -Wextra -Werror -std=c++98
 RM			=	rm -fr
 
 INCLUDES	=	-I src/config -I src/http -I src/server -I src/cgi -I src/core -I src/tools

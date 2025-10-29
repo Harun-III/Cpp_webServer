@@ -180,19 +180,11 @@ void	RequestParser::requestLineParser( Request &request ) {
 
 	if (sp != ' ' || space != ' ') throw State(400, BAD);
 
-	std::cout << "- [ " << request.method << " ]"
-			  << "[ " << request.target << " ]"
-			  << "[ " << request.version << " ]" << std::endl;
-
 	methodParser(request.method);
 	targetParser(request.target, request.query);
 	versionParser(request.version);
 
 	if (streamLine >> extra) throw State(400, BAD);
-
-	std::cout << "[ " << request.method << " ]"
-			  << "[ " << request.target << " ]"
-			  << "[ " << request.version << " ]" << std::endl;
 }
 
 void	RequestParser::headersParser( Request &request ) {
@@ -242,9 +234,6 @@ void	RequestParser::headersParser( Request &request ) {
 			if (isCTL(value[index]) && value[index] != '\t')
 				throw State(400, BAD);
 		}
-		
-		std::cout << "[ " << name << " ]"
-		<< "[ " << value << " ]" << std::endl;
 
 		request.headers[name] = value;
 	}

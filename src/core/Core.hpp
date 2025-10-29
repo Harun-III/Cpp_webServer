@@ -79,20 +79,12 @@ enum route_e {
 	RT_CGI
 };
 
-enum res_e {
-	START,
-	READ,
-	FINISH
-};
-
 enum state_e {
 	REQUEST_LINE,
 	READING_HEADERS,
 	READING_BODY,
 	READY_TO_WRITE,
-	WRITING,
-	CLOSING,
-	BAD
+	WRITING, CLOSING, BAD
 };
 
 class State {
