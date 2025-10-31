@@ -85,6 +85,16 @@ std::string CgiHandler::generateOutputFilename() const {
 	return orand.str();
 }
 
+std::string	CgiHandler::to_lower(const std::string& string) const {
+	size_t index;
+	std::string lower_str = string;
+
+	for (index = 0; index < string.size(); ++index)
+		lower_str[index] = std::tolower(string[index]);
+
+	return lower_str;
+}
+
 void CgiHandler::parseHeaders(std::string& cgi_output, Response& response) const {
     std::stringstream	headersBlock;
 
@@ -96,7 +106,11 @@ void CgiHandler::parseHeaders(std::string& cgi_output, Response& response) const
         std::string::size_type	colum = line.find(':');
         std::string header_name = line.substr(0, colum);
         std::string header_value = line.substr(colum + 1);
-        if (header_name == "Status") {
+
+        // change header name to lower case before check
+        std::string header_name_lower = to_lower(header_name);
+
+        if (header_name_lower == "status") {
             // Parse status code from "Status: 200 OK" format
             size_t space_pos = header_value.find(' ');
             if (space_pos != std::string::npos) {
@@ -105,9 +119,9 @@ void CgiHandler::parseHeaders(std::string& cgi_output, Response& response) const
                     response.setStatusCode(status_code);
                 }
             }
-        } else if (header_name == "Content-Type" || header_name == "Content-type") {
+        } else if (header_name_lower == "content-type") {
             response.setContentType(header_value);
-        } else if (header_name == "Location") {
+        } else if (header_name_lower == "location") {
             response.setLocation(header_value);
                 response.setStatusCode(302);
         } else {
@@ -118,6 +132,7 @@ void CgiHandler::parseHeaders(std::string& cgi_output, Response& response) const
 
 char** CgiHandler::buildEnvVariables (Request& request) const {
     std::vector<std::string> env_strings;
+
     env_strings.push_back("REQUEST_METHOD=" + request.method);
     env_strings.push_back("SCRIPT_FILENAME=" + script_path);
     env_strings.push_back("SCRIPT_NAME=" + request.target);
