@@ -237,6 +237,10 @@ void CgiHandler::processOutput(Response& response) {
         std::string headers = cgi_output.substr(0, header_end);
         header_end += delimiter.length();
 
+        if (headers.find(":") == std::string::npos) {
+            throw State(500, BAD);
+        }
+
         response.setStatusCode(200);  // Default status
         parseHeaders(headers, response);
 

@@ -19,6 +19,8 @@ void	Connection::setCode( int code ) { status.code = code; }
 
 void	Connection::setState( state_e state ) { status.state = state; }
 
+route_e	Connection::getRoute( void ) { return request.detectRoute; }
+
 void	Connection::touch( void) { last_active = std::time(NULL); }
 
 time_t	Connection::getLastActive( void ) { return last_active; }

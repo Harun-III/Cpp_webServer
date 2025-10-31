@@ -62,7 +62,9 @@ void	Server::check_timeouts( void ) {
 		loop != connections.end(); ++loop) {
 
 		Connection	*conn = loop->second;
-		if (conn->getState() == BAD || conn->getState() == CLOSING ) continue;
+		if (conn->getState() == BAD || conn->getState() == CLOSING
+			|| conn->getRoute() == RT_CGI ) continue;
+
 		if (now - conn->getLastActive() >= TIMEOUT) {
 			conn->setCode(408); conn->setState(BAD);
 			socket_control(conn->getSoc(), EPOLLOUT, EPOLL_CTL_MOD);

@@ -22,6 +22,7 @@ class Connection
 
 		void			setCode( int );
 		void			setState( state_e );
+		route_e			getRoute( void );
 
 		void			touch( void );
 		time_t			getLastActive( void );
