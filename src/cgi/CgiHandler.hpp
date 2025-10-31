@@ -35,6 +35,7 @@ private:
 	void                parseHeaders(std::string& cgi_output, Response& response) const;
 	std::string         generateOutputFilename() const;
 	void				manageCgifds(const char *file, int oflags, int to_fd);
+	std::string			to_lower(const std::string& string) const;
 
 public:
 	CgiHandler();

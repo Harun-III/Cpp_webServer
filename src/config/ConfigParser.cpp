@@ -31,8 +31,9 @@ std::vector<ServerConfig> ConfigParser::parseConfig() {
         std::string token = getCurrentToken();
         if (token == "server") {
             servers.push_back(parseServer());
-        } else {
 	    incrementTokenIndex();
+        } else {
+	    throwParseError("Configuration file: " + filename + " is corrupted" );
         }
     }
 
