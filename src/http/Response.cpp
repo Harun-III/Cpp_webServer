@@ -18,6 +18,14 @@ void Response::setStatusCode(int code) {
 	status_message = getStatusText(code);
 }
 
+void Response::setCookie(const std::string& name, const std::string& value, int max_age) {
+    std::stringstream cookie;
+    cookie << name << "=" << value;
+    cookie << "; Max-Age=" << max_age;
+    
+    setHeader("Set-Cookie", cookie.str());
+}
+
 void Response::setStatusMessage(const std::string& message) {
 	status_message = message;
 }

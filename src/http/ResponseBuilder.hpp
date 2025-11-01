@@ -6,6 +6,7 @@
 # include "ErrorHandler.hpp"
 # include "ServerConfig.hpp"
 # include "StaticFileHandler.hpp"
+# include "SessionManager.hpp"
 
 class ResponseBuilder {
 private:
@@ -15,7 +16,8 @@ private:
 public:
     ResponseBuilder(const ServerConfig& config);
     ~ResponseBuilder();
-
+    
+    void	    handleSessionApi(Request& request, Response& response);
     std::string     generateDirectoryListing(const std::string& path) const;
 
     void	    buildResponse(Request& request, Response& response);
