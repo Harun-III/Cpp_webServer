@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Session Demo - Webserv</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;700&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Fira Code', monospace;
+            transition: background 0.3s, color 0.3s;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        body.light {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            color: #2d3436;
+        }
+        
+        body.dark {
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
+            color: #00ff41;
+        }
+        
+        .container {
+            max-width: 600px;
+            width: 100%;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+            backdrop-filter: blur(10px);
+        }
+        
+        .light .container {
+            background: rgba(255, 255, 255, 0.9);
+            border: 2px solid #dfe6e9;
+        }
+        
+        .dark .container {
+            background: rgba(13, 17, 23, 0.9);
+            border: 2px solid #00ff41;
+        }
+        
+        h1 {
+            font-size: 2rem;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+        
+        .light h1 {
+            color: #2d3436;
+        }
+        
+        .dark h1 {
+            color: #00ff41;
+            text-shadow: 0 0 10px rgba(0, 255, 65, 0.5);
+        }
+        
+        .subtitle {
+            text-align: center;
+            opacity: 0.7;
+            margin-bottom: 30px;
+            font-size: 0.9rem;
+        }
+        
+        .session-info {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+            font-size: 0.85rem;
+        }
+        
+        .light .session-info {
+            background: rgba(116, 185, 255, 0.1);
+            border: 1px solid #74b9ff;
+            color: #0984e3;
+        }
+        
+        .dark .session-info {
+            background: rgba(0, 255, 65, 0.1);
+            border: 1px solid #00ff41;
+        }
+        
+        .control-group {
+            margin-bottom: 25px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: 700;
+            font-size: 0.9rem;
+        }
+        
+        .btn-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+        
+        button {
+            padding: 12px 20px;
+            border: 2px solid;
+            border-radius: 8px;
+            font-family: 'Fira Code', monospace;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 0.9rem;
+        }
+        
+        .light button {
+            background: white;
+            color: #2d3436;
+            border-color: #dfe6e9;
+        }
+        
+        .light button:hover {
+            border-color: #74b9ff;
+            box-shadow: 0 5px 15px rgba(116, 185, 255, 0.3);
+        }
+        
+        .light button.active {
+            background: #74b9ff;
+            color: white;
+            border-color: #74b9ff;
+        }
+        
+        .dark button {
+            background: transparent;
+            color: #00ff41;
+            border-color: #00ff41;
+        }
+        
+        .dark button:hover {
+            background: rgba(0, 255, 65, 0.1);
+            box-shadow: 0 5px 15px rgba(0, 255, 65, 0.3);
+        }
+        
+        .dark button.active {
+            background: #00ff41;
+            color: #000;
+        }
+        
+        .status {
+            text-align: center;
+            padding: 10px;
+            border-radius: 8px;
+            margin-top: 20px;
+            font-size: 0.85rem;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        
+        .status.show {
+            opacity: 1;
+        }
+        
+        .light .status {
+            background: rgba(0, 184, 148, 0.1);
+            border: 1px solid #00b894;
+            color: #00b894;
+        }
+        
+        .dark .status {
+            background: rgba(0, 255, 65, 0.1);
+            border: 1px solid #00ff41;
+        }
+        
+        .content {
+            margin-top: 30px;
+            padding: 20px;
+            border-radius: 8px;
+        }
+        
+        .light .content {
+            background: rgba(99, 110, 114, 0.05);
+            border: 1px solid #dfe6e9;
+        }
+        
+        .dark .content {
+            background: rgba(0, 255, 65, 0.05);
+            border: 1px solid rgba(0, 255, 65, 0.3);
+        }
+        
+        .content h2 {
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+        }
+        
+        .content p {
+            line-height: 1.6;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body class="light">
+    <div class="container">
+        <h1>🍪 Session Demo</h1>
+        <p class="subtitle">Cookie & Session Management Example</p>
+        
+        <div class="session-info">
+            <strong>Session ID:</strong> <span id="sessionId">Loading...</span>
+        </div>
+        
+        <div class="control-group">
+            <label>Theme Preference:</label>
+            <div class="btn-group">
+                <button id="lightBtn" class="active" onclick="setTheme('light')">
+                    ☀️ Light
+                </button>
+                <button id="darkBtn" onclick="setTheme('dark')">
+                    🌙 Dark
+                </button>
+            </div>
+        </div>
+        
+        <div class="control-group">
+            <label>Language Preference:</label>
+            <div class="btn-group">
+                <button id="enBtn" class="active" onclick="setLanguage('en')">
+                    🇬🇧 English
+                </button>
+                <button id="frBtn" onclick="setLanguage('fr')">
+                    🇫🇷 Français
+                </button>
+            </div>
+        </div>
+        
+        <div class="status" id="status"></div>
+        
+        <div class="content">
+            <h2 id="contentTitle">Welcome!</h2>
+            <p id="contentText">
+                This page demonstrates cookie and session management in Webserv. 
+                Your preferences are stored server-side and will persist across page reloads.
+                Try changing the theme and language, then refresh the page!
+            </p>
+        </div>
+    </div>
+    
+    <script>
+        let currentTheme = 'light';
+        let currentLanguage = 'en';
+        
+        const content = {
+            en: {
+                title: 'Welcome!',
+                text: 'This page demonstrates cookie and session management in Webserv. Your preferences are stored server-side and will persist across page reloads. Try changing the theme and language, then refresh the page!'
+            },
+            fr: {
+                title: 'Bienvenue!',
+                text: 'Cette page démontre la gestion des cookies et des sessions dans Webserv. Vos préférences sont stockées côté serveur et persisteront lors des rechargements de page. Essayez de changer le thème et la langue, puis actualisez la page!'
+            }
+        };
+        
+        function showStatus(message) {
+            const status = document.getElementById('status');
+            status.textContent = message;
+            status.classList.add('show');
+            setTimeout(() => status.classList.remove('show'), 2000);
+        }
+        
+        function updateUI() {
+            document.body.className = currentTheme;
+            document.getElementById('lightBtn').classList.toggle('active', currentTheme === 'light');
+            document.getElementById('darkBtn').classList.toggle('active', currentTheme === 'dark');
+            document.getElementById('enBtn').classList.toggle('active', currentLanguage === 'en');
+            document.getElementById('frBtn').classList.toggle('active', currentLanguage === 'fr');
+            
+            document.getElementById('contentTitle').textContent = content[currentLanguage].title;
+            document.getElementById('contentText').textContent = content[currentLanguage].text;
+        }
+        
+        function loadSession() {
+            fetch('/api/session')
+                .then(res => res.json())
+                .then(data => {
+                    document.getElementById('sessionId').textContent = data.session_id;
+                    currentTheme = data.theme;
+                    currentLanguage = data.language;
+                    updateUI();
+                })
+                .catch(err => {
+                    console.error('Error loading session:', err);
+                    document.getElementById('sessionId').textContent = 'Error loading session';
+                });
+        }
+        
+        function updateSession(key, value) {
+            // Use GET with query string instead of POST
+            fetch('/api/session?set=' + key + '&value=' + value)
+                .then(res => res.json())
+                .then(data => {
+                    if (key === 'theme') currentTheme = data.theme;
+                    if (key === 'language') currentLanguage = data.language;
+                    updateUI();
+                    showStatus('Preferences saved!');
+                })
+                .catch(err => {
+                    console.error('Error updating session:', err);
+                    showStatus('Error saving preferences');
+                });
+        }
+        
+        function setTheme(theme) {
+            updateSession('theme', theme);
+        }
+        
+        function setLanguage(lang) {
+            updateSession('language', lang);
+        }
+        
+        // Load session on page load
+        loadSession();
+    </script>
+</body>
+</html>

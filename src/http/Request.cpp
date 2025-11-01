@@ -1,4 +1,5 @@
-# include "Request.hpp"
+#include "Request.hpp"
+#include "SessionManager.hpp"
 
 Request::Request( void ) : content_length(0), detectRoute(RT_NONE) { }
 
@@ -6,6 +7,39 @@ Request::Request( ServerConfig &serv ) : server(serv), content_length(0),
 		detectRoute(RT_NONE) { }
 
 Request::~Request( void ) { }
+
+std::string Request::getSessionIdFromCookie() const {
+    map_s::const_iterator it = headers.find("cookie");
+    if (it == headers.end())
+        return "";
+    
+    const std::string& cookie_header = it->second;
+    
+    // Parse "session_id=VALUE" from cookie header
+    // Cookies can be: "session_id=123; other=value"
+    std::string search = "session_id=";
+    size_t pos = cookie_header.find(search);
+    
+    if (pos == std::string::npos)
+        return "";
+    
+    pos += search.length();
+    size_t end = cookie_header.find(';', pos);
+    
+    if (end == std::string::npos)
+        return cookie_header.substr(pos);
+    
+    return cookie_header.substr(pos, end - pos);
+}
+
+void Request::parseSessionCookie() {
+    session_id = getSessionIdFromCookie();
+    
+    // If no session exists, create one
+    if (session_id.empty() || !SessionManager::getInstance().sessionExists(session_id)) {
+        session_id = SessionManager::getInstance().createSession();
+    }
+}
 
 bool	Request::isMethodAllowed( void ) {
 	const std::vector<std::string>	&allowed = location.getMethods();
@@ -131,6 +165,18 @@ void	Request::startProssessing( void ) {
 
 	if (hit != locations.end()) location = hit->second;
 	else throw State(404, BAD);
+	
+	std::cout << target << std::endl;
+
+	// ============ Session BLOCK ============
+    // Special handling for /api/session endpoint
+	if (target == "/api/session") {
+		if (!isMethodAllowed()) {
+			throw State(405, BAD);
+		}
+		throw State(0, READY_TO_WRITE);
+	}
+    // ========================================
 
 	if (hit->second.getReturn().first) {
 		detectRoute = RT_REDIR; throw State(0, READY_TO_WRITE);
@@ -150,32 +196,49 @@ void	Request::startProssessing( void ) {
 	if (method == "POST") routePost(longestM);
 }
 
-void	Request::streamBodies( void ) {
-	if (content_length > 0 && recv.empty()) throw State(0, READING_BODY);
-
-	std::string		filePath;
-	size_t			to_write;
-
-	if (detectRoute == RT_CGI) filePath = cgiPath;
-	else if (detectRoute == RT_UPLOAD) filePath = path;
-	else throw State(500, BAD); 
-
-	if ((to_write = std::min(recv.size(), content_length)) > 0) {
-		std::ofstream	outfile(filePath.c_str(), std::ios::binary | std::ios::app);
-		if (!outfile.is_open()) throw State(500, BAD);
-
-		outfile.write(recv.data(), to_write);
-		if (!outfile.good()) { outfile.close(); throw State(500, BAD); }
-
-		recv.erase(0, to_write); content_length -= to_write;
-		outfile.close();
-	}
-
-	if (content_length == 0) {
-		if (detectRoute == RT_CGI && (cgiFd = open(filePath.c_str(), O_RDONLY)) == -1)
-			throw State(500, BAD);
-
-		if (detectRoute == RT_CGI) std::remove(filePath.c_str());
-		throw State(0, READY_TO_WRITE);
-	}
+void Request::streamBodies( void ) {
+    // Special case: API endpoints keep body in recv
+    if (target == "/api/session" || target.find("/api/session") == 0) {
+        // Check if we already have all the body data
+        if (recv.size() >= content_length) {
+            // Trim recv to exactly content_length bytes (in case there's extra)
+            if (recv.size() > content_length) {
+                recv = recv.substr(0, content_length);
+            }
+            // We have all the data, ready to process
+            throw State(0, READY_TO_WRITE);
+        }
+        // Need more data
+        throw State(0, READING_BODY);
+    }
+    
+    // For file uploads and CGI
+    std::string filePath;
+    size_t to_write;
+    
+    if (detectRoute == RT_CGI) filePath = cgiPath;
+    else if (detectRoute == RT_UPLOAD) filePath = path;
+    else throw State(500, BAD); 
+    
+    // Write whatever we have to file
+    if ((to_write = std::min(recv.size(), content_length)) > 0) {
+        std::ofstream outfile(filePath.c_str(), std::ios::binary | std::ios::app);
+        if (!outfile.is_open()) throw State(500, BAD);
+        outfile.write(recv.data(), to_write);
+        if (!outfile.good()) { outfile.close(); throw State(500, BAD); }
+        recv.erase(0, to_write); 
+        content_length -= to_write;
+        outfile.close();
+    }
+    
+    // Check if we're done
+    if (content_length == 0) {
+        if (detectRoute == RT_CGI && (cgiFd = open(filePath.c_str(), O_RDONLY)) == -1)
+            throw State(500, BAD);
+        if (detectRoute == RT_CGI) std::remove(filePath.c_str());
+        throw State(0, READY_TO_WRITE);
+    }
+    
+    // Need more data
+    throw State(0, READING_BODY);
 }
