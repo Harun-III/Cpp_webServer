@@ -1,7 +1,6 @@
+#include "Style.hpp"
 #include "ErrorHandler.hpp"
 #include "ResponseBuilder.hpp"
-#include <sstream>
-#include "Style.hpp"
 
 ErrorHandler::ErrorHandler(const ServerConfig& config) : server_config(config) {
 }

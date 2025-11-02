@@ -128,27 +128,19 @@ void CgiHandler::parseHeaders(std::string& cgi_output, Response& response) const
 
 char** CgiHandler::buildEnvVariables (Request& request) const {
     std::vector<std::string> env_strings;
+    std::string filename =  request.target.substr(request.target.find_last_of('/'));
 
     env_strings.push_back("REQUEST_METHOD=" + request.method);
-    env_strings.push_back("SCRIPT_FILENAME=." + request.target);
+    env_strings.push_back("SCRIPT_FILENAME=." + filename);
     env_strings.push_back("SCRIPT_NAME=" + request.target);
-
-    // env_strings.push_back("PATH_INFO=");
-    // env_strings.push_back("PATH_TRANSLATED=" + script_path);
-    // env_strings.push_back("REQUEST_URI=" + request.target);
-    // env_strings.push_back("SERVER_SOFTWARE=webserv/1.0");
 
     env_strings.push_back("QUERY_STRING=" + request.query);
     env_strings.push_back("SERVER_PROTOCOL=" + request.version);
     env_strings.push_back("GATEWAY_INTERFACE=CGI/1.1");
     env_strings.push_back("REDIRECT_STATUS=200");
-    
-    const std::pair<std::string, std::string>& listen = request.server.getListen()[0];
-    env_strings.push_back("SERVER_NAME=" + listen.first);
-    env_strings.push_back("SERVER_PORT=" + listen.second);
 
-    // env_strings.push_back("REMOTE_ADDR=" + listen.first);
-    // env_strings.push_back("REMOTE_PORT=" + listen.second);
+    env_strings.push_back("SERVER_NAME=" + request.server.getIp());
+    env_strings.push_back("SERVER_PORT=" + request.server.getPort());
 
     if (request.method == "POST") {
         std::stringstream ss;

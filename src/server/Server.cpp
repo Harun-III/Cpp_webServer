@@ -81,10 +81,10 @@ void	Server::check_timeouts( void ) {
 	}
 }
 
-void	Server::create( const std::vector<ServerConfig> &servers ) {
+void	Server::create( std::vector<ServerConfig> servers ) {
 	create_epoll();
 
-	for (std::vector<ServerConfig>::const_iterator current = servers.begin();
+	for (std::vector<ServerConfig>::iterator current = servers.begin();
 			current != servers.end(); current++)
 	{
 		const vector_pairs	&listen = current->getListen();
@@ -97,6 +97,7 @@ void	Server::create( const std::vector<ServerConfig> &servers ) {
 			Listener	listener(ip, port);
 
 			listener.open();
+			current->setIpPort(ip, port);
 			socket_control(listener.get(), EPOLLIN, EPOLL_CTL_ADD);
 
 			std::cout << GR "[INFO] Server " << ip << " listening on port "

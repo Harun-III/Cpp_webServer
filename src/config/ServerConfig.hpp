@@ -11,11 +11,18 @@ private:
     std::map<int, std::string>                          error_pages;
     size_t                                              max_client_body_size;
 
+    std::string                                         ip;
+    std::string                                         port;
+
 public:
     ServerConfig();
     ~ServerConfig();
 
     void            addErrorPage(int error_code, const std::string& page);
+    void            setIpPort(const std::string& ip, const std::string& port);
+
+    std::string     getIp() const;
+    std::string     getPort() const;
 
     // setters
     void            addListen(const std::string& ip, const std::string& port);

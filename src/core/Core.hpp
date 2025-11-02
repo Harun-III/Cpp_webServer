@@ -4,40 +4,21 @@
 // ------------------------- System includes -------------------------//
 
 # include <ctime>
-# include <cctype>
-# include <cstddef>
 # include <netdb.h>
 # include <fcntl.h>
-# include <unistd.h>
-# include <strings.h>
 # include <sys/stat.h>
 # include <sys/wait.h>
 # include <sys/epoll.h>
-# include <sys/types.h>
-# include <arpa/inet.h>
-# include <netinet/in.h>
-# include <sys/socket.h>
 
 // ------------------------- Standard library -------------------------//
 
 # include <map>
-# include <cstdio>
 # include <vector>
-# include <cerrno>
-# include <bitset>
-# include <cstdlib>
-# include <ctype.h>
 # include <fstream>
-# include <csignal>
 # include <sstream>
-# include <climits>
-# include <cstdlib>
 # include <cstring>
-# include <iomanip>
 # include <iostream>
 # include <dirent.h>
-# include <iterator>
-# include <limits.h>
 # include <algorithm>
 
 // ------------------------- Webserv Typedefs -------------------------//

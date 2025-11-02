@@ -1,5 +1,4 @@
 # include "Connection.hpp"
-#include <iostream>
 
 Connection::Connection( void ) : soc(ERROR), status(0, REQUEST_LINE),
 		last_active(std::time(NULL)) { }

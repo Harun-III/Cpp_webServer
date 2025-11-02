@@ -1,5 +1,4 @@
-// delete this later
-#include "ServerConfig.hpp"
+# include "ServerConfig.hpp"
 
 ServerConfig::ServerConfig() : max_client_body_size(10100100) {
 }
@@ -18,6 +17,19 @@ void ServerConfig::addListen(const std::string& ip, const std::string& port) {
 
 void ServerConfig::setMaxClientBodySize(size_t size) {
     this->max_client_body_size = size;
+}
+
+void ServerConfig::setIpPort(const std::string& ip, const std::string& port) {
+    this->ip = ip;
+    this->port = port;
+}
+
+std::string ServerConfig::getIp() const {
+    return ip;
+}
+
+std::string ServerConfig::getPort() const {
+    return port;
 }
 
 void ServerConfig::addLocation(const std::string& path, const Location& location) {

@@ -1,13 +1,3 @@
-#include <cctype>
-#include <cstddef>
-#include <cstdlib>
-#include <fstream>
-#include <iostream>
-#include <sstream>
-#include <stdexcept>
-#include <string>
-#include <vector>
-
 # include "Core.hpp"
 # include "ConfigParser.hpp"
 
@@ -62,7 +52,7 @@ ServerConfig ConfigParser::parseServer() {
 	    std::string listen_value = getCurrentToken();
 	    std::pair<std::string, std::string> addr = parseListenDirective(listen_value);
 
-	    // NOTE: check if key is duplicated
+	    // Check if key is duplicated
 	    std::string listen_key = addr.first + ":" + addr.second;
 	    if (unique_listens.find(listen_key) != unique_listens.end()) {
 		throwParseError("Duplicate listen directive: " + listen_key);

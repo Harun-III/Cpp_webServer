@@ -10,7 +10,6 @@ class Listener
 		~Listener( void );
 
 		int						get( void );
-		void					init( void );
 		void					open( void );
 		void					release( void );
 
@@ -21,6 +20,8 @@ class Listener
 
 		addrinfo_t				*res;
 		addrinfo_t				hints;
+
+		void					init( void );
 };
 
 #endif
