@@ -160,7 +160,7 @@ void	Request::streamBodies( void ) {
 	if (detectRoute == RT_CGI) filePath = cgiPath;
 	else if (detectRoute == RT_UPLOAD) filePath = path;
 	else throw State(500, BAD); 
-	
+
 	if ((to_write = std::min(recv.size(), content_length)) > 0) {
 		std::ofstream outfile(filePath.c_str(), std::ios::binary | std::ios::app);
 		if (!outfile.is_open()) throw State(500, BAD);
@@ -170,7 +170,7 @@ void	Request::streamBodies( void ) {
 		content_length -= to_write;
 		outfile.close();
 	}
-	
+
 	if (content_length == 0) {
 		if (detectRoute == RT_CGI && (cgiFd = open(filePath.c_str(), O_RDONLY)) == -1)
 			throw State(500, BAD);

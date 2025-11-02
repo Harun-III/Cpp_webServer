@@ -30,11 +30,10 @@ void	Connection::sending( void ) {
 	const char		*buffer = response.generated.data();
 	size_t			to_send = std::min(response.generated.size(), (size_t)BUF_SIZE);
 
-	ssize_t			readed = send(soc, buffer, to_send, MSG_NOSIGNAL); touch();
+	ssize_t			read = send(soc, buffer, to_send, MSG_NOSIGNAL); touch();
 
-	if (readed > 0) { response.generated.erase(0, static_cast<size_t>(readed)); }
-	else if (readed == ERROR && (errno == EAGAIN || errno == EWOULDBLOCK)) { }
-	else { setCode(500); setState(BAD); touch(); }
+	if (read <= 0) { (read == 0) && (status = State(0, CLOSING), true); }
+	else { response.generated.erase(0, static_cast<size_t>(read)); }
 }
 
 void	Connection::requestProssessing( void ) {
