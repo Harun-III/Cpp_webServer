@@ -152,7 +152,7 @@ char** CgiHandler::buildEnvVariables (Request& request) const {
 
     if (request.method == "POST") {
         std::stringstream ss;
-        ss << request.content_length;
+        ss << request.original_conlen;  // Use original, not the decremented value
         env_strings.push_back("CONTENT_LENGTH=" + ss.str());
     }
 

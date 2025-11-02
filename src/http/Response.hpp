@@ -19,9 +19,6 @@ public:
     Response();
     ~Response();
 
-    // Cookies and session management
-    void    setCookie(const std::string& name, const std::string& value, int max_age = 3600);
-
     void					setStatusCode(int code);
     void					setStatusMessage(const std::string& message);
     void					setContentType(const std::string& type);

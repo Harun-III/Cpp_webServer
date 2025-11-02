@@ -17,11 +17,6 @@ class Request
 
 		Request( ServerConfig &server );
 
-		// Cookied and session management
-	    std::string				session_id;
-		std::string				getSessionIdFromCookie() const;
-		void					parseSessionCookie();
-
 		std::string				recv;
 		std::string				path;
 		std::string				query;
@@ -35,6 +30,7 @@ class Request
 		Location				location;
 
 		size_t					content_length;
+		size_t					original_conlen;
 		std::string				content_type;
 
 		int						cgiFd;

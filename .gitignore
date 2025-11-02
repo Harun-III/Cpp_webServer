@@ -58,3 +58,6 @@ uploads/*
 
 # logfiles
 *.log
+
+# data files
+*.csv

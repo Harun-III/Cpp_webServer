@@ -1,9 +1,8 @@
-#include "CgiHandler.hpp"
 # include "Core.hpp"
-# include "Request.hpp"
-# include "ResponseBuilder.hpp"
 # include "Style.hpp"
-# include "SessionManager.hpp"
+# include "Request.hpp"
+# include "CgiHandler.hpp"
+# include "ResponseBuilder.hpp"
 
 ResponseBuilder::ResponseBuilder(const ServerConfig& config):
 	error_handler (config) { }
@@ -41,18 +40,6 @@ void ResponseBuilder::handleCgi(Request& request, Response& response) {
 }
 
 void ResponseBuilder::buildResponse(Request& request, Response& response) {
-	// Parse session cookie from request
-	request.parseSessionCookie();
-
-	// Set session cookie in response
-	response.setCookie("session_id", request.session_id);
-
-	// Handle special session API endpoints
-	if (request.target == "/api/session") {
-		handleSessionApi(request, response);
-		return;
-	}
-
 	if (request.detectRoute == RT_REDIR) {
 		handleRedirect(request, response);
 	}
@@ -72,61 +59,6 @@ void ResponseBuilder::buildResponse(Request& request, Response& response) {
 	else if (request.method == "POST") {
 		handlePost(response);
 	}
-}
-
-void ResponseBuilder::handleSessionApi(Request& request, Response& response) {
-    SessionManager& sm = SessionManager::getInstance();
-    SessionData& session = sm.getSession(request.session_id);
-    
-    if (request.method != "GET") {
-        throw State(405, BAD);
-    }
-    
-    // Check if this is an update request (has query string)
-    if (!request.query.empty()) {
-        // Parse query string: ?set=theme&value=dark
-        std::string set_param;
-        std::string value_param;
-        
-        // Query parser
-        size_t set_pos = request.query.find("set=");
-        if (set_pos != std::string::npos) {
-            size_t start = set_pos + 4;
-            size_t end = request.query.find('&', start);
-            if (end == std::string::npos) end = request.query.length();
-            set_param = request.query.substr(start, end - start);
-        }
-        
-        size_t value_pos = request.query.find("value=");
-        if (value_pos != std::string::npos) {
-            size_t start = value_pos + 6;
-            size_t end = request.query.find('&', start);
-            if (end == std::string::npos) end = request.query.length();
-            value_param = request.query.substr(start, end - start);
-        }
-        
-        // Update session based on parameters
-        if (set_param == "theme") {
-            session.theme = value_param;
-            sm.updateSession(request.session_id, session);
-        } else if (set_param == "language") {
-            session.language = value_param;
-            sm.updateSession(request.session_id, session);
-        }
-    }
-    
-    // Return current session data as JSON
-    std::stringstream json;
-    json << "{";
-    json << "\"session_id\":\"" << request.session_id << "\",";
-    json << "\"theme\":\"" << session.theme << "\",";
-    json << "\"language\":\"" << session.language << "\"";
-    json << "}";
-
-    response.setStatusCode(200);
-    response.setContentType("application/json");
-    response.writeStringToBuffer(json.str());
-    throw State(0, WRITING);
 }
 
 void    ResponseBuilder::handleRedirect(Request& request , Response& response) const {
