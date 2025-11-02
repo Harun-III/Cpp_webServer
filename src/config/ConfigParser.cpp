@@ -111,15 +111,8 @@ ServerConfig ConfigParser::parseServer() {
 Location ConfigParser::parseLocation() {
     Location location;
 
-//TODO: maybe make these into a function since I used them alot
-    // check for '{'
     std::string token = getCurrentToken();
-    if (token != "{") {
-	throwParseError("Expected '{' but found '" + token + "'");
-    }
-    // jump over the '{' token
-    incrementTokenIndex();
-
+    expectToken("{");
     while (hasMoreTokens() && getCurrentToken() != "}") {
         std::string directive = getCurrentToken();
         

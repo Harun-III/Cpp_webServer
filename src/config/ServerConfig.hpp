@@ -26,8 +26,8 @@ public:
     const std::vector<std::pair<std::string, std::string> >&    getListen() const;
     const std::map<int, std::string>&                   getErrorPages() const;
     const std::map<std::string, Location>&              getLocations() const;
-    size_t          getMaxClientBodySize() const;
 
+    size_t          getMaxClientBodySize() const;
 };
 
 #endif
