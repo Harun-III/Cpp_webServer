@@ -15,7 +15,7 @@ void	Listener::release( void ) {if (soc != ERROR) soc = -1; }
 void	Listener::init( void ) {
 	int		er;
 
-	bzero(&hints, sizeof(addrinfo_t));
+	std::memset(&hints, 0, sizeof(addrinfo_t));
 	hints.ai_family = AF_INET;
 	hints.ai_socktype = SOCK_STREAM;
 

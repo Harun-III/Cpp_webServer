@@ -1,9 +1,10 @@
 #include "Request.hpp"
 
-Request::Request( void ) : content_length(0), original_conlen(0), detectRoute(RT_NONE) { }
+Request::Request( void ) : content_length(0), original_conlen(0),
+		cgiFd(ERROR), detectRoute(RT_NONE) { }
 
 Request::Request( ServerConfig &serv ) : server(serv), content_length(0),
-		original_conlen(0), detectRoute(RT_NONE) { }
+		original_conlen(0), cgiFd(ERROR), detectRoute(RT_NONE) { }
 
 Request::~Request( void ) { }
 

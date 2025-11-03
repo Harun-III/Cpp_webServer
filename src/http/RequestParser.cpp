@@ -221,7 +221,9 @@ void	RequestParser::headersParser( Request &request ) {
 		for (index = 0; index < name.size(); ++index) {
 			if (isTspecials(name[index]) || isCTL(name[index]))
 				throw State(400, BAD);
-			name[index] = std::tolower(name[index]);
+
+			name[index] = static_cast<char>(
+				std::tolower(static_cast<unsigned char>(name[index])));
 		}
 
 		for (index = 0; index < value.size()

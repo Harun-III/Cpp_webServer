@@ -233,6 +233,30 @@
             margin-bottom: 15px;
             display: block;
         }
+
+        /* SVG icons inherit the currentColor and are sized to match the font-size */
+        .feature-icon svg {
+            width: 2.5rem;
+            height: 2.5rem;
+            display: block;
+        }
+
+        .upload-icon svg {
+            width: 3rem;
+            height: 3rem;
+            display: block;
+            margin: 0 auto;
+        }
+
+        .notification-icon svg {
+            width: 1.8rem;
+            height: 1.8rem;
+            display: block;
+        }
+
+        /* Color notification icons based on popup type (they use stroke=currentColor) */
+        .notification-popup.success .notification-icon { color: #00ff41; }
+        .notification-popup.error .notification-icon { color: #ff4136; }
         
         .feature-title {
             font-size: 1.3rem;
@@ -306,7 +330,11 @@
             display: inline-block;
             background: #00ff41;
             width: 8px;
-            height: 1.2em;
+            /* match text height and align to baseline so the cursor sits inside the line */
+            height: 1em;
+            vertical-align: middle;
+            margin-left: 6px;
+            border-radius: 2px;
             animation: blink 1s infinite;
         }
         
@@ -434,6 +462,10 @@
         .upload-icon {
             font-size: 3rem;
             margin-bottom: 15px;
+            /* center the SVG inside the drop zone */
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
         
         .upload-text {
@@ -750,7 +782,7 @@
             <div class="status-grid">
                 <div class="status-item">
                     <div class="status-label">Port</div>
-                    <div class="status-value">8080</div>
+                    <div class="status-value" id="statusPort">8080</div>
                 </div>
                 <div class="status-item">
                     <div class="status-label">Protocol</div>
@@ -772,39 +804,51 @@
             <a href="/uploads/" class="api-link">File Upload</a>
             <a href="/docs/" class="api-link">Documentation</a>
             <a href="javascript:void(0)" class="api-link" onclick="openUploadModal()">Upload File</a>
-            <a href="/dashboard.php" class="api-link">Dashboard</a>
+            <a href="/profile.php" class="api-link">Profile</a>
         </div>
         
         <section class="features-section">
             <h2 class="section-title">Server Features</h2>
             <div class="features-grid">
                 <div class="feature-card">
-                    <span class="feature-icon">⚡</span>
+                    <span class="feature-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                    </span>
                     <h3 class="feature-title">Non-blocking I/O</h3>
                     <p class="feature-desc">Single event loop using epoll for efficient handling of multiple concurrent connections without blocking.</p>
                 </div>
                 <div class="feature-card">
-                    <span class="feature-icon">🌐</span>
+                    <span class="feature-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M2 12h20M12 2v20"/></svg>
+                    </span>
                     <h3 class="feature-title">HTTP/1.0 Compliant</h3>
                     <p class="feature-desc">Full support for HTTP/1.0 protocol with GET, POST, and DELETE methods implementation.</p>
                 </div>
                 <div class="feature-card">
-                    <span class="feature-icon">📁</span>
+                    <span class="feature-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M3 7a2 2 0 012-2h4l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2V7z"/></svg>
+                    </span>
                     <h3 class="feature-title">Static File Serving</h3>
                     <p class="feature-desc">Efficient static file delivery with configurable document roots and automatic index file serving.</p>
                 </div>
                 <div class="feature-card">
-                    <span class="feature-icon">🔧</span>
+                    <span class="feature-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><circle cx="11" cy="11" r="6"/><path d="M21 21l-4.35-4.35"/></svg>
+                    </span>
                     <h3 class="feature-title">CGI Support</h3>
                     <p class="feature-desc">Execute dynamic scripts with proper environment setup, stdin/stdout handling, and process management.</p>
                 </div>
                 <div class="feature-card">
-                    <span class="feature-icon">📋</span>
+                    <span class="feature-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M16 2H8a2 2 0 00-2 2v16a2 2 0 002 2h8a2 2 0 002-2V8l-4-6z"/><path d="M12 4v4"/></svg>
+                    </span>
                     <h3 class="feature-title">Configuration</h3>
                     <p class="feature-desc">Nginx-inspired config files supporting multiple server blocks, locations, and custom error pages.</p>
                 </div>
                 <div class="feature-card">
-                    <span class="feature-icon">🔒</span>
+                    <span class="feature-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><rect x="5" y="8" width="14" height="12" rx="2"/><path d="M8 8V6a4 4 0 018 0v2"/></svg>
+                    </span>
                     <h3 class="feature-title">Security</h3>
                     <p class="feature-desc">Built-in security features including request size limits, method restrictions, and access controls.</p>
                 </div>
@@ -821,11 +865,11 @@
             <div class="terminal-content">
                 <div><span class="prompt">webserv@server:~$</span> <span class="command">./webserv conf/basic.conf</span></div>
                 <div class="output">[INFO] Loading configuration from conf/basic.conf</div>
-                <div class="output">[INFO] Server listening on port 8080</div>
+                <div class="output">[INFO] Server listening on port <span data-port-target>8080</span></div>
                 <div class="output">[INFO] Document root: /var/www/html</div>
                 <div class="output">[INFO] CGI support enabled</div>
                 <div class="output">[SUCCESS] Server started successfully!</div>
-                <div><span class="prompt">webserv@server:~$</span> <span class="command">curl -X GET http://localhost:8080/</span></div>
+                <div><span class="prompt">webserv@server:~$</span> <span class="command">curl -X GET http://localhost:<span data-port-target>8080</span>/</span></div>
                 <div class="output">HTTP/1.0 200 OK</div>
                 <div class="output">Content-Type: text/html</div>
                 <div class="output">Content-Length: 1024</div>
@@ -835,7 +879,7 @@
         
         <footer class="footer">
             <p>WebServ C++ HTTP Server • 42 School Project</p>
-            <p>Developed by Mehdi & Abdelkader • 2024</p>
+            <p>Developed by Mehdi & Abdelkader • 2025</p>
         </footer>
     </div>
     
@@ -846,7 +890,9 @@
             <div class="upload-modal-subtitle">Test POST Method</div>
             
             <div id="uploadDropZone" class="upload-drop-zone" onclick="document.getElementById('fileInput').click()">
-                <div class="upload-icon">📁</div>
+                    <div class="upload-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5-5 5 5"/><path d="M12 5v10"/></svg>
+                    </div>
                 <div class="upload-text">Click to browse or drag & drop</div>
                 <div class="upload-hint">Any file type supported</div>
             </div>
@@ -883,6 +929,32 @@
     </div>
     
     <script>
+        // Dynamically set displayed port based on the URL used to open the page.
+        (function() {
+            try {
+                var port = window.location.port;
+                if (!port || port === '') {
+                    // default ports if not explicitly provided in URL
+                    port = (location.protocol === 'https:') ? '443' : '80';
+                }
+
+                // Update the status port element
+                var statusEl = document.getElementById('statusPort');
+                if (statusEl) statusEl.textContent = port;
+
+                // Update any other locations that should show the port
+                var targets = document.querySelectorAll('[data-port-target]');
+                for (var i = 0; i < targets.length; i++) {
+                    targets[i].textContent = port;
+                }
+            } catch (e) {
+                /* silent */
+            }
+        })();
+        /* SVG icons used by the page (use currentColor so they match the neon theme) */
+    const successSVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M9 12l2 2 4-4"/></svg>';
+    const errorSVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M10.29 3.86L1.82 18a1.5 1.5 0 001.29 2.24h17.78a1.5 1.5 0 001.29-2.24L13.71 3.86a1.5 1.5 0 00-1.42 0z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>';
+
         let selectedFile = null;
         
         function showNotification(type, title, message, code) {
@@ -892,8 +964,8 @@
             const messageEl = document.getElementById('notificationMessage');
             const codeEl = document.getElementById('notificationCode');
             
-            // Set content
-            icon.textContent = type === 'success' ? '✓' : '🚨';
+            // Set content (SVG icons inherit currentColor)
+            icon.innerHTML = type === 'success' ? successSVG : errorSVG;
             titleEl.textContent = title;
             messageEl.textContent = message;
             codeEl.textContent = code;

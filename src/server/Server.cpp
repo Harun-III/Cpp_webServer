@@ -48,7 +48,7 @@ void	Server::close_connection( int sock ) {
 void	Server::socket_control( int fd, int mode, int op ) {
 	event_t		ev;
 
-	bzero(&ev, sizeof(event_t));
+	std::memset(&ev, 0, sizeof(event_t));
 	ev.events = mode, ev.data.fd = fd;
 
 	epoll_ctl(epfd, op, ev.data.fd, &ev);

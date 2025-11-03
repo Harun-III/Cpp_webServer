@@ -86,7 +86,8 @@ std::string	CgiHandler::to_lower(const std::string& string) const {
 	std::string lower_str = string;
 
 	for (index = 0; index < string.size(); ++index)
-		lower_str[index] = std::tolower(string[index]);
+        lower_str[index] = static_cast<char>(
+            std::tolower(static_cast<unsigned char>(string[index])));
 
 	return lower_str;
 }
@@ -170,7 +171,9 @@ char** CgiHandler::buildEnvVariables (Request& request) const {
 
         // Convert to uppercase and replace - with _
         for (size_t i = 0; i < header_name.length(); ++i) {
-            header_name[i] = std::toupper(static_cast<unsigned char>(header_name[i]));
+            header_name[i] = static_cast<char>(
+                std::toupper(static_cast<unsigned char>(header_name[i])));
+
             if (header_name[i] == '-') {
                 header_name[i] = '_';
             }
@@ -191,11 +194,11 @@ char** CgiHandler::buildEnvVariables (Request& request) const {
 size_t    CgiHandler::getCgiFileLength(const std::string pathToCgiFile, size_t headSize) const {
     struct stat s_buffer;
 
-    if (stat(pathToCgiFile.c_str(), &s_buffer) != 0) {
-        return (0);
-    }
+    if (stat(pathToCgiFile.c_str(), &s_buffer) != 0) return (0);
+    const size_t total = static_cast<size_t>(s_buffer.st_size);
 
-    return (s_buffer.st_size - headSize);
+    if (headSize > total) return 0;
+    return total - headSize;
 }
 
 void    CgiHandler::checkProcess(Response &response) {
@@ -376,6 +379,6 @@ void CgiHandler::execute(Request& request) {
     // Record start time and transition to PROCESS state
     start_time = std::time(NULL);
 
-    setStatus(CGI_PROSSESS);
+    setStatus(CGI_PROCESS);
     throw State(0, READY_TO_WRITE);
 }

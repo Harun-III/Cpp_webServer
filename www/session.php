@@ -72,7 +72,7 @@ if ($action === 'signup') {
     
     writeSessions($sessions);
     setcookie('session_token', $token, time() + 3600, '/');
-    header('Location: dashboard.php');
+    header('Location: profile.php');
     
 } else {
     header('Location: auth.html');

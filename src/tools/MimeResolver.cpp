@@ -8,8 +8,10 @@ std::string	MimeResolver::to_lower( const std::string &string ) const {
 	size_t					index;
 	std::string				lower_str = string;
 
-	for (index = 0; index < string.size(); ++index)
-		lower_str[index] = std::tolower(string[index]);
+	for (index = 0; index < string.size(); ++index) {
+		lower_str[index] = static_cast<char>(
+			std::tolower(static_cast<unsigned char>(string[index])));
+	}
 
 	return lower_str;
 }

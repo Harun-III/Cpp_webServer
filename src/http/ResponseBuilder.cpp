@@ -30,7 +30,7 @@ void ResponseBuilder::handleCgi(Request& request, Response& response) {
         // State is set inside execute()
 	/* fall through */
 
-    case CGI_PROSSESS:
+    case CGI_PROCESS:
         response.cgiHandler.checkProcess(response);
 	/* fall through */
 

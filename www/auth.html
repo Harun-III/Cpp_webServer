@@ -398,21 +398,46 @@
                 icon.textContent = '🌙';
                 text.textContent = 'Dark Mode';
                 localStorage.setItem('theme', 'dark');
+                // persist to cookie so server and other pages see this preference
+                document.cookie = "theme=dark; path=/; max-age=" + (60*60*24*365);
             } else {
                 html.setAttribute('data-theme', 'light');
                 icon.textContent = '☀️';
                 text.textContent = 'Light Mode';
                 localStorage.setItem('theme', 'light');
+                document.cookie = "theme=light; path=/; max-age=" + (60*60*24*365);
             }
         }
         
         // Load saved theme
         window.addEventListener('DOMContentLoaded', () => {
             const savedTheme = localStorage.getItem('theme');
+            // Prefer cookie (server) over localStorage so server-set preference wins
+            const cookieMatch = document.cookie.match(/(?:^|;\s*)theme=(dark|light)(?:;|$)/);
+            if (cookieMatch) {
+                const theme = cookieMatch[1];
+                if (theme === 'light') {
+                    document.documentElement.setAttribute('data-theme', 'light');
+                    document.getElementById('themeIcon').textContent = '☀️';
+                    document.getElementById('themeText').textContent = 'Light Mode';
+                    localStorage.setItem('theme', 'light');
+                } else {
+                    document.documentElement.removeAttribute('data-theme');
+                    document.getElementById('themeIcon').textContent = '🌙';
+                    document.getElementById('themeText').textContent = 'Dark Mode';
+                    localStorage.setItem('theme', 'dark');
+                }
+                return;
+            }
+
             if (savedTheme === 'light') {
                 document.documentElement.setAttribute('data-theme', 'light');
                 document.getElementById('themeIcon').textContent = '☀️';
                 document.getElementById('themeText').textContent = 'Light Mode';
+            } else {
+                document.documentElement.removeAttribute('data-theme');
+                document.getElementById('themeIcon').textContent = '🌙';
+                document.getElementById('themeText').textContent = 'Dark Mode';
             }
         });
         

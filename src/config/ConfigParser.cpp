@@ -197,7 +197,7 @@ std::vector<std::string> ConfigParser::parseMethodsList() {
 	if (isValidMethod(method)) {
 	    // to upper
 	    for (std::string::iterator it = method.begin(); it != method.end(); ++it) {
-		*it = std::toupper(static_cast<unsigned char>(*it));
+            *it = std::toupper(static_cast<unsigned char>(*it));
 	    }
 	    methods.push_back(method);
 	}
@@ -211,7 +211,6 @@ bool ConfigParser::isValidMethod(const std::string& method) {
            method == "get" || method == "post" || method == "delete";
 }
 
-
 std::vector<int> ConfigParser::parseErrorCodes() {
     std::vector<int>	codes;
     bool		firstLoop = true;
@@ -219,9 +218,8 @@ std::vector<int> ConfigParser::parseErrorCodes() {
     while (hasMoreTokens()) {
         std::string token = getCurrentToken();
 	if (!firstLoop) {
-	    if (token == ";" || !std::isdigit(token[0])) {
-		break;
-	    }
+	    if (!std::isdigit(static_cast<unsigned char>(token[0]))
+            || token == ";") break ;
 	}
 
 	firstLoop = false;
@@ -229,18 +227,18 @@ std::vector<int> ConfigParser::parseErrorCodes() {
         // Check if entire token is numeric
         bool isNumeric = true;
         for (size_t i = 0; i < token.length(); ++i) {
-            if (!std::isdigit(token[i])) {
+            if (!std::isdigit(static_cast<unsigned char>(token[i]))) {
                 isNumeric = false;
                 break;
             }
         }
-        
+
         if (!isNumeric) {
             throwParseError("\"" + token +"\"" + " Token is not a valid number");
         }
-        
+
         int code = std::atoi(token.c_str());
-        
+
         if (code >= 400 && code < 600) {
             codes.push_back(code);
         } else {
@@ -248,7 +246,7 @@ std::vector<int> ConfigParser::parseErrorCodes() {
         }
         incrementTokenIndex();
     }
-    
+
     return codes;
 }
 

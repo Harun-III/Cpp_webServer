@@ -53,7 +53,7 @@ typedef std::vector< std::pair<std::string, std::string> >	vector_pairs;
 
 enum cgi_e {
 	CGI_INIT,
-	CGI_PROSSESS,
+	CGI_PROCESS,
 	CGI_END
 };
 

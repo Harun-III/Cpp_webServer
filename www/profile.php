@@ -14,9 +14,13 @@ function readSessions() {
 }
 
 function getCookie($name) {
-    $cookie_env = getenv('COOKIE');
+    // Prefer native PHP cookie (normal SAPI)
+    if (isset($_COOKIE[$name])) return $_COOKIE[$name];
+    // Fall back to CGI-style environment variables (some CGI setups expose COOKIE or HTTP_COOKIE)
+    $cookie_env = getenv('COOKIE') ?: getenv('HTTP_COOKIE');
     if ($cookie_env) {
-        parse_str(str_replace('; ', '&', $cookie_env), $cookies);
+        // convert "; " separators to & for parse_str
+        parse_str(str_replace(array('; ', ';'), '&', $cookie_env), $cookies);
         return isset($cookies[$name]) ? $cookies[$name] : null;
     }
     return null;
@@ -28,6 +32,17 @@ function findUserByToken($sessions, $token) {
     }
     return null;
 }
+
+// Determine theme early so we can emit a Set-Cookie header before any possible redirect/output.
+// Default to 'dark' if no cookie is present.
+$theme = getCookie('theme') ?: 'dark';
+// Ensure the browser has a theme cookie set by sending a Set-Cookie header here.
+// This must run before any HTML output so headers are sent correctly.
+$cookieName = 'theme';
+$cookieValue = ($theme === 'light') ? 'light' : 'dark';
+$maxAge = 60 * 60 * 24 * 365; // 1 year
+// Use setcookie to emit the Set-Cookie header. Not HttpOnly because JS reads it.
+setcookie($cookieName, $cookieValue, time() + $maxAge, '/');
 
 $token = getCookie('session_token');
 $sessions = readSessions();
@@ -46,12 +61,12 @@ $serverPort = getenv('SERVER_PORT') ?: 'N/A';
 $connection = $serverAddr . ':' . $serverPort;
 ?>
 
-<!DOCTYPEhtml>
-<html lang="en">
+<!DOCTYPE html>
+<html lang="en" <?php if ($theme === 'light') echo 'data-theme="light"'; ?>>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WebServ - Dashboard</title>
+    <title>WebServ - Profile</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@300;400;500;700&display=swap');
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -95,7 +110,7 @@ $connection = $serverAddr . ':' . $serverPort;
             to { text-shadow: 0 0 10px var(--text-primary), 0 0 20px var(--text-primary); }
         }
         .subtitle { font-size: 1.2rem; color: var(--text-secondary); letter-spacing: 2px; }
-        .dashboard-card {
+        .profile-card {
             background: var(--card-bg); border: 2px solid var(--text-primary); border-radius: 15px;
             padding: 40px; box-shadow: 0 0 30px var(--shadow-color); margin-bottom: 30px;
         }
@@ -142,7 +157,7 @@ $connection = $serverAddr . ':' . $serverPort;
         .btn-danger:hover { background: #ff4136; color: #000; box-shadow: 0 0 25px rgba(255, 65, 54, 0.5); transform: translateY(-2px); }
         .stats { text-align: center; color: var(--text-muted); font-size: 0.85rem; margin-top: 30px; }
         @media (max-width: 768px) {
-            .dashboard-card { padding: 25px; }
+            .profile-card { padding: 25px; }
             .welcome-message { font-size: 1.5rem; }
             .user-greeting { font-size: 1.2rem; }
             .info-grid { grid-template-columns: 1fr; }
@@ -158,9 +173,9 @@ $connection = $serverAddr . ':' . $serverPort;
     <div class="container">
         <div class="header">
             <h1 class="logo">WebServ</h1>
-            <p class="subtitle">User Dashboard</p>
+            <p class="subtitle">User Profile</p>
         </div>
-        <div class="dashboard-card">
+        <div class="profile-card">
             <div class="welcome-message">✓ Authenticated</div>
             <div class="user-greeting">Welcome back, <?php echo htmlspecialchars($username); ?>!</div>
             <div class="info-grid">
@@ -206,23 +221,51 @@ $connection = $serverAddr . ':' . $serverPort;
             const icon = document.getElementById('themeIcon');
             const text = document.getElementById('themeText');
             if (html.getAttribute('data-theme') === 'light') {
+                // switch to dark
                 html.removeAttribute('data-theme');
                 icon.textContent = '🌙';
                 text.textContent = 'Dark Mode';
                 localStorage.setItem('theme', 'dark');
+                // persist to cookie so server can read it on next request
+                document.cookie = "theme=dark; path=/; max-age=" + (60*60*24*365);
             } else {
+                // switch to light
                 html.setAttribute('data-theme', 'light');
                 icon.textContent = '☀️';
                 text.textContent = 'Light Mode';
                 localStorage.setItem('theme', 'light');
+                document.cookie = "theme=light; path=/; max-age=" + (60*60*24*365);
             }
         }
+
         window.addEventListener('DOMContentLoaded', () => {
+            // Prefer server-set cookie first (so server and client match). If cookie present, sync it into localStorage.
+            const cookieMatch = document.cookie.match(/(?:^|;\s*)theme=(dark|light)(?:;|$)/);
+            if (cookieMatch) {
+                const theme = cookieMatch[1];
+                if (theme === 'light') {
+                    document.documentElement.setAttribute('data-theme', 'light');
+                    document.getElementById('themeIcon').textContent = '☀️';
+                    document.getElementById('themeText').textContent = 'Light Mode';
+                    localStorage.setItem('theme', 'light');
+                } else {
+                    document.documentElement.removeAttribute('data-theme');
+                    document.getElementById('themeIcon').textContent = '🌙';
+                    document.getElementById('themeText').textContent = 'Dark Mode';
+                    localStorage.setItem('theme', 'dark');
+                }
+                return;
+            }
+            // Fallback to localStorage when cookie isn't present
             const savedTheme = localStorage.getItem('theme');
             if (savedTheme === 'light') {
                 document.documentElement.setAttribute('data-theme', 'light');
                 document.getElementById('themeIcon').textContent = '☀️';
                 document.getElementById('themeText').textContent = 'Light Mode';
+            } else {
+                document.documentElement.removeAttribute('data-theme');
+                document.getElementById('themeIcon').textContent = '🌙';
+                document.getElementById('themeText').textContent = 'Dark Mode';
             }
         });
     </script>
