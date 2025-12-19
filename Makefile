@@ -15,12 +15,14 @@ RM			=	rm -fr
 
 INCLUDES	=	-I src/config -I src/http -I src/server -I src/cgi -I src/core -I src/tools
 
+LINKS		= www bin errors
+
 GREEN		=	"\033[1;32m"
 YELOW		=	"\033[1;33m"
 REDCL		=	"\033[1;31m"
 RESET		=	"\033[0m"
 
-all: start $(NAME) finish
+all: start $(NAME) finish setup
 
 start:
 	@printf "\n"
@@ -33,7 +35,22 @@ finish:
 	@echo $(GREEN)Project built.$(RESET)
 	@printf "\n"
 
+setup:
+	@echo $(YELOW)🔄 Initializing Submodule...$(RESET)
+	@git submodule update --init
+	@echo $(GREEN)🔗 Creating Symlinks...$(RESET)
+	@for link in $(LINKS); do \
+		if [ ! -L $$link ] && [ ! -d $$link ]; then \
+			ln -s WebServDash/$$link $$link; \
+			echo "   ✅ Linked $$link -> WebServDash/$$link"; \
+		else \
+			echo "   ⚠️  $$link already exists (skipping)"; \
+		fi \
+	done
+	@ln -sf WebServDash/favicon.ico WebServDash/www/favicon.ico
+
 $(NAME): $(OBJS)
+	@mkdir -p uploads
 	@$(CC) $(FLAGS) $(OBJS) -o $(NAME)
 
 $(OBJS_DIR)%.o: %.cpp $(HEADERS)
@@ -46,7 +63,8 @@ clean:
 	@echo $(YELOW)Cleaning up 🧹💫$(RESET)
 
 fclean: clean
-	@$(RM) $(NAME)
+	@rm -f $(LINKS)
+	@$(RM) $(NAME) uploads
 	@echo $(REDCL)Purging all files 🗑️$(RESET)
 
 re: fclean all
